@@ -1,0 +1,44 @@
+
+.linedwrap {
+    border: 1px solid #c0c0c0;
+    padding: 3px;
+    overflow: auto;
+}
+
+.linedtextarea {
+    padding: 0px;
+    margin: 0px;
+}
+
+.linedwrap .codelines .lineno {
+    font-size: 1em;
+    font-family: monospace;
+    line-height: normal !important;
+}
+
+.linedtextarea .lined {
+    padding-right:0.3em;
+    padding-top:0.3em;
+    border: 0;
+}
+
+.linedwrap .lines {
+    margin-top: 0px;
+    width: 50px;
+    float: left;
+    overflow: hidden;
+    border-right: 1px solid #c0c0c0;
+    margin-right: 10px;
+}
+
+.linedwrap .codelines {
+    padding-top: 5px;
+}
+
+.linedwrap .codelines .lineno {
+    color:#AAAAAA;
+    padding-right: 0.5em;
+    padding-top: 0.0em;
+    text-align: right;
+    white-space: nowrap;
+}
