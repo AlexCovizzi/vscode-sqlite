@@ -1,5 +1,6 @@
 import { WebviewPanel, Uri, window, ViewColumn, Disposable } from "vscode";
 import { basename, join } from 'path';
+import { platform } from "os";
 import { Database, SQLScript } from "./sqlite";
 import { getHtml } from "./html_source";
 
@@ -23,15 +24,16 @@ export class SQLitePanelController {
         this.initPanel(panelTitle, assetsPath, subscriptions);
 
         // Initialize sqlite Database
-        this.initDatabase(dbUri.fsPath, subscriptions);
+        let sqlitePath = sqlite_path(extensionPath);
+        this.initDatabase(sqlitePath, dbUri.fsPath, subscriptions);
 
         this.disposable = Disposable.from(...subscriptions);
     }
 
-    initDatabase(dbPath: string, subscriptions: Disposable[]) {
+    initDatabase(sqlitePath: string, dbPath: string, subscriptions: Disposable[]) {
         let self = this;
 
-        this.db = new Database(dbPath, (err) => {
+        this.db = new Database(sqlitePath, dbPath, (err) => {
             window.showErrorMessage(err.message);
         });
 
@@ -117,6 +119,7 @@ export class SQLitePanelController {
                     window.showErrorMessage(err.message);
                 } else {
                     this.sendMessageToPanel('query_result_html', result.toHtmlTable());
+                    //this.sendMessageToPanel('query_result', JSON.stringify(result.rows));
                 }
             });
         });
@@ -165,5 +168,29 @@ export class SQLitePanelController {
         let query = `SELECT * from ${tableName} LIMIT 500`;
 
         this._event_query(query);
+    }
+}
+
+function sqlite_path(extensionPath: string) {
+    let os = platform();
+    let sqliteBin: string;
+    switch (os) {
+        case 'win32':
+            sqliteBin = 'sqlite-win32-x86.exe';
+            break;
+        case 'linux':
+            sqliteBin = 'sqlite-linux-x86';
+            break;
+        case 'darwin':
+            sqliteBin = 'sqlite-osx-x86';
+            break;
+        default:
+            sqliteBin = '';
+            break;
+    }
+    if (sqliteBin) {
+        return join(extensionPath, 'bin', sqliteBin);
+    } else {
+        return '';
     }
 }

@@ -28,9 +28,9 @@ export function getHtml(assetsPath: string): string {
                 <button id='btn_refresh' class="btn left">Refresh &#8634</button>
 
                 <button id='btn_show_master' class="btn right">Show master</button>
-                <button id='btn_show_tables' class="btn right">Show tables</button>
+                <!--<button id='btn_show_tables' class="btn right">Show tables</button>-->
                 <div class="dropdown right">
-                    <button id="btn_table_list" class="dropbtn">Select table &#9662</button>
+                    <button id="btn_table_list" class="btn dropbtn">Select table &#9662</button>
                     <div id="myDropdown" class="dropdown-content">
                     </div>
                 </div>
@@ -40,8 +40,8 @@ export function getHtml(assetsPath: string): string {
             <br />
             <div id='section-result'></div>
 
-            <dialog id="dial">
-                <textarea style="width:60vw; "id="d-text" rows=15 >Ciao sono un dialog</textarea>
+            <dialog id="cellDetailDialog">
+                <textarea wrap="off" id="cellDetailValue" cols=60 rows=15> </textarea>
             </dialog>
         </body>
 

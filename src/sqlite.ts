@@ -10,15 +10,21 @@ import { sanitizeStringForHtml } from './utils';
 export class Database extends EventEmitter implements Disposable {
     dblite: any;
 
-    constructor(dbPath: string, callback: (err: Error) => void) {
+    constructor(sqlitePath: string, dbPath: string, callback: (err: Error) => void) {
         super();
         let self = this;
+        
+        if (!existsSync(sqlitePath) || !sqlitePath) {
+            callback(new Error(`Failed to spawn sqlite3 process.`));
+            return;
+        }
 
         if (existsSync(dbPath)) {
             /*  In node_modules/dblite.node.js (438:3)
                 set self.ignoreErrors = true
                 (this way if there is an error dblite is not blocked)
             */
+            DBLite.bin = sqlitePath;
             this.dblite = new DBLite(dbPath, '-header');
         } else {
             callback(new Error(`Failed to open '${dbPath}': file does not exist.`));

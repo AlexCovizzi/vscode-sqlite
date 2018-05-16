@@ -12,7 +12,6 @@
     ],
     "activationEvents": [
         "onCommand:extension.openDb",
-        "onLanguage:db",
         "onLanguage:sqlite"
     ],
     "main": "./out/extension",
@@ -26,7 +25,7 @@
         "menus": {
             "explorer/context": [
                 {
-                    "when": "resourceLangId == db",
+                    "when": "resourceLangId == sqlite",
                     "command": "extension.openDb",
                     "group": "navigation"
                 },
@@ -35,18 +34,19 @@
                     "command": "extension.openDb",
                     "group": "navigation"
                 }
+            ],
+            "editor/title/context": [
+                {
+                    "when": "resourceLangId == sqlite",
+                    "command": "extension.openDb"
+                }
             ]
         },
         "languages": [
             {
-                "id": "db",
-                "extensions": [
-                    ".db"
-                ]
-            },
-            {
                 "id": "sqlite",
                 "extensions": [
+                    ".db",
                     ".sqlite"
                 ]
             }
