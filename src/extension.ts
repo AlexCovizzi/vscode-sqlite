@@ -1,22 +1,42 @@
 'use strict';
 
-import * as vscode from 'vscode';
-import { SQLitePanelController } from './panel_controller';
+import { DatabaseStore } from './models/databaseStore';
+import { getSqlitePath } from './utils';
+import { Uri, commands, ExtensionContext } from 'vscode';
+import { SQLiteExplorer } from './explorer/explorer';
+import { DBItem } from './explorer/treeItem';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext) {
 
     console.log('Congratulations, your extension "vscode-sqlite" is now active!');
 
-    let extensionPath = context.extensionPath;
+    const extensionPath = context.extensionPath;
 
-    let disposable = vscode.commands.registerCommand('extension.openDb', (dbUri) => {
+    const databaseStore = new DatabaseStore(getSqlitePath(extensionPath));
+    const explorerController = new SQLiteExplorer(context, databaseStore);
 
-        let panelController = new SQLitePanelController(dbUri, extensionPath);
-        
-        context.subscriptions.push(panelController);
-    });
+    context.subscriptions.push(databaseStore);
+    context.subscriptions.push(explorerController);
 
-    context.subscriptions.push(disposable);
+    /* commands */
+    context.subscriptions.push(commands.registerCommand('extension.openDatabase', (dbUri: Uri) => {
+        openDatabase(databaseStore, dbUri);
+    }));
+    context.subscriptions.push(commands.registerCommand('extension.closeDatabase', (dbItem: DBItem) => {
+        closeDatabase(databaseStore, dbItem);
+    }));
+}
+
+function openDatabase(databaseStore: DatabaseStore, dbUri: Uri) {
+    let database = databaseStore.add(dbUri.fsPath);
+    if (database) {
+        commands.executeCommand('extension.addToExplorer', dbUri);
+    }
+}
+
+function closeDatabase(databaseStore: DatabaseStore, dbItem: DBItem) {
+    databaseStore.remove(dbItem.dbPath);
+    commands.executeCommand('extension.removeFromExplorer', dbItem);
 }
 
 // this method is called when your extension is deactivated

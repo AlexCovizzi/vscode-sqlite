@@ -8,11 +8,14 @@ import { sanitizeStringForHtml } from './utils';
 
 
 export class Database extends EventEmitter implements Disposable {
-    dblite: any;
+    private dblite: any;
+    dbPath: string;
 
     constructor(sqlitePath: string, dbPath: string, callback: (err: Error) => void) {
         super();
         let self = this;
+
+        this.dbPath = dbPath;
         
         if (!existsSync(sqlitePath) || !sqlitePath) {
             callback(new Error(`Failed to spawn sqlite3 process.`));
@@ -45,19 +48,42 @@ export class Database extends EventEmitter implements Disposable {
     }
 
     exec(query: string, callback?: (result: ResultSet, err: Error | null) => void) {
-        console.log('Query: '+query);
-        this.dblite.query(query, (err: Error | null, rows: Object[]) => {
+        let queries = this.parse(query);
+        console.log(`Queries: [ '${queries.join("', '")}' ]`);
+        let resultSet = new ResultSet();
+
+        this.queue(queries, resultSet, callback);
+    }
+
+    private queue(queries: string[], resultSet: ResultSet, callback?: (result: ResultSet, err: Error | null) => void) {
+        if (queries.length === 0) {
+            //console.log(resultSet);
+            if (callback) {
+                callback(resultSet, null);
+            }
+            return;
+        }
+
+        let curQuery = queries.shift();
+
+        this.dblite.query(curQuery, (err: Error | null, rows: Object[]) => {
             if (err) {
                 console.log(err.message);
-                if (callback) {
-                    callback(new ResultSet([]), err);
-                }
+                resultSet.push({header: ['error'], rows: [{error: err.message}] });
             } else {
-                if (callback) {
-                    callback(new ResultSet(rows), null);
-                }
+                resultSet.addRows(rows);
             }
+            this.queue(queries, resultSet, callback);
         });
+    }
+
+    private parse(query: string): string[] {
+        query = query.trim();
+        let queries = query.split(";");
+        queries = queries.map(q => q.trim());
+        queries = queries.filter(q => q.length > 0);
+        queries = queries.map(q => q.concat(";"));
+        return queries;
     }
 
     dispose() {
@@ -82,20 +108,15 @@ export class SQLScript {
 
     private sanitize(s: string): string {
         s = s.trim();
-        if (s.startsWith('.')) {
-            return s;
-        }
-        if (!s.endsWith(';')) {
-            s += ';';
-        }
         return s;
     }
 }
 
-export class ResultSet {
-    rows: Object[];
-    cols: string[];
+export class ResultSet extends Array<Result> {
+    rows: Object[] = [];
+    cols: string[] = [];
 
+    /*
     constructor(rows: Object[]) {
         this.rows = rows;
         if (this.rows.length > 0) {
@@ -103,6 +124,28 @@ export class ResultSet {
         } else {
             this.cols = <string[]>[];
         }
+    }
+    */
+
+    addRows(rows: Object[]) {
+        let header: string[] = [];
+        let resultRows: Row[] = [];
+
+        if (rows.length > 0) {
+            header = Object.keys(rows[0]);
+        }
+
+        rows.forEach(row => {
+            let resultRow: Row = {};
+
+            header.forEach(col => {
+                resultRow[col] = (<any>row)[col];
+            });
+            resultRows.push(resultRow);
+
+        });
+
+        this.push({header: header, rows: resultRows});
     }
 
     toHtmlTable() {

@@ -1,8 +1,8 @@
 import { WebviewPanel, Uri, window, ViewColumn, Disposable } from "vscode";
 import { basename, join } from 'path';
-import { platform } from "os";
 import { Database, SQLScript } from "./sqlite";
 import { getHtml } from "./html_source";
+import { getSqlitePath } from "./utils";
 
 export class SQLitePanelController {
     private panel: WebviewPanel | undefined;
@@ -24,7 +24,7 @@ export class SQLitePanelController {
         this.initPanel(panelTitle, assetsPath, subscriptions);
 
         // Initialize sqlite Database
-        let sqlitePath = sqlite_path(extensionPath);
+        let sqlitePath = getSqlitePath(extensionPath);
         this.initDatabase(sqlitePath, dbUri.fsPath, subscriptions);
 
         this.disposable = Disposable.from(...subscriptions);
@@ -49,7 +49,7 @@ export class SQLitePanelController {
     }
 
     initPanel(panelTitle: string, assetsPath: string, subscriptions: Disposable[]) {
-        this.panel = window.createWebviewPanel('sqlitedb', panelTitle, ViewColumn.One,
+        this.panel = window.createWebviewPanel('sqlitedb', panelTitle, ViewColumn.Two,
             { enableScripts: true, retainContextWhenHidden: true,
                 localResourceRoots: [ Uri.file(assetsPath) ] }
         );
@@ -168,29 +168,5 @@ export class SQLitePanelController {
         let query = `SELECT * from ${tableName} LIMIT 500`;
 
         this._event_query(query);
-    }
-}
-
-function sqlite_path(extensionPath: string) {
-    let os = platform();
-    let sqliteBin: string;
-    switch (os) {
-        case 'win32':
-            sqliteBin = 'sqlite-win32-x86.exe';
-            break;
-        case 'linux':
-            sqliteBin = 'sqlite-linux-x86';
-            break;
-        case 'darwin':
-            sqliteBin = 'sqlite-osx-x86';
-            break;
-        default:
-            sqliteBin = '';
-            break;
-    }
-    if (sqliteBin) {
-        return join(extensionPath, 'bin', sqliteBin);
-    } else {
-        return '';
     }
 }

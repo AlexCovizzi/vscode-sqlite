@@ -11,34 +11,63 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.openDb",
+        "onCommand:extension.openDatabase",
+        "onCommand:extension.closeDatabase",
+        "onCommand:extension.showExplorer",
+        "onCommand:extension.hideExplorer",
+        "onCommand:extension.addToExplorer",
+        "onCommand:extension.removeFromExplorer",
+        "onCommand:extension.refreshExplorer",
         "onLanguage:sqlite"
     ],
     "main": "./out/extension",
     "contributes": {
         "commands": [
             {
-                "command": "extension.openDb",
+                "command": "extension.openDatabase",
                 "title": "Open SQLite DB"
+            },
+            {
+                "command": "extension.closeDatabase",
+                "title": "Close SQLite DB"
+            },
+            {
+                "command": "extension.refreshExplorer",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
             }
         ],
+		"views": {
+			"explorer": [
+				{
+					"id": "sqliteExplorer",
+                    "name": "SQLite Explorer",
+                    "when": "extension.showExplorer"
+				}
+            ]
+        },
         "menus": {
             "explorer/context": [
                 {
                     "when": "resourceLangId == sqlite",
-                    "command": "extension.openDb",
-                    "group": "navigation"
-                },
-                {
-                    "when": "resourceLangId == sqlite",
-                    "command": "extension.openDb",
+                    "command": "extension.openDatabase",
                     "group": "navigation"
                 }
             ],
-            "editor/title/context": [
+            "view/title": [
                 {
-                    "when": "resourceLangId == sqlite",
-                    "command": "extension.openDb"
+                    "command": "extension.refreshExplorer",
+                    "when": "view == sqliteExplorer",
+                    "group": "navigation@1"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "extension.closeDatabase",
+                    "when": "view == sqliteExplorer && viewItem == database-item"
                 }
             ]
         },
