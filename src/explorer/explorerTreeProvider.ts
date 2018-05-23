@@ -1,5 +1,5 @@
 import { TreeDataProvider, Event, TreeItem, EventEmitter, commands } from "vscode";
-import { DatabaseStore } from "../models/databaseStore";
+import { DatabaseStore } from "../database/databaseStore";
 import { SQLItem, DBItem, TableItem, ColumnItem } from "./treeItem";
 
 export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
@@ -16,9 +16,10 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
         this._onDidChangeTreeData.fire();
     }
     
-    add(dbPath: string) {
-        let database = this.databaseStore.get(dbPath);
-        if (database && this.dbIndex(dbPath) < 0) {
+    addToTree(dbPath: string) {
+        let database = this.databaseStore.getDatabase(dbPath);
+        let isNew = this.dbs.findIndex(db => db === dbPath) < 0;
+        if (database && isNew) {
             this.dbs.push(dbPath);
             this.refresh();
             return true;
@@ -26,18 +27,14 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
         return false;
     }
 
-    remove(dbPath: string) {
-        let index = this.dbIndex(dbPath);
+    removeFromTree(dbPath: string) {
+        let index = this.dbs.findIndex(db => db === dbPath);
         if (index > -1) {
             this.dbs.splice(index, 1);
         }
         this.refresh();
         
         return this.dbs.length;
-    }
-
-    private dbIndex(dbPath: string) {
-        return this.dbs.findIndex(db => db === dbPath);
     }
     
     getTreeItem(element: SQLItem): TreeItem {
@@ -48,7 +45,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
         return new Promise( (resolve, reject) => {
             if (element) {
                 if (element instanceof DBItem) {
-                    let database = this.databaseStore.get(element.dbPath);
+                    let database = this.databaseStore.getDatabase(element.dbPath);
                     if (database) {
                         database.exec(`SELECT name FROM sqlite_master WHERE type="table";`, (resultSet, err) => {
                             if (err) {
@@ -65,7 +62,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
                         });
                     }
                 } else if (element instanceof TableItem) {
-                    let database = this.databaseStore.get(element.parent.dbPath);
+                    let database = this.databaseStore.getDatabase(element.parent.dbPath);
                     if (database) {
                         let query = `PRAGMA table_info(${element.label});`;
                         database.exec(query, (resultSet, err) => {

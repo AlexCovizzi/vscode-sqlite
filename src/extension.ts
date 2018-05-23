@@ -1,6 +1,6 @@
 'use strict';
 
-import { DatabaseStore } from './models/databaseStore';
+import { DatabaseStore } from './database/databaseStore';
 import { getSqlitePath } from './utils';
 import { Uri, commands, ExtensionContext } from 'vscode';
 import { SQLiteExplorer } from './explorer/explorer';
@@ -20,23 +20,24 @@ export function activate(context: ExtensionContext) {
 
     /* commands */
     context.subscriptions.push(commands.registerCommand('extension.openDatabase', (dbUri: Uri) => {
-        openDatabase(databaseStore, dbUri);
+        onOpenDatabase(databaseStore, dbUri.fsPath);
     }));
     context.subscriptions.push(commands.registerCommand('extension.closeDatabase', (dbItem: DBItem) => {
-        closeDatabase(databaseStore, dbItem);
+        onCloseDatabase(databaseStore, dbItem.dbPath);
     }));
+
 }
 
-function openDatabase(databaseStore: DatabaseStore, dbUri: Uri) {
-    let database = databaseStore.add(dbUri.fsPath);
+function onOpenDatabase(databaseStore: DatabaseStore, dbPath: string) {
+    let database = databaseStore.openDatabase(dbPath);
     if (database) {
-        commands.executeCommand('extension.addToExplorer', dbUri);
+        commands.executeCommand('extension.addToExplorer', dbPath);
     }
 }
 
-function closeDatabase(databaseStore: DatabaseStore, dbItem: DBItem) {
-    databaseStore.remove(dbItem.dbPath);
-    commands.executeCommand('extension.removeFromExplorer', dbItem);
+function onCloseDatabase(databaseStore: DatabaseStore, dbPath: string) {
+    databaseStore.closeDatabase(dbPath);
+    commands.executeCommand('extension.removeFromExplorer', dbPath);
 }
 
 // this method is called when your extension is deactivated
