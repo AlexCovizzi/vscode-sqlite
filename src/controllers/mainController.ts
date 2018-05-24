@@ -1,10 +1,10 @@
 'use strict';
 
-import { DatabaseStore } from './database/databaseStore';
-import { getSqlitePath } from './utils';
+import { DatabaseStore } from '../database/databaseStore';
+import { getSqlitePath } from '../utils/utils';
 import { Uri, commands, ExtensionContext, Disposable } from 'vscode';
-import { SQLiteExplorer } from './explorer/explorer';
-import { DBItem } from './explorer/treeItem';
+import { SQLiteExplorer } from '../explorer/explorer';
+import { DBItem } from '../explorer/treeItem';
 
 export class MainController implements Disposable {
 

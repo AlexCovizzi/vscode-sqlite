@@ -1,7 +1,7 @@
 'use strict';
 
 import { ExtensionContext } from 'vscode';
-import { MainController } from './mainController';
+import { MainController } from './controllers/mainController';
 import { OutputLogger } from './logging/logger';
 import { Constants } from './constants/constants';
 
