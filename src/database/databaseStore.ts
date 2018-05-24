@@ -1,5 +1,5 @@
 import { basename } from "path";
-import { Database } from "../sqlite";
+import { Database } from "./sqlite";
 import { window, Disposable } from "vscode";
 import { OutputLogger } from "../logging/logger";
 

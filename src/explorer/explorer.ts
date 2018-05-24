@@ -1,27 +1,29 @@
-import { TreeView, window, ExtensionContext, commands, Uri } from "vscode";
+import { window, commands, Disposable } from "vscode";
 import { DatabaseStore } from "../database/databaseStore";
 import { ExplorerTreeProvider } from "./explorerTreeProvider";
-import { SQLItem, DBItem } from "./treeItem";
 
-export class SQLiteExplorer {
-    private sqliteViewer: TreeView<SQLItem>;
+export class SQLiteExplorer implements Disposable {
+    private disposable: Disposable;
 
-    constructor(context: ExtensionContext, databaseStore: DatabaseStore) {
+    constructor(databaseStore: DatabaseStore) {
+        let subscriptions: Disposable[] = [];
+
         let treeDataProvider = new ExplorerTreeProvider(databaseStore);
         
-        this.sqliteViewer = window.createTreeView('sqliteExplorer', { treeDataProvider });
+        window.createTreeView('extension.sqliteExplorer', { treeDataProvider });
 
         // register explorer commands
-        //commands.registerCommand('extension.revealResource', () => this.reveal());
-        context.subscriptions.push(commands.registerCommand('extension.addToExplorer', (dbPath: string) => {
+        subscriptions.push(commands.registerCommand('extension.addToExplorer', (dbPath: string) => {
             this.onAddToExplorer(treeDataProvider, dbPath);
         }));
-        context.subscriptions.push(commands.registerCommand('extension.removeFromExplorer', (dbPath: string) => {
+        subscriptions.push(commands.registerCommand('extension.removeFromExplorer', (dbPath: string) => {
             this.onRemoveFromExplorer(treeDataProvider, dbPath);
         }));
-        context.subscriptions.push(commands.registerCommand('extension.refreshExplorer', () => {
+        subscriptions.push(commands.registerCommand('extension.refreshExplorer', () => {
             this.onRefreshExplorer(treeDataProvider);
         }));
+
+        this.disposable = Disposable.from(...subscriptions);
     }
 
     private onAddToExplorer(treeDataProvider: ExplorerTreeProvider, dbPath: string) {
@@ -34,9 +36,10 @@ export class SQLiteExplorer {
     private onRemoveFromExplorer(treeDataProvider: ExplorerTreeProvider, dbPath: string) {
         let remained = treeDataProvider.removeFromTree(dbPath);
         if (remained === 0) {
+            // close the explorer with a slight delay (it looks better)
             setTimeout(() => {
                 commands.executeCommand( 'setContext', 'extension.showExplorer', false);
-            }, 500);
+            }, 250);
         }
     }
 
@@ -45,6 +48,6 @@ export class SQLiteExplorer {
     }
 
     dispose() {
-
+        this.disposable.dispose();
     }
 }

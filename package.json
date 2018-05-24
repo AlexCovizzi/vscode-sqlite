@@ -1,6 +1,6 @@
 {
     "name": "vscode-sqlite",
-    "displayName": "vscode-sqlite",
+    "displayName": "SQLite",
     "description": "",
     "version": "0.0.1",
     "publisher": "alexcvzz",
@@ -43,7 +43,7 @@
 		"views": {
 			"explorer": [
 				{
-					"id": "sqliteExplorer",
+					"id": "extension.sqliteExplorer",
                     "name": "SQLite Explorer",
                     "when": "extension.showExplorer"
 				}
@@ -60,14 +60,14 @@
             "view/title": [
                 {
                     "command": "extension.refreshExplorer",
-                    "when": "view == sqliteExplorer",
+                    "when": "view == extension.sqliteExplorer",
                     "group": "navigation@1"
                 }
             ],
             "view/item/context": [
                 {
                     "command": "extension.closeDatabase",
-                    "when": "view == sqliteExplorer && viewItem == database-item"
+                    "when": "view == extension.sqliteExplorer && viewItem == extension.databaseItem"
                 }
             ]
         },

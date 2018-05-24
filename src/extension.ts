@@ -1,43 +1,19 @@
 'use strict';
 
-import { DatabaseStore } from './database/databaseStore';
-import { getSqlitePath } from './utils';
-import { Uri, commands, ExtensionContext } from 'vscode';
-import { SQLiteExplorer } from './explorer/explorer';
-import { DBItem } from './explorer/treeItem';
+import { ExtensionContext } from 'vscode';
+import { MainController } from './mainController';
+import { OutputLogger } from './logging/logger';
+import { Constants } from './constants/constants';
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): Promise<boolean> {
 
-    console.log('Congratulations, your extension "vscode-sqlite" is now active!');
+    OutputLogger.info(`Activated extension ${Constants.extensionName}-${Constants.extensionVersion}`);
 
-    const extensionPath = context.extensionPath;
+    const mainController = new MainController(context);
 
-    const databaseStore = new DatabaseStore(getSqlitePath(extensionPath));
-    const explorerController = new SQLiteExplorer(context, databaseStore);
+    context.subscriptions.push(mainController);
 
-    context.subscriptions.push(databaseStore);
-    context.subscriptions.push(explorerController);
-
-    /* commands */
-    context.subscriptions.push(commands.registerCommand('extension.openDatabase', (dbUri: Uri) => {
-        onOpenDatabase(databaseStore, dbUri.fsPath);
-    }));
-    context.subscriptions.push(commands.registerCommand('extension.closeDatabase', (dbItem: DBItem) => {
-        onCloseDatabase(databaseStore, dbItem.dbPath);
-    }));
-
-}
-
-function onOpenDatabase(databaseStore: DatabaseStore, dbPath: string) {
-    let database = databaseStore.openDatabase(dbPath);
-    if (database) {
-        commands.executeCommand('extension.addToExplorer', dbPath);
-    }
-}
-
-function onCloseDatabase(databaseStore: DatabaseStore, dbPath: string) {
-    databaseStore.closeDatabase(dbPath);
-    commands.executeCommand('extension.removeFromExplorer', dbPath);
+    return mainController.activate();
 }
 
 // this method is called when your extension is deactivated

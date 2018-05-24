@@ -4,7 +4,8 @@ import { existsSync } from 'fs';
 import { EventEmitter } from 'events';
 import { Disposable } from 'vscode';
 import * as DBLite from 'dblite';
-import { sanitizeStringForHtml } from './utils';
+import { OutputLogger } from '../logging/logger';
+import { ResultSet, Row } from './resultSet';
 
 
 export class Database extends EventEmitter implements Disposable {
@@ -49,7 +50,7 @@ export class Database extends EventEmitter implements Disposable {
 
     exec(query: string, callback?: (result: ResultSet, err: Error | null) => void) {
         let queries = this.parse(query);
-        console.log(`Queries: [ '${queries.join("', '")}' ]`);
+        
         let resultSet = new ResultSet();
 
         this.queue(queries, resultSet, callback);
@@ -57,7 +58,6 @@ export class Database extends EventEmitter implements Disposable {
 
     private queue(queries: string[], resultSet: ResultSet, callback?: (result: ResultSet, err: Error | null) => void) {
         if (queries.length === 0) {
-            //console.log(resultSet);
             if (callback) {
                 callback(resultSet, null);
             }
@@ -66,12 +66,25 @@ export class Database extends EventEmitter implements Disposable {
 
         let curQuery = queries.shift();
 
+        OutputLogger.log(`${curQuery}`, `QUERY`);
+
         this.dblite.query(curQuery, (err: Error | null, rows: Object[]) => {
             if (err) {
                 console.log(err.message);
                 resultSet.push({header: ['error'], rows: [{error: err.message}] });
             } else {
-                resultSet.addRows(rows);
+                if (rows) {
+                    let header = Object.keys(rows[0]);
+                    let resultRows: Row[] = [];
+                    rows.forEach(row => {
+                        let resultRow: Row = {};
+                        header.forEach(col => {
+                            resultRow[col] = (<any>row)[col];
+                        });
+                        resultRows.push(resultRow);
+                    });
+                    resultSet.push({header: header, rows: resultRows});
+                }
             }
             this.queue(queries, resultSet, callback);
         });
@@ -112,11 +125,11 @@ export class SQLScript {
     }
 }
 
+    /*
 export class ResultSet extends Array<Result> {
     rows: Object[] = [];
     cols: string[] = [];
 
-    /*
     constructor(rows: Object[]) {
         this.rows = rows;
         if (this.rows.length > 0) {
@@ -125,7 +138,6 @@ export class ResultSet extends Array<Result> {
             this.cols = <string[]>[];
         }
     }
-    */
 
     addRows(rows: Object[]) {
         let header: string[] = [];
@@ -174,3 +186,4 @@ export class ResultSet extends Array<Result> {
         return html;
     }
 }
+    */

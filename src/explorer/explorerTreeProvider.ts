@@ -1,4 +1,4 @@
-import { TreeDataProvider, Event, TreeItem, EventEmitter, commands } from "vscode";
+import { TreeDataProvider, Event, TreeItem, EventEmitter } from "vscode";
 import { DatabaseStore } from "../database/databaseStore";
 import { SQLItem, DBItem, TableItem, ColumnItem } from "./treeItem";
 
