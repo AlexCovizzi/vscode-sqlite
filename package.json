@@ -18,6 +18,8 @@
         "onCommand:extension.addToExplorer",
         "onCommand:extension.removeFromExplorer",
         "onCommand:extension.refreshExplorer",
+        "onCommand:extension.runSql",
+        "onCommand:extension.runTableQuery",
         "onLanguage:sqlite"
     ],
     "main": "./out/extension",
@@ -38,6 +40,14 @@
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
                 }
+            },
+            {
+                "command": "extension.runSql",
+                "title": "Run SQL"
+            },
+            {
+                "command": "extension.runTableQuery",
+                "title": "Show table"
             }
         ],
 		"views": {
@@ -68,6 +78,10 @@
                 {
                     "command": "extension.closeDatabase",
                     "when": "view == extension.sqliteExplorer && viewItem == extension.databaseItem"
+                },
+                {
+                    "command": "extension.runTableQuery",
+                    "when": "view == extension.sqliteExplorer && viewItem == extension.tableItem"
                 }
             ]
         },
@@ -96,6 +110,5 @@
         "@types/mocha": "^2.2.42"
     },
     "dependencies": {
-        "dblite": "^0.8.0"
     }
 }

@@ -1,6 +1,7 @@
 'use strict';
 
 import { existsSync } from 'fs';
+import { basename } from 'path';
 import { EventEmitter } from 'events';
 import { Disposable } from 'vscode';
 import * as DBLite from 'dblite';
@@ -66,7 +67,7 @@ export class Database extends EventEmitter implements Disposable {
 
         let curQuery = queries.shift();
 
-        OutputLogger.log(`${curQuery}`, `QUERY`);
+        OutputLogger.log(`${curQuery}`, `QUERY][${this.dbPath}`);
 
         this.dblite.query(curQuery, (err: Error | null, rows: Object[]) => {
             if (err) {
@@ -124,66 +125,3 @@ export class SQLScript {
         return s;
     }
 }
-
-    /*
-export class ResultSet extends Array<Result> {
-    rows: Object[] = [];
-    cols: string[] = [];
-
-    constructor(rows: Object[]) {
-        this.rows = rows;
-        if (this.rows.length > 0) {
-            this.cols = Object.keys(this.rows[0]);
-        } else {
-            this.cols = <string[]>[];
-        }
-    }
-
-    addRows(rows: Object[]) {
-        let header: string[] = [];
-        let resultRows: Row[] = [];
-
-        if (rows.length > 0) {
-            header = Object.keys(rows[0]);
-        }
-
-        rows.forEach(row => {
-            let resultRow: Row = {};
-
-            header.forEach(col => {
-                resultRow[col] = (<any>row)[col];
-            });
-            resultRows.push(resultRow);
-
-        });
-
-        this.push({header: header, rows: resultRows});
-    }
-
-    toHtmlTable() {
-        if (this.cols.length === 0 || this.rows.length === 0) {
-            return '';
-        }
-        let html = '<div class="table-wrapper">';
-        html += '<table id="result-table" class="enumerated">';
-        html += '<tr><th></th>';
-        this.cols.forEach(col => {
-            col = sanitizeStringForHtml(col);
-            html += '<th>' + col + '</th>';
-        });
-        html += '</tr>';
-        this.rows.forEach(row => {
-            html += '<tr><td></td>';
-            this.cols.forEach(col => {
-                let val: string = (<any>row)[col];
-                val = sanitizeStringForHtml(val);
-                html += '<td class="cell">' + val + '</td>';
-            });
-            html += '</tr>';
-        });
-        html += '</table>';
-        html += '</div>';
-        return html;
-    }
-}
-    */

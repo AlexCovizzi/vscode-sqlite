@@ -4,7 +4,9 @@ import { DatabaseStore } from '../database/databaseStore';
 import { getSqlitePath } from '../utils/utils';
 import { Uri, commands, ExtensionContext, Disposable } from 'vscode';
 import { SQLiteExplorer } from '../explorer/explorer';
-import { DBItem } from '../explorer/treeItem';
+import { DBItem, TableItem } from '../explorer/treeItem';
+import { Commands } from '../constants/constants';
+import { SQLRunner } from './sqlRunner';
 
 /**
  * Initialize controllers and register commands
@@ -13,6 +15,7 @@ export class MainController implements Disposable {
 
     private databaseStore!: DatabaseStore;
     private explorer!: SQLiteExplorer;
+    private sqlRunner!: SQLRunner;
 
     constructor(private context: ExtensionContext) {
 
@@ -24,21 +27,27 @@ export class MainController implements Disposable {
 
     activate(): Promise<boolean> {
         /* register database commands */
-        this.context.subscriptions.push(commands.registerCommand('extension.openDatabase', (dbUri: Uri) => {
+        this.context.subscriptions.push(commands.registerCommand(Commands.openDatabase, (dbUri: Uri) => {
             this.onOpenDatabase(dbUri.fsPath);
         }));
-        this.context.subscriptions.push(commands.registerCommand('extension.closeDatabase', (dbItem: DBItem) => {
+        this.context.subscriptions.push(commands.registerCommand(Commands.closeDatabase, (dbItem: DBItem) => {
             this.onCloseDatabase(dbItem.dbPath);
         }));
         // register explorer commands
-        this.context.subscriptions.push(commands.registerCommand('extension.addToExplorer', (dbPath: string) => {
+        this.context.subscriptions.push(commands.registerCommand(Commands.addToExplorer, (dbPath: string) => {
             this.onAddToExplorer(dbPath);
         }));
-        this.context.subscriptions.push(commands.registerCommand('extension.removeFromExplorer', (dbPath: string) => {
+        this.context.subscriptions.push(commands.registerCommand(Commands.removeFromExplorer, (dbPath: string) => {
             this.onRemoveFromExplorer(dbPath);
         }));
-        this.context.subscriptions.push(commands.registerCommand('extension.refreshExplorer', () => {
+        this.context.subscriptions.push(commands.registerCommand(Commands.refreshExplorer, () => {
             this.onRefreshExplorer();
+        }));
+        this.context.subscriptions.push(commands.registerCommand(Commands.runSql, (dbPath: string, sqlScript: string) => {
+            this.onRunSql(dbPath, sqlScript);
+        }));
+        this.context.subscriptions.push(commands.registerCommand(Commands.runTableQuery, (tableItem: TableItem) => {
+            this.onRunTableQuery(tableItem.parent.dbPath, tableItem.label);
         }));
 
         return this.initialize();
@@ -57,9 +66,11 @@ export class MainController implements Disposable {
             /* initialize DatabaseStore, Explorer */
             this.databaseStore = new DatabaseStore(getSqlitePath(extensionPath));
             this.explorer = new SQLiteExplorer(this.databaseStore);
+            this.sqlRunner = new SQLRunner(this.databaseStore);
     
             self.context.subscriptions.push(this.databaseStore);
             self.context.subscriptions.push(this.explorer);
+            self.context.subscriptions.push(this.sqlRunner);
 
             resolve(true);
         });
@@ -68,13 +79,13 @@ export class MainController implements Disposable {
     private onOpenDatabase(dbPath: string) {
         let database = this.databaseStore.openDatabase(dbPath);
         if (database) {
-            commands.executeCommand('extension.addToExplorer', dbPath);
+            commands.executeCommand(Commands.addToExplorer, dbPath);
         }
     }
 
     private onCloseDatabase(dbPath: string) {
         this.databaseStore.closeDatabase(dbPath);
-        commands.executeCommand('extension.removeFromExplorer', dbPath);
+        commands.executeCommand(Commands.removeFromExplorer, dbPath);
     }
 
     private onAddToExplorer(dbPath: string) {
@@ -87,6 +98,14 @@ export class MainController implements Disposable {
 
     private onRefreshExplorer() {
         this.explorer.refreshExplorer();
+    }
+
+    private onRunSql(dbPath: string, sqlScript: string) {
+        this.sqlRunner.runSql(dbPath, sqlScript);
+    }
+
+    private onRunTableQuery(dbPath: string, tableName: string) {
+        commands.executeCommand(Commands.runSql, dbPath, `SELECT * FROM ${tableName} LIMIT 500;`);
     }
 }
 

@@ -6,6 +6,7 @@ export class ResultSet extends Array<Result> {
 }
 
 export interface Result {
+    query?: string;
     header: string[];
     rows: Row[];
 }
