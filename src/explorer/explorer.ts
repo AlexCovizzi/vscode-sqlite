@@ -4,37 +4,29 @@ import { ExplorerTreeProvider } from "./explorerTreeProvider";
 
 export class SQLiteExplorer implements Disposable {
     private disposable: Disposable;
+    private explorerTreeProvider: ExplorerTreeProvider;
 
     constructor(databaseStore: DatabaseStore) {
         let subscriptions: Disposable[] = [];
 
         let treeDataProvider = new ExplorerTreeProvider(databaseStore);
+        this.explorerTreeProvider = treeDataProvider;
         
-        window.createTreeView('extension.sqliteExplorer', { treeDataProvider });
-
-        // register explorer commands
-        subscriptions.push(commands.registerCommand('extension.addToExplorer', (dbPath: string) => {
-            this.onAddToExplorer(treeDataProvider, dbPath);
-        }));
-        subscriptions.push(commands.registerCommand('extension.removeFromExplorer', (dbPath: string) => {
-            this.onRemoveFromExplorer(treeDataProvider, dbPath);
-        }));
-        subscriptions.push(commands.registerCommand('extension.refreshExplorer', () => {
-            this.onRefreshExplorer(treeDataProvider);
-        }));
+        let treeView = window.createTreeView('extension.sqliteExplorer', { treeDataProvider });
+        subscriptions.push(treeView);
 
         this.disposable = Disposable.from(...subscriptions);
     }
 
-    private onAddToExplorer(treeDataProvider: ExplorerTreeProvider, dbPath: string) {
-        let added = treeDataProvider.addToTree(dbPath);
+    addToExplorer(dbPath: string) {
+        let added = this.explorerTreeProvider.addToTree(dbPath);
         if (added) {
             commands.executeCommand( 'setContext', 'extension.showExplorer', true);
         }
     }
 
-    private onRemoveFromExplorer(treeDataProvider: ExplorerTreeProvider, dbPath: string) {
-        let remained = treeDataProvider.removeFromTree(dbPath);
+    removeFromExplorer(dbPath: string) {
+        let remained = this.explorerTreeProvider.removeFromTree(dbPath);
         if (remained === 0) {
             // close the explorer with a slight delay (it looks better)
             setTimeout(() => {
@@ -43,8 +35,8 @@ export class SQLiteExplorer implements Disposable {
         }
     }
 
-    private onRefreshExplorer(treeDataProvider: ExplorerTreeProvider) {
-        treeDataProvider.refresh();
+    refreshExplorer() {
+        this.explorerTreeProvider.refresh();
     }
 
     dispose() {
