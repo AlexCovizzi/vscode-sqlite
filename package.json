@@ -12,14 +12,8 @@
     ],
     "activationEvents": [
         "onCommand:extension.openDatabase",
-        "onCommand:extension.closeDatabase",
-        "onCommand:extension.showExplorer",
-        "onCommand:extension.hideExplorer",
-        "onCommand:extension.addToExplorer",
-        "onCommand:extension.removeFromExplorer",
-        "onCommand:extension.refreshExplorer",
-        "onCommand:extension.runSql",
-        "onCommand:extension.runTableQuery",
+        "onCommand:extension.showOpenDatabaseQuickPick",
+        "onCommand:extension.runDocumentQuery",
         "onLanguage:sqlite"
     ],
     "main": "./out/extension",
@@ -27,11 +21,39 @@
         "commands": [
             {
                 "command": "extension.openDatabase",
-                "title": "Open SQLite DB"
+                "title": "SQLite: Open Database"
             },
             {
                 "command": "extension.closeDatabase",
-                "title": "Close SQLite DB"
+                "title": "SQLite: Close Database"
+            },
+            {
+                "command": "extension.showOpenDatabaseQuickPick",
+                "title": "SQLite: Open Database"
+            },
+            {
+                "command": "extension.showCloseDatabaseQuickPick",
+                "title": "SQLite: Close Database"
+            },
+            {
+                "command": "extension.showBindDatabaseQuickPick",
+                "title": "SQLite: Bind Database"
+            },
+            {
+                "command": "extension.runQuery",
+                "title": "SQLite: Run Query"
+            },
+            {
+                "command": "extension.runDocumentQuery",
+                "title": "SQLite: Run Query"
+            },
+            {
+                "command": "extension.runTableQuery",
+                "title": "Show table"
+            },
+            {
+                "command": "extension.newQuery",
+                "title": "New query"
             },
             {
                 "command": "extension.refreshExplorer",
@@ -40,30 +62,65 @@
                     "light": "resources/light/refresh.svg",
                     "dark": "resources/dark/refresh.svg"
                 }
-            },
-            {
-                "command": "extension.runSql",
-                "title": "Run SQL"
-            },
-            {
-                "command": "extension.runTableQuery",
-                "title": "Show table"
             }
         ],
-		"views": {
-			"explorer": [
-				{
-					"id": "extension.sqliteExplorer",
+        "views": {
+            "explorer": [
+                {
+                    "id": "extension.sqliteExplorer",
                     "name": "SQLite Explorer",
                     "when": "extension.showExplorer"
-				}
+                }
             ]
         },
         "menus": {
+            "commandPalette": [
+                {
+                    "command": "extension.showOpenDatabaseQuickPick"
+                },
+                {
+                    "command": "extension.showCloseDatabaseQuickPick",
+                    "when": "extension.showExplorer"
+                },
+                {
+                    "command": "extension.showBindDatabaseQuickPick",
+                    "when": "extension.showExplorer && resourceLangId == sql"
+                },
+                {
+                    "command": "extension.runDocumentQuery"
+                },
+                {
+                    "command": "extension.runQuery",
+                    "when": "never"
+                },
+                {
+                    "command": "extension.runTableQuery",
+                    "when": "never"
+                },
+                {
+                    "command": "extension.refreshExplorer",
+                    "when": "never"
+                },
+                {
+                    "command": "extension.openDatabase",
+                    "when": "never"
+                },
+                {
+                    "command": "extension.closeDatabase",
+                    "when": "never"
+                }
+            ],
             "explorer/context": [
                 {
                     "when": "resourceLangId == sqlite",
                     "command": "extension.openDatabase",
+                    "group": "navigation"
+                }
+            ],
+            "editor/context": [
+                {
+                    "when": "resourceLangId == sql",
+                    "command": "extension.runDocumentQuery",
                     "group": "navigation"
                 }
             ],
@@ -82,6 +139,10 @@
                 {
                     "command": "extension.runTableQuery",
                     "when": "view == extension.sqliteExplorer && viewItem == extension.tableItem"
+                },
+                {
+                    "command": "extension.newQuery",
+                    "when": "view == extension.sqliteExplorer && viewItem == extension.databaseItem"
                 }
             ]
         },
@@ -109,6 +170,5 @@
         "@types/node": "^7.0.43",
         "@types/mocha": "^2.2.42"
     },
-    "dependencies": {
-    }
+    "dependencies": {}
 }
