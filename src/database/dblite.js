@@ -42,7 +42,7 @@ var
   // use to re-generate Date objects
   DECIMAL = /^[1-9][0-9]*$/,
   // verify if it's a select or not
-  SELECT = /^(?:select|SELECT|pragma|PRAGMA) /,
+  SELECT = /^(?:select|SELECT|pragma|PRAGMA|with|WITH) /,
   // for simple query replacements: WHERE field = ?
   REPLACE_QUESTIONMARKS = /\?/g,
   // for named replacements: WHERE field = :data
@@ -174,7 +174,7 @@ var
  *  callback:Function
  * );
  */
-function dblite() {
+export function dblite() {
   var
     args = arguments,
     // the current dblite "instance"
@@ -910,3 +910,4 @@ db.query('INSERT INTO test VALUES(null, "asd")') && undefined;
 db.query('SELECT * FROM test') && undefined;
 // db.close();
 */
+
