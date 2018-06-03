@@ -1,16 +1,19 @@
 export class ResultSet extends Array<Result> {
 
     toJSON() {
-        return JSON.stringify(this);
+        let resultArr: Result[] = [];
+        this.forEach(result => {
+            resultArr.push(result);
+        });
+        return JSON.stringify(resultArr, null, 2);
     }
 }
 
 export interface Result {
-    query?: string;
     header: string[];
     rows: Row[];
 }
 
-export interface Row {
-    [x: string]: string;
+export interface Row extends Array<string> {
+    
 }
