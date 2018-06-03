@@ -47,36 +47,30 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
                 if (element instanceof DBItem) {
                     let database = this.databaseStore.getDatabase(element.dbPath);
                     if (database) {
-                        database.exec(`SELECT name FROM sqlite_master WHERE type="table";`, (resultSet, err) => {
-                            if (err) {
-                                console.log("Error: " + err.message);
-                            } else {
-                                let tableItems: TableItem[] = [];
-                
-                                resultSet[0].rows.forEach((row) => {
-                                    let tableItem = new TableItem(element, row["name"]);
-                                    tableItems.push(tableItem);
-                                });
-                                resolve(tableItems);
-                            }
+                        database.exec(`SELECT name FROM sqlite_master WHERE type="table";`, (resultSet) => {
+                            let tableItems: TableItem[] = [];
+            
+                            resultSet[0].rows.forEach((row) => {
+                                let tableItem = new TableItem(element, row[0]);
+                                tableItems.push(tableItem);
+                            });
+                            resolve(tableItems);
                         });
                     }
                 } else if (element instanceof TableItem) {
                     let database = this.databaseStore.getDatabase(element.parent.dbPath);
                     if (database) {
                         let query = `PRAGMA table_info(${element.label});`;
-                        database.exec(query, (resultSet, err) => {
-                    
+                        database.exec(query, (resultSet) => {
                             resultSet.forEach( (result, index) => {
                                 let columnItems: ColumnItem[] = [];
                                 result.rows.forEach((row) => {
                                     let columnItem = new ColumnItem(
                                         element,
-                                        row["name"],
-                                        row["type"].toUpperCase(),
-                                        row["dflt_value"],
-                                        row["notnull"] === '1' ? true : false,
-                                        row["pk"] === '1' ? true : false
+                                        row[result.header.indexOf('name')],
+                                        row[result.header.indexOf('type')].toUpperCase(),
+                                        row[result.header.indexOf('notnull')] === '1' ? true : false,
+                                        row[result.header.indexOf('pk')] === '1' ? true : false
                                     );
                                     columnItems.push(columnItem);
                                 });

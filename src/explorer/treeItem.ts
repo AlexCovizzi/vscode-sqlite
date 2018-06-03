@@ -61,7 +61,7 @@ export class TableItem extends SQLItem {
 export class ColumnItem extends SQLItem {
     parent: TableItem;
 
-    constructor(parent: TableItem, private name:string, private type: string, private defValue: string,
+    constructor(parent: TableItem, private name:string, private type: string,
             private notnull: boolean, private pk: boolean, command?: Command) {
         super(
             name,
@@ -73,7 +73,7 @@ export class ColumnItem extends SQLItem {
     }
 
     get tooltip(): string {
-        return `${this.name}\n${this.type}${this.notnull? '\nNOT NULL' : ''}${this.pk? '\nPRIMARY KEY' : ''}${this.defValue? '\nDEFAULT: '+this.defValue : ''}`;
+        return `${this.name}\n${this.type}${this.notnull? '\nNOT NULL' : ''}${this.pk? '\nPRIMARY KEY' : ''}`;
     }
 
 }
