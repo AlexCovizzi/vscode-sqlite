@@ -47,8 +47,16 @@ export class DatabaseStore implements Disposable {
         }
     }
 
-    getDatabase(dbPath: string) {
-        return this.dbs.find(db => db.dbPath === dbPath);
+    getDatabase(dbPath: string | number) {
+        if (typeof dbPath === 'string') {
+            return this.dbs.find(db => db.dbPath === dbPath);
+        } else {
+            return this.dbs[dbPath];
+        }
+    }
+
+    getAll() {
+        return this.dbs;
     }
 
     dispose() {
