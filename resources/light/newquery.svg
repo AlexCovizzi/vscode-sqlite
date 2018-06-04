@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'>
+    <path fill='#F6F6F6' d='M13 2H6V0H2v2H0v4h2v2h2v8h12V5z'/>
+    <path fill='#424242' d='M12 3H8v1h3v3h3v7H6V8H5v7h10V6z'/>
+    <path d='M7 3.018H5V1H3.019v2.018H1V5h2.019v2H5V5h2V3.018z' fill='#388A34'/>
+    <path fill='#F0EFF1' d='M11 7V4H8v2H6v8h8V7z'/>
+</svg>
