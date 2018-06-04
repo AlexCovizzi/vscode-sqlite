@@ -12,7 +12,7 @@ export class SQLiteExplorer implements Disposable {
         let treeDataProvider = new ExplorerTreeProvider(databaseStore);
         this.explorerTreeProvider = treeDataProvider;
         
-        let treeView = window.createTreeView('extension.sqliteExplorer', { treeDataProvider });
+        let treeView = window.createTreeView('sqlite.sqliteExplorer', { treeDataProvider });
         subscriptions.push(treeView);
 
         this.disposable = Disposable.from(...subscriptions);
@@ -21,7 +21,7 @@ export class SQLiteExplorer implements Disposable {
     addToExplorer(dbPath: string) {
         let added = this.explorerTreeProvider.addToTree(dbPath);
         if (added) {
-            commands.executeCommand( 'setContext', 'extension.showExplorer', true);
+            commands.executeCommand( 'setContext', 'sqlite.showExplorer', true);
         }
     }
 
@@ -30,7 +30,7 @@ export class SQLiteExplorer implements Disposable {
         if (remained === 0) {
             // close the explorer with a slight delay (it looks better)
             setTimeout(() => {
-                commands.executeCommand( 'setContext', 'extension.showExplorer', false);
+                commands.executeCommand( 'setContext', 'sqlite.showExplorer', false);
             }, 250);
         }
     }

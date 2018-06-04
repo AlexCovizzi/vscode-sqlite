@@ -1,18 +1,15 @@
 'use strict';
 
-import { Uri, commands, ExtensionContext, Disposable, window } from 'vscode';
+import { Uri, commands, ExtensionContext, Disposable, window, workspace, ViewColumn } from 'vscode';
 import { DatabaseStore } from './database/databaseStore';
 import { getSqlitePath } from './utils/utils';
 import { SQLiteExplorer } from './explorer/explorer';
 import { DBItem, TableItem } from './explorer/treeItem';
 import { Commands } from './constants/constants';
 import { QueryRunner } from './queryRunner/queryRunner';
-import { WebviewPanelController } from './webview/webviewController';
+import { WebviewPanelController } from './view/webviewController';
 import { ResultSet } from './database/resultSet';
 import * as Prompts from './prompts/prompts';
-import { basename } from 'path';
-import { OutputLogger } from './logging/logger';
-import { DocumentBindings } from './database/documentBindings';
 
 /**
  * Initialize controllers, register commands, run commands
@@ -23,7 +20,6 @@ export class MainController implements Disposable {
     private explorer!: SQLiteExplorer;
     private queryRunner!: QueryRunner;
     private webviewController!: WebviewPanelController;
-    private documentBindings: DocumentBindings = new DocumentBindings();
 
     constructor(private context: ExtensionContext) {
 
@@ -34,20 +30,21 @@ export class MainController implements Disposable {
     }
 
     activate(): Promise<boolean> {
-        this.context.subscriptions.push(commands.registerCommand(Commands.openDatabase, (dbUri: Uri | string) => {
-            this.onOpenDatabase(dbUri instanceof Uri? dbUri.fsPath : dbUri);
+        /**
+         * OpenDatabase can be called:
+         * from the file explorer (arg is a Uri), or
+         * from the command palette (arg is undefined)
+         */
+        this.context.subscriptions.push(commands.registerCommand(Commands.openDatabase, (arg?: Uri) => {
+            this.onOpenDatabase(arg instanceof Uri? arg.fsPath : arg);
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.closeDatabase, (dbItem: DBItem | string) => {
-            this.onCloseDatabase(dbItem instanceof DBItem? dbItem.dbPath : dbItem);
-        }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.showOpenDatabaseQuickPick, () => {
-            this.onShowOpenDatabaseQuickPick();
-        }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.showCloseDatabaseQuickPick, () => {
-            this.onShowCloseDatabaseQuickPick();
-        }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.showBindDatabaseQuickPick, () => {
-            this.onShowBindDatabaseQuickPick();
+        /**
+         * CloseDatabase can be called:
+         * from the sqlite explorer (arg is a DBItem), or
+         * from the command palette (arg is undefined)
+         */ 
+        this.context.subscriptions.push(commands.registerCommand(Commands.closeDatabase, (arg?: DBItem) => {
+            this.onCloseDatabase(arg instanceof DBItem? arg.dbPath : arg);
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.addToExplorer, (dbPath: string) => {
             this.onAddToExplorer(dbPath);
@@ -70,7 +67,7 @@ export class MainController implements Disposable {
         this.context.subscriptions.push(commands.registerCommand(Commands.showQueryResult, (resultSet: ResultSet) => {
             this.onShowQueryResult(resultSet);
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.newQuery, (dbItem: DBItem) => {
+        this.context.subscriptions.push(commands.registerCommand(Commands.newQuery, () => {
             this.onNewQuery();
         }));
 
@@ -103,34 +100,40 @@ export class MainController implements Disposable {
         });
     }
 
-    private onOpenDatabase(dbPath: string) {
-        let database = this.databaseStore.openDatabase(dbPath);
-        if (database) {
-            commands.executeCommand(Commands.addToExplorer, dbPath);
+    /**
+     * Opens the database passed as parameter.
+     * If dbPath is undefined it will open a QuickPick that let you
+     * choose a database to open from the files with extension .db or .sqlite
+     * found in your workspace, and then recalls this method with the chosen file path as parameter.
+     */
+    private onOpenDatabase(dbPath?: string) {
+        if (dbPath) {
+            let database = this.databaseStore.openDatabase(dbPath);
+            if (database) {
+                commands.executeCommand(Commands.addToExplorer, dbPath);
+            }
+        } else {
+            Prompts.searchDatabase((path: string) => {
+                this.onOpenDatabase(path);
+            });
         }
     }
 
-    private onCloseDatabase(dbPath: string) {
-        this.databaseStore.closeDatabase(dbPath);
-        commands.executeCommand(Commands.removeFromExplorer, dbPath);
-    }
-
-    private onShowOpenDatabaseQuickPick() {
-        Prompts.showOpenDatabaseQuickPick((path: string) => {
-            commands.executeCommand(Commands.openDatabase, path);
-        });
-    }
-
-    private onShowCloseDatabaseQuickPick() {
-        Prompts.showCloseDatabaseQuickPick(this.databaseStore, (path: string) => {
-            commands.executeCommand(Commands.closeDatabase, path);
-        });
-    }
-
-    private onShowBindDatabaseQuickPick() {
-        Prompts.showBindDatabaseQuickPick(this.databaseStore, (path: string) => {
-            this.documentBindings.set(path);
-        });
+    /**
+     * Close the database passed as parameter.
+     * If dbPath is undefined it will open a QuickPick that let you
+     * choose which database to close and then recalls this method
+     * with the chosen database path as parameter.
+     */
+    private onCloseDatabase(dbPath?: string) {
+        if (dbPath) {
+            this.databaseStore.closeDatabase(dbPath);
+            commands.executeCommand(Commands.removeFromExplorer, dbPath);
+        } else {
+            Prompts.chooseDatabase(this.databaseStore, (path: string) => {
+                this.onCloseDatabase(path);
+            });
+        }
     }
 
     private onAddToExplorer(dbPath: string) {
@@ -148,7 +151,7 @@ export class MainController implements Disposable {
     private onRunQuery(dbPath: string, query: string) {
         this.queryRunner.runQuery(dbPath, query).then(
             resultSet => { commands.executeCommand(Commands.showQueryResult, resultSet); },
-            err => { /* handle error */ }
+            err => { window.showErrorMessage(err); }
         );
     }
 
@@ -157,20 +160,28 @@ export class MainController implements Disposable {
     }
 
     private onNewQuery() {
-        
+        workspace.openTextDocument({language: 'sql'}).then(
+            doc => window.showTextDocument(doc, ViewColumn.One)
+        );
     }
 
     private onRunDocumentQuery() {
         let editor = window.activeTextEditor;
         if (editor) {
             let text = editor.document.getText();
-            let documentId = editor.document.uri.fsPath;
-            let dbPath = this.documentBindings.get(documentId);
-            if (dbPath) {
+            let nDbsOpen = this.databaseStore.getAll().length;
+            if (nDbsOpen === 0) {
+                Prompts.searchDatabase((path: string) => {
+                    this.onOpenDatabase(path);
+                    if (path) {
+                        commands.executeCommand(Commands.runQuery, path, text);
+                    }
+                });
+            } else if (nDbsOpen === 1) {
+                let dbPath = this.databaseStore.getAll()[0].dbPath;
                 commands.executeCommand(Commands.runQuery, dbPath, text);
-            } else {
-                Prompts.showBindDatabaseQuickPick(this.databaseStore, (path: string) => {
-                    this.documentBindings.set(path);
+            } else if (nDbsOpen > 1) {
+                Prompts.chooseDatabase(this.databaseStore, (path: string) => {
                     if (path) {
                         commands.executeCommand(Commands.runQuery, path, text);
                     }

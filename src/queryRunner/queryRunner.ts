@@ -12,15 +12,15 @@ export class QueryRunner implements Disposable {
     }
 
     runQuery(dbPath: string, query: string): Thenable<ResultSet> {
-        let database = this.databaseStore.openDatabase(dbPath);
+        let database = this.databaseStore.getDatabase(dbPath);
         return new Promise ((resolve, reject) => {
-            database.exec(query, (resultSet) => {
-                if (resultSet.length === 0) {
-                    reject('No result found.');
-                } else {
+            if (database) {
+                database.exec(query, (resultSet) => {
                     resolve(resultSet);
-                }
-            });
+                });
+            } else {
+                reject(`Can't execute query. Database is closed.`);
+            }
         });
     }
 

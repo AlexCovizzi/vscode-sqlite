@@ -26,17 +26,14 @@ export class Constants {
 }
 
 export class Commands {
-    public static openDatabase: string = 'extension.openDatabase';
-    public static closeDatabase: string = 'extension.closeDatabase';
-    public static showOpenDatabaseQuickPick: string = 'extension.showOpenDatabaseQuickPick';
-    public static showCloseDatabaseQuickPick: string = 'extension.showCloseDatabaseQuickPick';
-    public static showBindDatabaseQuickPick: string = 'extension.showBindDatabaseQuickPick';
-    public static addToExplorer: string = 'extension.addToExplorer';
-    public static removeFromExplorer: string = 'extension.removeFromExplorer';
-    public static refreshExplorer: string = 'extension.refreshExplorer';
-    public static runQuery: string = 'extension.runQuery';
-    public static runTableQuery: string = 'extension.runTableQuery';
-    public static newQuery: string = 'extension.newQuery';
-    public static runDocumentQuery: string = 'extension.runDocumentQuery';
-    public static showQueryResult: string = 'extension.showQueryResult';
+    public static openDatabase: string = 'sqlite.openDatabase';
+    public static closeDatabase: string = 'sqlite.closeDatabase';
+    public static addToExplorer: string = 'sqlite.addToExplorer';
+    public static removeFromExplorer: string = 'sqlite.removeFromExplorer';
+    public static refreshExplorer: string = 'sqlite.refreshExplorer';
+    public static runQuery: string = 'sqlite.runQuery';
+    public static runTableQuery: string = 'sqlite.runTableQuery';
+    public static newQuery: string = 'sqlite.newQuery';
+    public static runDocumentQuery: string = 'sqlite.runDocumentQuery';
+    public static showQueryResult: string = 'sqlite.showQueryResult';
 }

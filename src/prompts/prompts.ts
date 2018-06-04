@@ -19,7 +19,7 @@ namespace QuickPick {
 }
 
 
-export function showOpenDatabaseQuickPick(onPicked?: (path: string) => void) {
+export function searchDatabase(onPicked?: (path: string) => void) {
     const promise = new Promise<QuickPick.DatabaseItem[]>((resolve, reject) => {
         workspace.findFiles('**/*.db', '**/*.sqlite').then((filesUri) => {
             if (filesUri.length === 0) {
@@ -37,24 +37,7 @@ export function showOpenDatabaseQuickPick(onPicked?: (path: string) => void) {
     );
 }
 
-export function showCloseDatabaseQuickPick(databaseStore: DatabaseStore, onPicked?: (path: string) => void) {
-    const promise = new Promise<QuickPick.DatabaseItem[]>((resolve, reject) => {
-        if (databaseStore.getAll().length === 0) {
-            reject("No database open");
-        }
-        resolve(databaseStore.getAll().map(db => new QuickPick.DatabaseItem(Uri.parse(db.dbPath))));
-    });
-    window.showQuickPick(promise).then(
-        item => {
-            if (item && onPicked) {
-                onPicked(item.uri.fsPath);
-            }
-        }
-    );
-}
-
-
-export function showBindDatabaseQuickPick(databaseStore: DatabaseStore, onPicked?: (path: string) => void) {
+export function chooseDatabase(databaseStore: DatabaseStore, onPicked?: (path: string) => void) {
     const promise = new Promise<QuickPick.DatabaseItem[]>((resolve, reject) => {
         if (databaseStore.getAll().length === 0) {
             reject("No database open");

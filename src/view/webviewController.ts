@@ -1,4 +1,4 @@
-import { WebviewPanel, Uri, window, ViewColumn } from "vscode";
+import { WebviewPanel, window, ViewColumn } from "vscode";
 import { Constants } from '../constants/constants';
 import { ResultSet } from "../database/resultSet";
 import { QueryResultFormatter } from "./resultFormatter";
@@ -22,9 +22,9 @@ export class WebviewPanelController {
     }
 
     private init() {
+        let options = { enableScripts: false, retainContextWhenHidden: false, localResourceRoots: [] };
         this.panel = window.createWebviewPanel('query-result', Constants.webviewPanelTitle, ViewColumn.Two,
-            { enableScripts: true, retainContextWhenHidden: false,
-                localResourceRoots: [ Uri.file(Constants.htmlAssetsPath) ] }
+            options
         );
 
         this.panel.onDidDispose( () => {

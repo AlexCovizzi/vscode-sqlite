@@ -30,7 +30,7 @@ export class DBItem extends SQLItem {
             dark: join(__filename, '..', '..', '..', 'resources', 'dark', 'database.svg')
         };
 
-        this.contextValue = 'extension.databaseItem';
+        this.contextValue = 'sqlite.databaseItem';
     }
 
     get tooltip(): string {
@@ -48,7 +48,7 @@ export class TableItem extends SQLItem {
             command
         );
         this.parent = parent;
-        this.contextValue = 'extension.tableItem';
+        this.contextValue = 'sqlite.tableItem';
     }
 
     get tooltip(): string {
@@ -64,16 +64,16 @@ export class ColumnItem extends SQLItem {
     constructor(parent: TableItem, private name:string, private type: string,
             private notnull: boolean, private pk: boolean, command?: Command) {
         super(
-            name,
+            name+` : ${type.toLowerCase()}`,
             TreeItemCollapsibleState.None,
             command
         );
         this.parent = parent;
-        this.contextValue = 'extension.columnItem';
+        this.contextValue = 'sqlite.columnItem';
     }
 
     get tooltip(): string {
-        return `${this.name}\n${this.type}${this.notnull? '\nNOT NULL' : ''}${this.pk? '\nPRIMARY KEY' : ''}`;
+        return `${this.name}\n${this.type}${this.pk? '\nPRIMARY KEY' : ''}${this.notnull? '\nNOT NULL' : ''}`;
     }
 
 }
