@@ -6,6 +6,7 @@ import { Disposable } from 'vscode';
 import { OutputLogger } from '../logging/logger';
 import { ResultSet, Row, Result } from './resultSet';
 import { SQLParser } from './sqlparser';
+import { basename } from 'path';
 var DBLite = require('./dblite');
 
 
@@ -66,11 +67,11 @@ export class Database extends EventEmitter implements Disposable {
     }
 
     private execStmt(stmt: string, callback: (result: Result | undefined) => void) {
-        OutputLogger.log(`${stmt}`, `QUERY][${this.dbPath}`);
+        OutputLogger.log(`[QUERY][${basename(this.dbPath)}] ${stmt}`);
 
         this.dblite.query(stmt, (err: Error | null, rows: Object[]) => {
             if (err) {
-                OutputLogger.error(`${err.message}`);
+                OutputLogger.log(`[ERROR]${err.message}`);
                 callback(undefined);
             } else {
                 let result: Result | undefined = undefined;

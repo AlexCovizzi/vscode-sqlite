@@ -9,9 +9,6 @@ export class Constants {
 
     /* output channel */
     public static outputChannelName: string = `${Constants.extensionName}`;
-    public static outputChannelShowTime: boolean = false;
-    public static outputChannelShowVersion: boolean = false;
-    public static outputChannelShowLevel: boolean = true;
 
     /* query result */
     // query result path: {queryResultScheme}:{queryResultPrefix}-{queryResultId}.{queryResultExtension}
@@ -34,6 +31,7 @@ export class Commands {
     public static refreshExplorer: string = 'sqlite.refreshExplorer';
     public static runQuery: string = 'sqlite.runQuery';
     public static runTableQuery: string = 'sqlite.runTableQuery';
+    public static runSqliteMasterQuery: string = 'sqlite.runSqliteMasterQuery';
     public static newQuery: string = 'sqlite.newQuery';
     public static runDocumentQuery: string = 'sqlite.runDocumentQuery';
     public static showQueryResult: string = 'sqlite.showQueryResult';

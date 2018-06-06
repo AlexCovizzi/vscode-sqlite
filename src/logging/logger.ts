@@ -24,18 +24,7 @@ export namespace DebugLogger {
 
 export namespace OutputLogger {
     const outputChannel = window.createOutputChannel(`${Constants.outputChannelName}`);
-    export function debug(msg: any) {
-        log(msg, `DEBUG`);
-    }
-    export function error(msg: any) {
-        log(msg, `ERROR`);
-    }
-    export function info(msg: any) {
-        log(msg, `INFO`);
-    }
-    export function warn(msg: any) {
-        log(msg, `WARN`);
-    }
+
     export function showOutput() {
         outputChannel.show();
     }
@@ -43,13 +32,7 @@ export namespace OutputLogger {
         return outputChannel;
     }
 
-    export function log(msg: any, level?:string) {
-        const time = new Date().toLocaleTimeString();
-        let outputMsg = ``;
-        outputMsg += Constants.outputChannelShowTime? `[${time}]` : ``;
-        outputMsg += Constants.outputChannelShowVersion? `[${Constants.extensionVersion}]` : ``;
-        outputMsg += (Constants.outputChannelShowLevel && level)? `[${level}]` : ``;
-        outputMsg += ` ${msg.toString()}`;
-        outputChannel.appendLine(outputMsg.trim());
+    export function log(msg: any) {
+        outputChannel.appendLine(msg.toString());
     }
 }

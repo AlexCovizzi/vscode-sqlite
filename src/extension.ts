@@ -9,7 +9,7 @@ let controller: MainController;
 
 export function activate(context: ExtensionContext): Promise<boolean> {
 
-    OutputLogger.info(`Activated extension ${Constants.extensionName}-${Constants.extensionVersion}`);
+    OutputLogger.log(`Activated extension ${Constants.extensionName}-${Constants.extensionVersion}\n`);
 
     controller = new MainController(context);
 

@@ -12,6 +12,7 @@
     ],
     "activationEvents": [
         "onCommand:sqlite.openDatabase",
+        "onCommand:sqlite.closeDatabase",
         "onCommand:sqlite.newQuery",
         "onCommand:sqlite.bindDatabase",
         "onCommand:sqlite.runDocumentQuery"
@@ -36,12 +37,17 @@
             },
             {
                 "command": "sqlite.runDocumentQuery",
-                "title": "Run SQLite Query",
+                "title": "Run Query",
                 "category": "SQLite"
             },
             {
                 "command": "sqlite.runTableQuery",
                 "title": "Show Table",
+                "category": "SQLite"
+            },
+            {
+                "command": "sqlite.runSqliteMasterQuery",
+                "title": "Show sqlite_master",
                 "category": "SQLite"
             },
             {
@@ -75,22 +81,30 @@
         "menus": {
             "commandPalette": [
                 {
-                    "command": "sqlite.openDatabase"
+                    "command": "sqlite.openDatabase",
+                    "group": "sqlite@1"
                 },
                 {
-                    "command": "sqlite.closeDatabase",
-                    "when": "sqlite.showExplorer"
-                },
-                {
-                    "command": "sqlite.newQuery"
-                },
-                {
-                    "command": "sqlite.bindDatabase",
-                    "when": "editorLangId == sql"
+                    "command": "sqlite.newQuery",
+                    "group": "sqlite@2"
                 },
                 {
                     "command": "sqlite.runDocumentQuery",
-                    "when": "editorLangId == sql"
+                    "when": "editorLangId == sql",
+                    "group": "sqlite@3"
+                },
+                {
+                    "command": "sqlite.bindDatabase",
+                    "when": "editorLangId == sql",
+                    "group": "sqlite@4"
+                },
+                {
+                    "command": "sqlite.closeDatabase",
+                    "group": "sqlite@5"
+                },
+                {
+                    "command": "sqlite.runSqliteMasterQuery",
+                    "when": "never"
                 },
                 {
                     "command": "sqlite.runTableQuery",
@@ -111,11 +125,13 @@
             "editor/context": [
                 {
                     "when": "editorTextFocus && editorLangId == sql",
-                    "command": "sqlite.runDocumentQuery"
+                    "command": "sqlite.runDocumentQuery",
+                    "group": "sqlite@2"
                 },
                 {
                     "when": "editorTextFocus && editorLangId == sql",
-                    "command": "sqlite.bindDatabase"
+                    "command": "sqlite.bindDatabase",
+                    "group": "sqlite@1"
                 }
             ],
             "view/title": [
@@ -132,12 +148,19 @@
             ],
             "view/item/context": [
                 {
-                    "command": "sqlite.closeDatabase",
-                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem"
+                    "command": "sqlite.newQuery",
+                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem",
+                    "group": "sqlite@1"
                 },
                 {
-                    "command": "sqlite.newQuery",
-                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem"
+                    "command": "sqlite.runSqliteMasterQuery",
+                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem",
+                    "group": "sqlite@2"
+                },
+                {
+                    "command": "sqlite.closeDatabase",
+                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem",
+                    "group": "sqlite@3"
                 },
                 {
                     "command": "sqlite.runTableQuery",

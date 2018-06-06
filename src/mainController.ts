@@ -1,6 +1,6 @@
 'use strict';
 
-import { Uri, commands, ExtensionContext, Disposable, window, workspace, ViewColumn } from 'vscode';
+import { Uri, commands, ExtensionContext, Disposable, window } from 'vscode';
 import { DatabaseStore } from './database/databaseStore';
 import { getSqlitePath } from './utils/utils';
 import { SQLiteExplorer } from './explorer/explorer';
@@ -34,17 +34,17 @@ export class MainController implements Disposable {
 
     activate(): Promise<boolean> {
         /**
-         * OpenDatabase can be called:
-         * from the file explorer (arg is a Uri), or
-         * from the command palette (arg is undefined)
+         * OpenDatabase can be called from:
+         * - the file explorer (arg is a Uri), or
+         * - the command palette (arg is undefined)
          */
         this.context.subscriptions.push(commands.registerCommand(Commands.openDatabase, (arg?: Uri) => {
             this.onOpenDatabase(arg instanceof Uri? arg.fsPath : arg);
         }));
         /**
-         * CloseDatabase can be called:
-         * from the sqlite explorer (arg is a DBItem), or
-         * from the command palette (arg is undefined)
+         * CloseDatabase can be called from:
+         * - the sqlite explorer (arg is a DBItem), or
+         * - the command palette (arg is undefined)
          */ 
         this.context.subscriptions.push(commands.registerCommand(Commands.closeDatabase, (arg?: DBItem) => {
             this.onCloseDatabase(arg instanceof DBItem? arg.dbPath : arg);
@@ -66,6 +66,9 @@ export class MainController implements Disposable {
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.runTableQuery, (tableItem: TableItem) => {
             this.onRunTableQuery(tableItem.parent.dbPath, tableItem.label);
+        }));
+        this.context.subscriptions.push(commands.registerCommand(Commands.runSqliteMasterQuery, (dbItem: DBItem) => {
+            this.onRunSqliteMasterQuery(dbItem.dbPath);
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.runDocumentQuery, (docUri: Uri) => {
             this.onRunDocumentQuery();
@@ -174,7 +177,13 @@ export class MainController implements Disposable {
     }
 
     private onRunTableQuery(dbPath: string, tableName: string) {
-        commands.executeCommand(Commands.runQuery, dbPath, `SELECT * FROM ${tableName} LIMIT 500;`);
+        let query = `SELECT * FROM ${tableName} LIMIT 500;`;
+        commands.executeCommand(Commands.runQuery, dbPath, query);
+    }
+
+    private onRunSqliteMasterQuery(dbPath: string) {
+        let query = `SELECT * FROM sqlite_master;`;
+        commands.executeCommand(Commands.runQuery, dbPath, query);
     }
 
     private onNewQuery(dbPath?: string) {

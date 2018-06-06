@@ -1,4 +1,3 @@
-import { basename } from "path";
 import { Database } from "./sqlite";
 import { window, Disposable } from "vscode";
 import { OutputLogger } from "../logging/logger";
@@ -8,7 +7,6 @@ export class DatabaseStore implements Disposable {
     private dbs: Database[] = [];
 
     constructor(private sqlitePath: string) {
-        OutputLogger.info(`SQLite binary: ${basename(sqlitePath)}`);
     }
 
     openDatabase(dbPath: string): Database {
@@ -18,11 +16,10 @@ export class DatabaseStore implements Disposable {
         } else {
             database = new Database(this.sqlitePath, dbPath, (err) => {
                 window.showErrorMessage(err.message);
-                return undefined;
             });
             this.dbs.push(database);
 
-            OutputLogger.info(`Opened database: ${dbPath}`);
+            OutputLogger.log(`Opened database: ${dbPath}`);
     
             database.on('info', function (data: string) {
                 console.log(data);
@@ -43,7 +40,7 @@ export class DatabaseStore implements Disposable {
             let database = this.dbs.splice(index, 1)[0];
             database.dispose();
 
-            OutputLogger.info(`Closed database: ${database.dbPath}`);
+            OutputLogger.log(`Closed database: ${database.dbPath}`);
         }
     }
 

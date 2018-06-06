@@ -28,7 +28,10 @@ namespace QuickPick {
     }
 }
 
-
+/**
+ * Show a Quick Pick that lets you choose a database to open, from all the files in the workspace with extension .db or .sqlite
+ * @param hint What to write in the QuickPick
+ */
 export function searchDatabase(hint?: string): Thenable<string> {
     const promise = new Promise<QuickPick.DatabaseItem[] | QuickPick.ErrorItem[]>((resolve, reject) => {
         workspace.findFiles('**/*.db', '**/*.sqlite').then((filesUri) => {
@@ -50,9 +53,15 @@ export function searchDatabase(hint?: string): Thenable<string> {
     });
 }
 
+/**
+ * Show a Quick Pick that lets you choose a database from your open databases.
+ * @param databaseStore 
+ * @param hint What to write in the QuickPick
+ * @param fallbackToSearch If no database is open, fallback to search, that is call searchDatabase
+ */
 export function chooseDatabase(databaseStore: DatabaseStore, hint?: string, fallbackToSearch?: boolean): Thenable<string> {
     if (databaseStore.empty() && fallbackToSearch) {
-        return searchDatabase();
+        return searchDatabase(hint);
     }
 
     const promise = new Promise<QuickPick.DatabaseItem[] | QuickPick.ErrorItem[]>((resolve, reject) => {
