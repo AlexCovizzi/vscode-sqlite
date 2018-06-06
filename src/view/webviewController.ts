@@ -17,7 +17,8 @@ export class WebviewPanelController {
             this.init();
         }
         if (this.panel) {
-            this.panel.webview.html = getHtml(this.queryResultFormatter.formatToHTML(resultSet));
+            let htmlFormattedResult = this.queryResultFormatter.formatToHTML(resultSet);
+            this.panel.webview.html = getHtml(htmlFormattedResult);
         }
     }
 

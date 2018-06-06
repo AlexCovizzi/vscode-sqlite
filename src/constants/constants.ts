@@ -28,6 +28,7 @@ export class Constants {
 export class Commands {
     public static openDatabase: string = 'sqlite.openDatabase';
     public static closeDatabase: string = 'sqlite.closeDatabase';
+    public static bindDatabase: string = 'sqlite.bindDatabase';
     public static addToExplorer: string = 'sqlite.addToExplorer';
     public static removeFromExplorer: string = 'sqlite.removeFromExplorer';
     public static refreshExplorer: string = 'sqlite.refreshExplorer';

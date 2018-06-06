@@ -59,6 +59,10 @@ export class DatabaseStore implements Disposable {
         return this.dbs;
     }
 
+    empty() {
+        return this.dbs.length === 0;
+    }
+
     dispose() {
         this.dbs.forEach(database => {
             database.dispose();

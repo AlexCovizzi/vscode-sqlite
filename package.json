@@ -13,6 +13,7 @@
     "activationEvents": [
         "onCommand:sqlite.openDatabase",
         "onCommand:sqlite.newQuery",
+        "onCommand:sqlite.bindDatabase",
         "onCommand:sqlite.runDocumentQuery"
     ],
     "main": "./out/extension",
@@ -26,6 +27,11 @@
             {
                 "command": "sqlite.closeDatabase",
                 "title": "Close Database",
+                "category": "SQLite"
+            },
+            {
+                "command": "sqlite.bindDatabase",
+                "title": "Bind Database",
                 "category": "SQLite"
             },
             {
@@ -79,8 +85,12 @@
                     "command": "sqlite.newQuery"
                 },
                 {
+                    "command": "sqlite.bindDatabase",
+                    "when": "editorLangId == sql"
+                },
+                {
                     "command": "sqlite.runDocumentQuery",
-                    "when": "sqlite.showExplorer && resourceLangId == sql"
+                    "when": "editorLangId == sql"
                 },
                 {
                     "command": "sqlite.runTableQuery",
@@ -102,6 +112,10 @@
                 {
                     "when": "editorTextFocus && editorLangId == sql",
                     "command": "sqlite.runDocumentQuery"
+                },
+                {
+                    "when": "editorTextFocus && editorLangId == sql",
+                    "command": "sqlite.bindDatabase"
                 }
             ],
             "view/title": [
@@ -119,6 +133,10 @@
             "view/item/context": [
                 {
                     "command": "sqlite.closeDatabase",
+                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem"
+                },
+                {
+                    "command": "sqlite.newQuery",
                     "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem"
                 },
                 {
