@@ -49,11 +49,13 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
                     if (database) {
                         database.exec(`SELECT name FROM sqlite_master WHERE type="table";`, (resultSet) => {
                             let tableItems: TableItem[] = [];
-            
-                            resultSet[0].rows.forEach((row) => {
-                                let tableItem = new TableItem(element, row[0]);
-                                tableItems.push(tableItem);
-                            });
+                            
+                            if (resultSet.length > 0) {
+                                resultSet[0].rows.forEach((row) => {
+                                    let tableItem = new TableItem(element, row[0]);
+                                    tableItems.push(tableItem);
+                                });
+                            }
                             resolve(tableItems);
                         });
                     }
@@ -62,8 +64,10 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
                     if (database) {
                         let query = `PRAGMA table_info(${element.label});`;
                         database.exec(query, (resultSet) => {
-                            resultSet.forEach( (result, index) => {
-                                let columnItems: ColumnItem[] = [];
+                            let columnItems: ColumnItem[] = [];
+
+                            if (resultSet.length > 0) {
+                                let result = resultSet[0];
                                 result.rows.forEach((row) => {
                                     let columnItem = new ColumnItem(
                                         element,
@@ -74,8 +78,8 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
                                     );
                                     columnItems.push(columnItem);
                                 });
-                                resolve(columnItems);
-                            });
+                            }
+                            resolve(columnItems);
                         });
                     }
                 } else if (element instanceof ColumnItem) {

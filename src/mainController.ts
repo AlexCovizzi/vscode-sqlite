@@ -7,7 +7,7 @@ import { SQLiteExplorer } from './explorer/explorer';
 import { DBItem, TableItem } from './explorer/treeItem';
 import { Commands } from './constants/constants';
 import { QueryRunner } from './queryRunner/queryRunner';
-import { WebviewPanelController } from './view/webviewController';
+import { ResultView, WebviewPanelController } from './resultView/resultView';
 import { ResultSet } from './database/resultSet';
 import * as Prompts from './prompts/prompts';
 import { getEditorSqlDocument, newSqlDocument } from './sqlDocument/sqlDocument';
@@ -21,7 +21,7 @@ export class MainController implements Disposable {
     private databaseStore!: DatabaseStore;
     private explorer!: SQLiteExplorer;
     private queryRunner!: QueryRunner;
-    private webviewController!: WebviewPanelController;
+    private resultView!: ResultView;
     private databaseBindings: DatabaseBindings = new DatabaseBindings();
 
     constructor(private context: ExtensionContext) {
@@ -97,13 +97,13 @@ export class MainController implements Disposable {
             this.databaseStore = new DatabaseStore(getSqlitePath(extensionPath));
             this.explorer = new SQLiteExplorer(this.databaseStore);
             this.queryRunner = new QueryRunner(this.databaseStore);
-            this.webviewController = new WebviewPanelController();
+            this.resultView = new WebviewPanelController();
 
     
             self.context.subscriptions.push(this.databaseStore);
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
-            self.context.subscriptions.push(this.webviewController);
+            self.context.subscriptions.push(this.resultView);
 
             resolve(true);
         });
@@ -212,7 +212,7 @@ export class MainController implements Disposable {
     }
 
     private onShowQueryResult(resultSet: ResultSet) {
-        this.webviewController.showQueryResult(resultSet);
+        this.resultView.show(resultSet);
     }
 }
 

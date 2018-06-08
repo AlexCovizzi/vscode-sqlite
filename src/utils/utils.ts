@@ -1,6 +1,13 @@
 import { platform } from "os";
 import { join } from "path";
 
+/**
+ * Sanitizes a string for html, that is:
+ * '&' is replaced by '&amp'
+ * '/' is replaced by '&#x2F;'
+ * '<' and '>' are replaced by '&lt;' and '&gt;'
+ * @param s string to sanitize
+ */
 export function sanitizeStringForHtml(s: string): string {
     s = s.replace('&', '&amp;');
     s = s.replace('/', '&#x2F;');
@@ -8,6 +15,11 @@ export function sanitizeStringForHtml(s: string): string {
     return s;
 }
 
+/**
+ * Get the path of the sqlite3 binaries based on the platform.
+ * If there are no binaries for the platform returns an empty string.
+ * @param extensionPath The path of this extension
+ */
 export function getSqlitePath(extensionPath: string) {
     let plat = platform();
     let sqliteBin: string;
@@ -31,6 +43,7 @@ export function getSqlitePath(extensionPath: string) {
         return '';
     }
 }
+
 
 export function randomString(length: number) {
     return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);

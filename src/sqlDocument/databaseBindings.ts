@@ -4,6 +4,9 @@ interface Bindings {
     [documentId: string]: string;
 }
 
+/**
+ * 
+ */
 export class DatabaseBindings {
     private bindings: Bindings;
 

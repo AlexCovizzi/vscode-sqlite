@@ -1,7 +1,7 @@
 {
     "name": "vscode-sqlite",
     "displayName": "SQLite",
-    "description": "",
+    "description": "Explore and query SQLite databases.",
     "version": "0.0.1",
     "publisher": "alexcvzz",
     "engines": {
