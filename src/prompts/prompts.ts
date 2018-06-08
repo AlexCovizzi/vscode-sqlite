@@ -1,19 +1,19 @@
-import { QuickPickItem, Uri, workspace, window } from 'vscode';
+import { QuickPickItem, workspace, window } from 'vscode';
 import { basename } from 'path';
 import { DatabaseStore } from '../database/databaseStore';
 
 namespace QuickPick {
     export class DatabaseItem implements QuickPickItem {
-        uri: Uri;
+        path: string;
         label: string;
         description: string;
         detail?: string;
         picked?: boolean;
         
-        constructor(uri: Uri) {
-            this.uri = uri;
-            this.label = basename(uri.fsPath);
-            this.description = uri.fsPath;
+        constructor(path: string) {
+            this.path = path;
+            this.label = basename(path);
+            this.description = path;
         }
     }
     export class ErrorItem implements QuickPickItem {
@@ -38,14 +38,14 @@ export function searchDatabase(hint?: string): Thenable<string> {
             if (filesUri.length === 0) {
                 resolve([new QuickPick.ErrorItem('No database found.')]);
             } else {
-                resolve(filesUri.map(uri => new QuickPick.DatabaseItem(uri)));
+                resolve(filesUri.map(uri => new QuickPick.DatabaseItem(uri.fsPath)));
             }
         });
     });
     return new Promise((resolve, reject) => {
         window.showQuickPick(promise, {placeHolder: hint? hint : 'Choose a database to open.'}).then( (item) => {
             if (item instanceof QuickPick.DatabaseItem) {
-                resolve(item.uri.fsPath);
+                resolve(item.path);
             } else {
                 reject('No database found.');
             }
@@ -68,12 +68,12 @@ export function chooseDatabase(databaseStore: DatabaseStore, hint?: string, fall
         if (databaseStore.empty()) {
             resolve([new QuickPick.ErrorItem("No database open.")]);
         }
-        resolve(databaseStore.getAll().map(db => new QuickPick.DatabaseItem(Uri.parse(db.dbPath))));
+        resolve(databaseStore.getAll().map(db => new QuickPick.DatabaseItem(db.dbPath)));
     });
     return new Promise((resolve, reject) => {
         window.showQuickPick(promise, {placeHolder: hint? hint : 'Choose a database.'}).then( (item) => {
             if (item instanceof QuickPick.DatabaseItem) {
-                resolve(item.uri.fsPath);
+                resolve(item.path);
             } else {
                 reject('No database open.');
             }
