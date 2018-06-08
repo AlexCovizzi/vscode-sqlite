@@ -12,11 +12,13 @@ import { ResultSet } from './database/resultSet';
 import * as Prompts from './prompts/prompts';
 import { getEditorSqlDocument, newSqlDocument } from './sqlDocument/sqlDocument';
 import { DatabaseBindings } from './sqlDocument/databaseBindings';
+import { existsSync } from 'fs';
 
 /**
  * Initialize controllers, register commands, run commands
  */
 export class MainController implements Disposable {
+    private activated: boolean;
 
     private databaseStore!: DatabaseStore;
     private explorer!: SQLiteExplorer;
@@ -25,7 +27,7 @@ export class MainController implements Disposable {
     private databaseBindings: DatabaseBindings = new DatabaseBindings();
 
     constructor(private context: ExtensionContext) {
-
+        this.activated = true;
     }
 
     dispose() {
@@ -84,6 +86,7 @@ export class MainController implements Disposable {
     }
 
     deactivate() {
+        this.activated = false;
         // nothing to deactivate for now
     }
 
@@ -92,9 +95,19 @@ export class MainController implements Disposable {
 
         return new Promise( (resolve, reject) => {
             const extensionPath = self.context.extensionPath;
-    
-            /* initialize DatabaseStore, Explorer */
-            this.databaseStore = new DatabaseStore(getSqlitePath(extensionPath));
+            
+            let sqlitePath = getSqlitePath(extensionPath);
+            if (!existsSync(sqlitePath)) {
+                this.activated = false;
+                
+                window.showErrorMessage(`Failed to activate extension. SQLite binaries not found.`);
+                
+                resolve(false);
+                return;
+            }
+
+            /* initialize DatabaseStore, Explorer, QueryRunner, ResultView */
+            this.databaseStore = new DatabaseStore(sqlitePath);
             this.explorer = new SQLiteExplorer(this.databaseStore);
             this.queryRunner = new QueryRunner(this.databaseStore);
             this.resultView = new WebviewPanelController();
@@ -104,6 +117,8 @@ export class MainController implements Disposable {
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
             self.context.subscriptions.push(this.resultView);
+
+            this.activated = true;
 
             resolve(true);
         });

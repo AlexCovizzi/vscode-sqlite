@@ -1,25 +1,17 @@
-import { join } from "path";
 
 const pkg = require('../../package.json');
 
 export class Constants {
     /* extension */
     public static extensionName = pkg.displayName;
-    public static extensionVersion = `v${pkg.version}`;
+    public static extensionVersion = pkg.version;
 
     /* output channel */
     public static outputChannelName: string = `${Constants.extensionName}`;
 
-    /* query result */
-    // query result path: {queryResultScheme}:{queryResultPrefix}-{queryResultId}.{queryResultExtension}
-    public static queryResultIdLength = 8;
-    public static queryResultScheme = 'query-result';
-    public static queryResultExtension = 'qres';
-    public static queryResultPrefix = 'sqlite';
-
     /* webview panel */
     public static webviewPanelTitle = 'SQLite';
-    public static htmlAssetsPath = join(__dirname, '..', '..', 'www');
+    //public static htmlAssetsPath = join(__dirname, '..', '..', 'www');
 }
 
 export class Commands {
