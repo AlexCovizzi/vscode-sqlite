@@ -1,5 +1,6 @@
 .vscode/**
 .vscode-test/**
+.test_db/**
 out/test/**
 out/**/*.map
 src/**
