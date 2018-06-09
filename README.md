@@ -3,7 +3,7 @@
 VSCode extension to explore and query SQLite databases.
 
 ## Features
-
+![SQLite Explorer](https://raw.githubusercontent.com/AlexCovizzi/vscode-sqlite/master/static/sqlite_explorer.png "SQLite Explorer")
 
 
 ## Known Issues

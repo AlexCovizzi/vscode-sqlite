@@ -18,8 +18,6 @@ import { existsSync } from 'fs';
  * Initialize controllers, register commands, run commands
  */
 export class MainController implements Disposable {
-    private activated: boolean;
-
     private databaseStore!: DatabaseStore;
     private explorer!: SQLiteExplorer;
     private queryRunner!: QueryRunner;
@@ -27,7 +25,7 @@ export class MainController implements Disposable {
     private databaseBindings: DatabaseBindings = new DatabaseBindings();
 
     constructor(private context: ExtensionContext) {
-        this.activated = true;
+        
     }
 
     dispose() {
@@ -86,7 +84,6 @@ export class MainController implements Disposable {
     }
 
     deactivate() {
-        this.activated = false;
         // nothing to deactivate for now
     }
 
@@ -98,10 +95,7 @@ export class MainController implements Disposable {
             
             let sqlitePath = getSqlitePath(extensionPath);
             if (!existsSync(sqlitePath)) {
-                this.activated = false;
-                
                 window.showErrorMessage(`Failed to activate extension. SQLite binaries not found.`);
-                
                 resolve(false);
                 return;
             }
@@ -117,8 +111,6 @@ export class MainController implements Disposable {
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
             self.context.subscriptions.push(this.resultView);
-
-            this.activated = true;
 
             resolve(true);
         });
