@@ -7,11 +7,18 @@ VSCode extension to explore and query SQLite databases.
 ## Features
 
 * Open, close and query SQLite databases.
-* SQLite explorer: explore your database's tables and columns.
+* Sidebar explorer: list databases, tables and columns.
 
 ![static/sqlite_explorer](https://raw.githubusercontent.com/AlexCovizzi/vscode-sqlite/master/static/sqlite_explorer.png)
 
+## Usage
+
+TODO
+
+## Settings
+
+No settings for now.
 
 ## Known Issues
 
-No known issues.
+No known issues for now.
