@@ -10,6 +10,7 @@ export class ResultSet extends Array<Result> {
 }
 
 export interface Result {
+    stmt: string;
     header: string[];
     rows: Row[];
 }

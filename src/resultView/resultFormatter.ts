@@ -19,13 +19,18 @@ export function formatToJSON(resultSet: ResultSet): string {
 export function formatToHTML(resultSet: ResultSet): string {
     let html = '';
     resultSet.forEach(result => {
-        let htmlTable = new HTMLTable(true);
-        htmlTable.setHeader(result.header);
-        result.rows.forEach(row => {
-            htmlTable.addRow(row);
-        });
+        //html += `<div class="statement"><code>${result.stmt}</code></div>`;
+        if (result.rows.length > 0) {
+            let htmlTable = new HTMLTable(true);
+            htmlTable.setHeader(result.header);
+            result.rows.forEach(row => {
+                htmlTable.addRow(row);
+            });
+            html += htmlTable.toString();
+        } else {
+            html += '<div class="no-result">No result found.</div>';
+        }
         html += `<div class="separator"></div>`;
-        html += htmlTable.toString();
     });
     return html;
 }

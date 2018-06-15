@@ -1,6 +1,6 @@
 import { TreeDataProvider, Event, TreeItem, EventEmitter } from "vscode";
-import { DatabaseStore } from "../database/databaseStore";
 import { SQLItem, DBItem, TableItem, ColumnItem } from "./treeItem";
+import { QueryRunner } from "../database/queryRunner";
 
 export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
 
@@ -9,17 +9,16 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
 
     private dbs: string[] = [];
 
-    constructor(private databaseStore: DatabaseStore) {
+    constructor(private queryRunner: QueryRunner) {
     }
     
     refresh(): void {
         this._onDidChangeTreeData.fire();
     }
-    
+
     addToTree(dbPath: string) {
-        let database = this.databaseStore.getDatabase(dbPath);
         let isNew = this.dbs.findIndex(db => db === dbPath) < 0;
-        if (database && isNew) {
+        if (isNew) {
             this.dbs.push(dbPath);
             this.refresh();
             return true;
@@ -45,9 +44,9 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
         return new Promise( (resolve, reject) => {
             if (element) {
                 if (element instanceof DBItem) {
-                    let database = this.databaseStore.getDatabase(element.dbPath);
-                    if (database) {
-                        database.exec(`SELECT name FROM sqlite_master WHERE type="table";`, (resultSet) => {
+                    const query = `SELECT name FROM sqlite_master WHERE type="table";`;
+                    this.queryRunner.runQuery(element.dbPath, query).then(
+                        resultSet => {
                             let tableItems: TableItem[] = [];
                             
                             if (resultSet.length > 0) {
@@ -57,13 +56,15 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
                                 });
                             }
                             resolve(tableItems);
-                        });
-                    }
+                        },
+                        err => {
+                            resolve([]);
+                        }
+                    );
                 } else if (element instanceof TableItem) {
-                    let database = this.databaseStore.getDatabase(element.parent.dbPath);
-                    if (database) {
-                        let query = `PRAGMA table_info(${element.label});`;
-                        database.exec(query, (resultSet) => {
+                    let query = `PRAGMA table_info(${element.label});`;
+                    this.queryRunner.runQuery(element.parent.dbPath, query).then(
+                        resultSet => {
                             let columnItems: ColumnItem[] = [];
 
                             if (resultSet.length > 0) {
@@ -80,8 +81,11 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
                                 });
                             }
                             resolve(columnItems);
-                        });
-                    }
+                        },
+                        err => {
+                            resolve([]);
+                        }
+                    );
                 } else if (element instanceof ColumnItem) {
                     resolve([]);
                 }

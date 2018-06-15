@@ -1,12 +1,11 @@
 'use strict';
 
 import { Uri, commands, ExtensionContext, Disposable, window } from 'vscode';
-import { DatabaseStore } from './database/databaseStore';
 import { getSqlitePath } from './utils/utils';
 import { SQLiteExplorer } from './explorer/explorer';
 import { DBItem, TableItem } from './explorer/treeItem';
 import { Commands } from './constants/constants';
-import { QueryRunner } from './queryRunner/queryRunner';
+import { QueryRunner } from './database/queryRunner';
 import { ResultView, WebviewPanelController } from './resultView/resultView';
 import { ResultSet } from './database/resultSet';
 import * as Prompts from './prompts/prompts';
@@ -18,11 +17,10 @@ import { existsSync } from 'fs';
  * Initialize controllers, register commands, run commands
  */
 export class MainController implements Disposable {
-    private databaseStore!: DatabaseStore;
-    private explorer!: SQLiteExplorer;
     private queryRunner!: QueryRunner;
+    private explorer!: SQLiteExplorer;
     private resultView!: ResultView;
-    private databaseBindings: DatabaseBindings = new DatabaseBindings();
+    private databaseBindings!: DatabaseBindings;
 
     constructor(private context: ExtensionContext) {
         
@@ -33,36 +31,24 @@ export class MainController implements Disposable {
     }
 
     activate(): Promise<boolean> {
-        /**
-         * OpenDatabase can be called from:
-         * - the file explorer (arg is a Uri), or
-         * - the command palette (arg is undefined)
-         */
-        this.context.subscriptions.push(commands.registerCommand(Commands.openDatabase, (arg?: Uri) => {
-            this.onOpenDatabase(arg instanceof Uri? arg.fsPath : arg);
+        // command palette commands
+        this.context.subscriptions.push(commands.registerCommand(Commands.exploreDatabase, (uri: Uri) => {
+            this.onExploreDatabase(uri.fsPath);
         }));
-        /**
-         * CloseDatabase can be called from:
-         * - the sqlite explorer (arg is a DBItem), or
-         * - the command palette (arg is undefined)
-         */ 
-        this.context.subscriptions.push(commands.registerCommand(Commands.closeDatabase, (arg?: DBItem) => {
-            this.onCloseDatabase(arg instanceof DBItem? arg.dbPath : arg);
+        this.context.subscriptions.push(commands.registerCommand(Commands.closeExplorerDatabase, (item: DBItem) => {
+            this.onCloseExplorerDatabase(item.dbPath);
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.bindDatabase, () => {
             this.onBindDatabase();
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.addToExplorer, (dbPath: string) => {
-            this.onAddToExplorer(dbPath);
+        this.context.subscriptions.push(commands.registerCommand(Commands.runDocumentQuery, () => {
+            this.onRunDocumentQuery();
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.removeFromExplorer, (dbPath: string) => {
-            this.onRemoveFromExplorer(dbPath);
+        this.context.subscriptions.push(commands.registerCommand(Commands.newQuery, (item?: DBItem) => {
+            this.onNewQuery(item? item.dbPath : undefined);
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.refreshExplorer, () => {
             this.onRefreshExplorer();
-        }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.runQuery, (dbPath: string, query: string) => {
-            this.onRunQuery(dbPath, query);
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.runTableQuery, (tableItem: TableItem) => {
             this.onRunTableQuery(tableItem.parent.dbPath, tableItem.label);
@@ -70,14 +56,12 @@ export class MainController implements Disposable {
         this.context.subscriptions.push(commands.registerCommand(Commands.runSqliteMasterQuery, (dbItem: DBItem) => {
             this.onRunSqliteMasterQuery(dbItem.dbPath);
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.runDocumentQuery, (docUri: Uri) => {
-            this.onRunDocumentQuery();
+        // private commands
+        this.context.subscriptions.push(commands.registerCommand(Commands.runQuery, (dbPath: string, query: string) => {
+            this.onRunQuery(dbPath, query);
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.showQueryResult, (resultSet: ResultSet) => {
             this.onShowQueryResult(resultSet);
-        }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.newQuery, (arg?: DBItem) => {
-            this.onNewQuery(arg instanceof DBItem? arg.dbPath : arg);
         }));
 
         return this.initialize();
@@ -100,14 +84,11 @@ export class MainController implements Disposable {
                 return;
             }
 
-            /* initialize DatabaseStore, Explorer, QueryRunner, ResultView */
-            this.databaseStore = new DatabaseStore(sqlitePath);
-            this.explorer = new SQLiteExplorer(this.databaseStore);
-            this.queryRunner = new QueryRunner(this.databaseStore);
+            this.queryRunner = new QueryRunner(sqlitePath);
+            this.explorer = new SQLiteExplorer(this.queryRunner);
+            this.databaseBindings = new DatabaseBindings();
             this.resultView = new WebviewPanelController();
 
-    
-            self.context.subscriptions.push(this.databaseStore);
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
             self.context.subscriptions.push(this.resultView);
@@ -116,60 +97,25 @@ export class MainController implements Disposable {
         });
     }
 
-    /**
-     * Opens the database passed as parameter.
-     * If dbPath is undefined it will open a QuickPick that let you
-     * choose a database to open from the files with extension .db or .sqlite in your workspace,
-     * and then recalls this method with the chosen file path as parameter.
-     */
-    private onOpenDatabase(dbPath?: string) {
-        if (dbPath) {
-            let database = this.databaseStore.openDatabase(dbPath);
-            if (database) {
-                commands.executeCommand(Commands.addToExplorer, dbPath);
-            }
-        } else {
-            Prompts.searchDatabase().then(
-                path => this.onOpenDatabase(path)
-            );
-        }
+    /* Commands events */
+
+
+    private onExploreDatabase(dbPath: string) {
+        this.explorer.addToExplorer(dbPath);
     }
 
-    /**
-     * Close the database passed as parameter.
-     * If dbPath is undefined it will open a QuickPick that let you
-     * choose which database to close and then recalls this method
-     * with the chosen database path as parameter.
-     */
-    private onCloseDatabase(dbPath?: string) {
-        if (dbPath) {
-            this.databaseStore.closeDatabase(dbPath);
-            this.databaseBindings.unbind(dbPath);
-            commands.executeCommand(Commands.removeFromExplorer, dbPath);
-        } else {
-            Prompts.chooseDatabase(this.databaseStore).then(
-                path => this.onCloseDatabase(path)
-            );
-        }
+    private onCloseExplorerDatabase(dbPath: string) {
+        this.explorer.removeFromExplorer(dbPath);
     }
 
     private onBindDatabase(): Thenable<String> {
         return new Promise((resolve, reject) => {
             let hint = 'Choose a database to bind to this document';
-            Prompts.chooseDatabase(this.databaseStore, hint, true).then((dbPath) => {
-                this.onOpenDatabase(dbPath); // if the database is already open this wont do anything
+            Prompts.searchDatabase(hint).then((dbPath) => {
                 this.databaseBindings.bind(getEditorSqlDocument(), dbPath);
                 resolve(dbPath);
             });
         });
-    }
-
-    private onAddToExplorer(dbPath: string) {
-        this.explorer.addToExplorer(dbPath);
-    }
-
-    private onRemoveFromExplorer(dbPath: string) {
-        this.explorer.removeFromExplorer(dbPath);
     }
 
     private onRefreshExplorer() {

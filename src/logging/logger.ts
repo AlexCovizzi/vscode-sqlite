@@ -17,7 +17,7 @@ export namespace DebugLogger {
 
     export function log(msg: string) {
         const time = new Date().toLocaleTimeString();
-        let outputMsg = `[${time}][${Constants.extensionVersion}] ${msg}`;
+        let outputMsg = `[${time}][v-${Constants.extensionVersion}] ${msg}`;
         console.log(outputMsg);
     }
 }

@@ -28,7 +28,6 @@ function getCss() {
     }
     table {
         border-collapse:collapse;
-        margin-top: 16px;
     }
     table, td, th {
         border:1px dotted var(--table-border);
@@ -39,6 +38,14 @@ function getCss() {
     }
     th {
         background: var(--table-header)
+    }
+
+    .separator {
+        padding: 8px;
+    }
+
+    .no-result {
+        marging-top: 8px;
     }
 
     /* enumerated table */
