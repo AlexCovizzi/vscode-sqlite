@@ -1,5 +1,6 @@
 import { platform } from "os";
 import { join } from "path";
+import { existsSync } from "fs";
 
 /**
  * Sanitizes a string for html, that is:
@@ -20,7 +21,7 @@ export function sanitizeStringForHtml(s: string): string {
  * If there are no binaries for the platform returns an empty string.
  * @param extensionPath The path of this extension
  */
-export function getSqlitePath(extensionPath: string) {
+export function getSqliteBinariesPath(extensionPath: string) {
     let plat = platform();
     let sqliteBin: string;
     switch (plat) {
@@ -38,7 +39,8 @@ export function getSqlitePath(extensionPath: string) {
             break;
     }
     if (sqliteBin) {
-        return join(extensionPath, 'bin', sqliteBin);
+        let path = join(extensionPath, 'bin', sqliteBin);
+        return existsSync(path)? path : '';
     } else {
         return '';
     }

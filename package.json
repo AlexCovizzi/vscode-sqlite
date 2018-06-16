@@ -176,7 +176,18 @@
                     ".sqlite"
                 ]
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "SQLite Configuration",
+            "properties": {
+                "sqlite.sqlite3": {
+                    "type": "string",
+                    "default": "sqlite3",
+                    "description": "SQLite3 command or binaries path."
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
@@ -194,6 +205,7 @@
     },
     "dependencies": {
         "@types/csv-parse": "^1.1.11",
+        "command-exists": "^1.2.6",
         "csv-parse": "^2.5.0"
     }
 }

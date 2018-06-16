@@ -3,16 +3,23 @@ import * as csv_parse from 'csv-parse/lib/sync';
 import { DebugLogger } from '../logging/logger';
 
 /* regex */
-const reNewLine = /(?!\B\"[^\"]*)\n(?![^\"]*\"\B)/g;
+const reNewLine = /(?!\B\"[^\"]*)\n(?![^\"]*\"\B)/g; // match new lines not in quotes
 
 export class SQLite {
     private static EXEC_OUT_BUFFER = 1024*1024; // should be enough to print the query output
 
-    static query(binPath: string, dbPath: string, query: string, callback: (rows: Object[], err?:Error) => void) {
+    static query(cmdSqlite: string, dbPath: string, query: string, callback: (rows: Object[], err?:Error) => void) {
         query = this.sanitizeQuery(query);
         
-        const args = [`"${dbPath}"`, `-header`, `-nullvalue "NULL"`, `-echo`, `-cmd ".mode tcl"`, `"${query}"`];
-        const cmd = `${binPath} ${args.join(' ')}`;
+        const args = [
+            `"${dbPath}"`, `"${query}"`,
+            `-header`, // print the headers before the result rows
+            `-nullvalue "NULL"`, // print NULL for null values
+            `-echo`, // print the statement before the result
+            `-cmd ".mode tcl"`, // execute this command before the query, in mode tcl each field is in double quotes
+            ];
+            
+        const cmd = `${cmdSqlite} ${args.join(' ')}`;
         DebugLogger.info(`[QUERY CMD] ${cmd}`);
 
         child_process.exec(cmd, {maxBuffer: SQLite.EXEC_OUT_BUFFER}, (err: Error, stdout: string, stderr: string) => {
@@ -32,7 +39,7 @@ export class SQLite {
         return query;
     }
 
-    private static parseError(message: string): Error {
+    public static parseError(message: string): Error {
         let lines = message.split(reNewLine);
         for (var i=0; i<lines.length; i++) {
             if (lines[i].startsWith('Error')) {
@@ -42,7 +49,7 @@ export class SQLite {
         return Error();
     }
 
-    private static parseOutput(output: string) {
+    public static parseOutput(output: string) {
         let lines = output.split(reNewLine);
         
         let splitted: string[] = [];
@@ -64,18 +71,22 @@ export class SQLite {
         
         let data: Object[] = [];
         let stmt: string | undefined = undefined;
-        splitted.forEach(ln => {
+        splitted.forEach((ln,i) => {
             if (ln.startsWith('"')) {
                 let rows = csv_parse(ln, {delimiter: ' ', quote: '"', escape: '"'});
-                data.push({stmt: stmt? stmt : "", rows: rows});
+                data.push({stmt: stmt? stmt : '', rows: rows});
                 stmt = undefined;
             } else {
                 if (stmt) {
                     data.push({stmt: stmt, rows: []});
                 }
                 stmt = ln;
+                if (i === splitted.length-1) {
+                    data.push({stmt: stmt, rows: []});
+                }
             }
         });
         return data;
     }
+
 }

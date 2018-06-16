@@ -11,6 +11,7 @@ export function getHtml(content: string) {
             </head>
     
             <body>
+                <div class="separator"></div>
                 <div id='section-query-result'>
                     ${content}
                 </div>

@@ -1,22 +1,25 @@
 'use strict';
 
 import { Uri, commands, ExtensionContext, Disposable, window } from 'vscode';
-import { getSqlitePath } from './utils/utils';
+import { getSqliteBinariesPath } from './utils/utils';
 import { SQLiteExplorer } from './explorer/explorer';
 import { DBItem, TableItem } from './explorer/treeItem';
-import { Commands } from './constants/constants';
+import { Commands, Constants } from './constants/constants';
 import { QueryRunner } from './database/queryRunner';
 import { ResultView, WebviewPanelController } from './resultView/resultView';
 import { ResultSet } from './database/resultSet';
 import * as Prompts from './prompts/prompts';
 import { getEditorSqlDocument, newSqlDocument } from './sqlDocument/sqlDocument';
 import { DatabaseBindings } from './sqlDocument/databaseBindings';
-import { existsSync } from 'fs';
+import { Configuration } from './configurations/configurations';
+import { OutputLogger, DebugLogger } from './logging/logger';
+import { execSync } from 'child_process';
+import * as commandExists from 'command-exists';
 
 /**
  * Initialize controllers, register commands, run commands
  */
-export class MainController implements Disposable {
+export class MainController {
     private queryRunner!: QueryRunner;
     private explorer!: SQLiteExplorer;
     private resultView!: ResultView;
@@ -26,12 +29,7 @@ export class MainController implements Disposable {
         
     }
 
-    dispose() {
-        this.deactivate();
-    }
-
     activate(): Promise<boolean> {
-        // command palette commands
         this.context.subscriptions.push(commands.registerCommand(Commands.exploreDatabase, (uri: Uri) => {
             this.onExploreDatabase(uri.fsPath);
         }));
@@ -67,24 +65,19 @@ export class MainController implements Disposable {
         return this.initialize();
     }
 
-    deactivate() {
-        // nothing to deactivate for now
-    }
-
     private initialize(): Promise<boolean> {
         let self = this;
 
         return new Promise( (resolve, reject) => {
-            const extensionPath = self.context.extensionPath;
-            
-            let sqlitePath = getSqlitePath(extensionPath);
-            if (!existsSync(sqlitePath)) {
-                window.showErrorMessage(`Failed to activate extension. SQLite binaries not found.`);
+            let cmdSqlite = this.getCmdSqlite();
+            if (!cmdSqlite) {
+                OutputLogger.log('Failed to activate extension.');
+                window.showErrorMessage(`Failed to activate ${Constants.extensionName} extension`);
                 resolve(false);
                 return;
             }
 
-            this.queryRunner = new QueryRunner(sqlitePath);
+            this.queryRunner = new QueryRunner(cmdSqlite);
             this.explorer = new SQLiteExplorer(this.queryRunner);
             this.databaseBindings = new DatabaseBindings();
             this.resultView = new WebviewPanelController();
@@ -92,13 +85,14 @@ export class MainController implements Disposable {
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
             self.context.subscriptions.push(this.resultView);
+            
+            OutputLogger.log('Extension activated!');
 
             resolve(true);
         });
     }
 
     /* Commands events */
-
 
     private onExploreDatabase(dbPath: string) {
         this.explorer.addToExplorer(dbPath);
@@ -166,6 +160,54 @@ export class MainController implements Disposable {
 
     private onShowQueryResult(resultSet: ResultSet) {
         this.resultView.show(resultSet);
+    }
+    
+
+    private getCmdSqlite(): string | undefined {
+        let cmdSqlite = Configuration.sqlite3();
+        if (!commandExists.sync(cmdSqlite) || cmdSqlite.trim() === '') {
+            OutputLogger.log(`'${cmdSqlite}' is not recognized as a command.`);
+            // fallback to sqlite3 binaries in {extension}/bin
+            return this.sqliteBinariesFallback();
+        }
+        
+        if (!this.isCmdSqliteValid(cmdSqlite)) {
+            OutputLogger.log(`'${cmdSqlite}' is not a valid command.`);
+            // fallback to sqlite3 binaries in {extension}/bin
+            return this.sqliteBinariesFallback();
+        }
+
+        return cmdSqlite;
+    }
+
+    private sqliteBinariesFallback(): string | undefined {
+        let binPath = getSqliteBinariesPath(this.context.extensionPath);
+        if (binPath === '') {
+            OutputLogger.log(`Fallback binaries not found.`);
+            return undefined;
+        } else {
+            OutputLogger.log(`Falling back to binaries '${binPath}'...`);
+        }
+
+        if (!this.isCmdSqliteValid(binPath)) {
+            OutputLogger.log(`Invalid binaries '${binPath}'.`);
+            return undefined;
+        } else {
+            return binPath;
+        }
+    }
+
+    private isCmdSqliteValid(cmdSqlite: string) {
+        try {
+            let out = execSync(`${cmdSqlite} -version`).toString();
+            // out must be: {version at least 3} {date} {time} {hex string (the length varies)}
+            if (out.match(/3\.[0-9]{1,2}\.[0-9]{1,2} [0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}\:[0-9]{2}\:[0-9]{2} [a-f0-9]{0,90}/)) {
+                return true;
+            }
+        } catch(e) {
+            //
+        }
+        return false;
     }
 }
 

@@ -13,11 +13,13 @@ export function formatToJSON(resultSet: ResultSet): string {
  * Format a query result to html.
  * A single result is formatted to an html table.
  * Every table is separated by a <div class='separator'></div>.
+ * If a result is empty (has no rows) show no result found message.
  * 
  * @param resultSet query result to format
  */
 export function formatToHTML(resultSet: ResultSet): string {
     let html = '';
+
     resultSet.forEach(result => {
         //html += `<div class="statement"><code>${result.stmt}</code></div>`;
         if (result.rows.length > 0) {
@@ -28,7 +30,7 @@ export function formatToHTML(resultSet: ResultSet): string {
             });
             html += htmlTable.toString();
         } else {
-            html += '<div class="no-result">No result found.</div>';
+            html += `<table class="no-result"><td>No result found</td></table>`;
         }
         html += `<div class="separator"></div>`;
     });

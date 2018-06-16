@@ -7,7 +7,7 @@ import { OutputLogger } from "../logging/logger";
 export class QueryRunner implements Disposable {
     private disposable: Disposable;
 
-    constructor(private binPath: string) {
+    constructor(private cmdSqlite: string) {
         let subscriptions: Disposable[] = [];
 
         this.disposable = Disposable.from(...subscriptions);
@@ -19,7 +19,7 @@ export class QueryRunner implements Disposable {
         OutputLogger.log(`[QUERY] ${query}`);
         
         return new Promise ((resolve, reject) => {
-            SQLite.query(this.binPath, dbPath, query, (data: Object[], err?: Error) => {
+            SQLite.query(this.cmdSqlite, dbPath, query, (data: Object[], err?: Error) => {
                 if (err) {
                     reject(err.message);
                 } else {

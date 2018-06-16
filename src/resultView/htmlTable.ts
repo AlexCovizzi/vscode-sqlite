@@ -1,8 +1,7 @@
 import { sanitizeStringForHtml } from "../utils/utils";
 
 /**
- * Used in the QueryResultFormatter to transform a Result in a HTMLTable.
- * Useful to decouple the query result from it's html representation.
+ * Used in the QueryResultFormatter to transform a Result in an html table.
  */
 export class HTMLTable {
 
