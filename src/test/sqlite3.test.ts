@@ -4,7 +4,7 @@ import * as sqlite3 from '../database/sqlite3';
 suite("SQLite3.parseOutput Tests", function () {
 
     test("string followed by string inside quotes should return first string as statement and rest as rows", function() {
-        let stmt = `SELECT * FROM company \nWHERE name = "company_name" LIMIT 5;`;
+        let stmt = `SELECT * FROM company WHERE name = "company_name" LIMIT 5;`;
         let row11 = `this is the first element of the first row`;
         let row12 = `this is the second element of the first row`;
         let row21 = `this is the first element of the second row`;
@@ -18,8 +18,8 @@ suite("SQLite3.parseOutput Tests", function () {
     });
 
     test("strings separated by semicolon should return both as stmt", function() {
-        let stmt1 = `SELECT * \nFROM company WHERE name = "company_name" LIMIT 5;`;
-        let stmt2 = `SELECT * FROM user_agent \nLIMIT 2;`;
+        let stmt1 = `SELECT * FROM company WHERE name = "com\npany_name" LIMIT 5;`;
+        let stmt2 = `SELECT * FROM user_agent where name like '%\n' LIMIT 2;`;
         let row = `this is the element of the row`;
         let stmt3 = `SELECT * FROM user;`;
         let str = `${stmt1}\n${stmt2}\n"${row}"\n${stmt3}`;

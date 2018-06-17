@@ -1,6 +1,7 @@
 import * as child_process from 'child_process';
 import * as csv_parse from 'csv-parse/lib/sync';
 import { DebugLogger } from '../logging/logger';
+import { splitNotInString } from '../utils/utils';
 
 /* regex */
 const reNewLine = /(?!\B\"[^\"]*)\n(?![^\"]*\"\B)/g; // match new lines not in quotes
@@ -50,42 +51,44 @@ export class SQLite {
     }
 
     public static parseOutput(output: string) {
-        let lines = output.split(reNewLine);
-        
-        let splitted: string[] = [];
-        lines.forEach(line => {
-            let l = splitted.length;
-            if (l === 0) {
-                splitted.push(line);
-            } else {
-                if (line.startsWith('"') && splitted[l-1].startsWith('"')) {
-                    splitted[l-1] += "\n"+line;
-                } else if (!line.startsWith('"') && !splitted[l-1].startsWith('"') && !splitted[l-1].endsWith(';')) {
-                    splitted[l-1] += "\n"+line;
-                } else {
-                    splitted.push(line);
-                }
-            }
-        });
-        splitted = splitted.filter(r => r.length !== 0);
-        
         let data: Object[] = [];
-        let stmt: string | undefined = undefined;
-        splitted.forEach((ln,i) => {
-            if (ln.startsWith('"')) {
-                let rows = csv_parse(ln, {delimiter: ' ', quote: '"', escape: '"'});
-                data.push({stmt: stmt? stmt : '', rows: rows});
-                stmt = undefined;
-            } else {
-                if (stmt) {
-                    data.push({stmt: stmt, rows: []});
+
+        let lines = splitNotInString('\n', output);
+        
+        let stmt = '';
+        let rowsStr: string | null = null;
+        for (var index = 0; index < lines.length; index++) {
+            let line = lines[index];
+            let prev = index > 0? lines[index-1] : null;
+
+            if (line.startsWith('"')) {
+                if (rowsStr) {
+                    rowsStr = rowsStr+'\n'+line;
+                } else {
+                    rowsStr = line;
                 }
-                stmt = ln;
-                if (i === splitted.length-1) {
+                // if its the last line push stmt and rows
+                if (index === lines.length-1) {
+                    let csv_parse_options = {delimiter: ' ', quote: '"', escape: '"'};
+                    let rows = rowsStr? csv_parse(rowsStr, csv_parse_options) : [];
+                    data.push({stmt: stmt, rows: rows});
+                }
+            } else {
+                // push previous (if there is) stmt and rows to data
+                if (prev) {
+                    let csv_parse_options = {delimiter: ' ', quote: '"', escape: '"'};
+                    let rows = rowsStr? csv_parse(rowsStr, csv_parse_options) : [];
+                    data.push({stmt: stmt, rows: rows});
+                    rowsStr = null;
+                }
+                stmt = line;
+                // if its the last line push stmt without rows
+                if (index === lines.length-1) {
                     data.push({stmt: stmt, rows: []});
                 }
             }
-        });
+
+        }
         return data;
     }
 

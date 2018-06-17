@@ -46,6 +46,50 @@ export function getSqliteBinariesPath(extensionPath: string) {
     }
 }
 
+export function findNotInString(character: string, str: string) {
+    let charArray: Array <string> = Array.from(str);
+    let isInString: boolean = false;
+    let stringChar: string | null = null;
+    let found: number[] = [];
+
+    for (let index = 0; index < charArray.length; index++) {
+        let char = charArray[index];
+        let prev = index > 0? charArray[index - 1] : null;
+        //let next = index < charArray.length? charArray[index + 1] : null;
+
+        // it's in string, go to next char
+        if (prev !== '\\' && (char === '\'' || char === '"') && isInString === false) {
+            isInString = true;
+            stringChar = char;
+            continue;
+        }
+
+        // string closed, go to next char
+        if (prev !== '\\' && char === stringChar && isInString === true) {
+            isInString = false;
+            stringChar = null;
+            continue;
+        }
+
+        if (char === character && isInString === false) {
+            found.push(index);
+            continue;
+        }
+    }
+    return found;
+}
+
+export function splitNotInString(char: string, str: string) {
+    let idxs = findNotInString(char, str);
+    let substrs: string[] = [];
+    idxs.forEach( (idx, i) => {
+        let start = i > 0? idxs[i-1]+1 : 0;
+        let substr = str.substring(start, idx);
+        substrs.push(substr);
+    });
+    substrs.push(str.substring(idxs === []? 0 : idxs[idxs.length-1]+1));
+    return substrs;
+}
 
 export function randomString(length: number) {
     return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);

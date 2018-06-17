@@ -2,6 +2,7 @@
  * Adapted from https://github.com/TeamSQL/SQL-Statement-Parser by TeamSQL
  * - support for postgre, mssql, mysql removed
  * - comments are removed from the statements
+ * - new lines not in quotes are replaced with space
  */
 
 export class SQLParser {
@@ -89,11 +90,16 @@ export class SQLParser {
                 continue;
             }
 
+            // it's a new line, replace with space
+            if (char === '\n' && isInString === false && isInComment === false && isInTag === false) {
+                charArray[index] = ' ';
+            }
+
             // it's a query, continue until you get delimiter hit
             if (char.toLowerCase() === delimiter.toLowerCase() && isInString === false && isInComment === false && isInTag === false) {
                 var splittingIndex = index;
                 // if (delimiter == ";") {     splittingIndex = index + 1 }
-                resultQueries = this.getQueryParts(query, initIndex? initIndex : 0, splittingIndex, delimiter);
+                resultQueries = this.getQueryParts(charArray.join(''), initIndex? initIndex : 0, splittingIndex, delimiter);
                 break;
 
             }
