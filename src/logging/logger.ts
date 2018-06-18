@@ -17,8 +17,14 @@ export namespace DebugLogger {
 
     export function log(msg: string) {
         const time = new Date().toLocaleTimeString();
-        let outputMsg = `[${time}][v-${Constants.extensionVersion}] ${msg}`;
-        console.log(outputMsg);
+        let outputMsg = `[${time}][${Constants.extensionName} v-${Constants.extensionVersion}] ${msg}`;
+        if (msg.startsWith('[E')) {
+            console.error(outputMsg);
+        } else if (msg.startsWith('[W')) {
+            console.warn(outputMsg);
+        } else {
+            console.log(outputMsg);
+        }
     }
 }
 

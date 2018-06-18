@@ -21,7 +21,7 @@ export function formatToHTML(resultSet: ResultSet): string {
     let html = '';
 
     resultSet.forEach(result => {
-        //html += `<div class="statement"><code>${result.stmt}</code></div>`;
+        html += `<code>${result.stmt}</code>`;
         if (result.rows.length > 0) {
             let htmlTable = new HTMLTable(true);
             htmlTable.setHeader(result.header);

@@ -1,8 +1,8 @@
 'use strict';
 
-import { Uri, commands, ExtensionContext, Disposable, window } from 'vscode';
+import { Uri, commands, ExtensionContext, window, Disposable } from 'vscode';
 import { getSqliteBinariesPath } from './utils/utils';
-import { SQLiteExplorer } from './explorer/explorer';
+import { DBExplorer } from './explorer/explorer';
 import { DBItem, TableItem } from './explorer/treeItem';
 import { Commands, Constants } from './constants/constants';
 import { QueryRunner } from './database/queryRunner';
@@ -10,59 +10,77 @@ import { ResultView, WebviewPanelController } from './resultView/resultView';
 import { ResultSet } from './database/resultSet';
 import * as Prompts from './prompts/prompts';
 import { getEditorSqlDocument, newSqlDocument } from './sqlDocument/sqlDocument';
-import { DatabaseBindings } from './sqlDocument/databaseBindings';
+import { DocumentDatabase } from './sqlDocument/documentDatabase';
 import { Configuration } from './configurations/configurations';
 import { OutputLogger, DebugLogger } from './logging/logger';
 import { execSync } from 'child_process';
 import * as commandExists from 'command-exists';
+import { DocumentDatabaseStatusBar } from './statusBar/docDatabaseStatusBar';
 
 /**
  * Initialize controllers, register commands, run commands
  */
-export class MainController {
+export class MainController implements Disposable {
+    private activated = false;
+
     private queryRunner!: QueryRunner;
-    private explorer!: SQLiteExplorer;
+    private explorer!: DBExplorer;
     private resultView!: ResultView;
-    private databaseBindings!: DatabaseBindings;
+    private documentDatabase!: DocumentDatabase;
+    private documentDatabaseStatusBar!: DocumentDatabaseStatusBar;
 
     constructor(private context: ExtensionContext) {
         
     }
 
+    dispose() {
+        this.deactivate();
+    }
+
     activate(): Promise<boolean> {
-        this.context.subscriptions.push(commands.registerCommand(Commands.exploreDatabase, (uri: Uri) => {
-            this.onExploreDatabase(uri.fsPath);
+        this.context.subscriptions.push(commands.registerCommand(Commands.exploreDatabase, () => {
+            this.onCommandEvent(() => this.onExploreDatabase());
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.closeExplorerDatabase, (item: DBItem) => {
-            this.onCloseExplorerDatabase(item.dbPath);
+        this.context.subscriptions.push(commands.registerCommand(Commands.closeExplorerDatabase, () => {
+            this.onCommandEvent(() => this.onCloseExplorerDatabase());
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.bindDatabase, () => {
-            this.onBindDatabase();
+        this.context.subscriptions.push(commands.registerCommand(Commands.ctxExploreDatabase, (uri: Uri) => {
+            this.onCommandEvent(() => this.onCtxExploreDatabase(uri.fsPath));
+        }));
+        this.context.subscriptions.push(commands.registerCommand(Commands.ctxCloseExplorerDatabase, (item: DBItem) => {
+            this.onCommandEvent(() => this.onCtxCloseExplorerDatabase(item.dbPath));
+        }));
+        this.context.subscriptions.push(commands.registerCommand(Commands.useDatabase, () => {
+            this.onCommandEvent(() => this.onUseDatabase());
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.runDocumentQuery, () => {
-            this.onRunDocumentQuery();
+            this.onCommandEvent(() => this.onRunDocumentQuery());
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.newQuery, (item?: DBItem) => {
-            this.onNewQuery(item? item.dbPath : undefined);
+            this.onCommandEvent(() => this.onNewQuery(item? item.dbPath : undefined));
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.refreshExplorer, () => {
-            this.onRefreshExplorer();
+            this.onCommandEvent(() => this.onRefreshExplorer());
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.runTableQuery, (tableItem: TableItem) => {
-            this.onRunTableQuery(tableItem.parent.dbPath, tableItem.label);
+            this.onCommandEvent(() => this.onRunTableQuery(tableItem.parent.dbPath, tableItem.label));
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.runSqliteMasterQuery, (dbItem: DBItem) => {
-            this.onRunSqliteMasterQuery(dbItem.dbPath);
+            this.onCommandEvent(() => this.onRunSqliteMasterQuery(dbItem.dbPath));
         }));
         // private commands
         this.context.subscriptions.push(commands.registerCommand(Commands.runQuery, (dbPath: string, query: string) => {
-            this.onRunQuery(dbPath, query);
+            this.onCommandEvent(() => this.onRunQuery(dbPath, query));
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.showQueryResult, (resultSet: ResultSet) => {
-            this.onShowQueryResult(resultSet);
+            this.onCommandEvent(() => this.onShowQueryResult(resultSet));
         }));
 
         return this.initialize();
+    }
+
+    deactivate() {
+        this.activated = false;
     }
 
     private initialize(): Promise<boolean> {
@@ -71,42 +89,72 @@ export class MainController {
         return new Promise( (resolve, reject) => {
             let cmdSqlite = this.getCmdSqlite();
             if (!cmdSqlite) {
-                OutputLogger.log('Failed to activate extension.');
-                window.showErrorMessage(`Failed to activate ${Constants.extensionName} extension`);
+                OutputLogger.log('Failed to activate extension.\n');
+                window.showErrorMessage(`Failed to activate ${Constants.extensionName} extension. `+
+                                        `For more informations see ${Constants.outputChannelName} output channel`);
                 resolve(false);
                 return;
             }
 
             this.queryRunner = new QueryRunner(cmdSqlite);
-            this.explorer = new SQLiteExplorer(this.queryRunner);
-            this.databaseBindings = new DatabaseBindings();
+            this.explorer = new DBExplorer(this.queryRunner);
+            this.documentDatabase = new DocumentDatabase();
+            this.documentDatabaseStatusBar = new DocumentDatabaseStatusBar(this.documentDatabase);
             this.resultView = new WebviewPanelController();
 
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
             self.context.subscriptions.push(this.resultView);
+            self.context.subscriptions.push(this.documentDatabase);
+            self.context.subscriptions.push(this.documentDatabaseStatusBar);
             
-            OutputLogger.log('Extension activated!');
+            OutputLogger.log('Extension activated!\n');
 
+            this.activated = true;
             resolve(true);
         });
     }
 
+    private onCommandEvent(callback: any) {
+        if (!this.activated) {
+            window.showErrorMessage(`${Constants.extensionName} extension is not activated`);
+        } else {
+            callback();
+        }
+    }
+
     /* Commands events */
 
-    private onExploreDatabase(dbPath: string) {
+    private onExploreDatabase() {
+        let hint = 'Choose a database to open in the explorer';
+        Prompts.searchDatabase(hint).then(
+            path => this.explorer.addToExplorer(path)
+        );
+    }
+
+    private onCloseExplorerDatabase() {
+        Prompts.pickExplorerDatabase(this.explorer).then(
+            path => this.explorer.removeFromExplorer(path)
+        );
+    }
+
+    private onCtxExploreDatabase(dbPath: string) {
         this.explorer.addToExplorer(dbPath);
     }
 
-    private onCloseExplorerDatabase(dbPath: string) {
+    private onCtxCloseExplorerDatabase(dbPath: string) {
         this.explorer.removeFromExplorer(dbPath);
     }
 
-    private onBindDatabase(): Thenable<String> {
+    private onUseDatabase(): Thenable<String> {
         return new Promise((resolve, reject) => {
-            let hint = 'Choose a database to bind to this document';
+            let hint = 'Choose which database to use for this document';
             Prompts.searchDatabase(hint).then((dbPath) => {
-                this.databaseBindings.bind(getEditorSqlDocument(), dbPath);
+                let doc = getEditorSqlDocument();
+                let success = this.documentDatabase.bind(doc, dbPath);
+                if (success) {
+                    OutputLogger.log(`Document '${doc? doc.uri.fsPath : ''}' uses '${dbPath}'`);
+                }
                 resolve(dbPath);
             });
         });
@@ -137,7 +185,7 @@ export class MainController {
         newSqlDocument(true).then(
             doc => {
                 if (dbPath) {
-                    this.databaseBindings.bind(doc, dbPath);
+                    this.documentDatabase.bind(doc, dbPath);
                 }
             }
         );
@@ -147,11 +195,11 @@ export class MainController {
         let doc = getEditorSqlDocument();
         if (doc) {
             let text = doc.getText();
-            let dbPath = this.databaseBindings.get(doc);
+            let dbPath = this.documentDatabase.get(doc);
             if (dbPath) {
                 commands.executeCommand(Commands.runQuery, dbPath, text);
             } else {
-                this.onBindDatabase().then(dbPath => {
+                this.onUseDatabase().then(dbPath => {
                     commands.executeCommand(Commands.runQuery, dbPath, text);
                 });
             }
@@ -161,7 +209,6 @@ export class MainController {
     private onShowQueryResult(resultSet: ResultSet) {
         this.resultView.show(resultSet);
     }
-    
 
     private getCmdSqlite(): string | undefined {
         let cmdSqlite = Configuration.sqlite3();
@@ -201,11 +248,12 @@ export class MainController {
         try {
             let out = execSync(`${cmdSqlite} -version`).toString();
             // out must be: {version at least 3} {date} {time} {hex string (the length varies)}
+            // this is to check that the command is actually for sqlite3
             if (out.match(/3\.[0-9]{1,2}\.[0-9]{1,2} [0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}\:[0-9]{2}\:[0-9]{2} [a-f0-9]{0,90}/)) {
                 return true;
             }
         } catch(e) {
-            //
+            return DebugLogger.error(e.message);
         }
         return false;
     }

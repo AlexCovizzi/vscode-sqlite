@@ -33,6 +33,8 @@ function getCss() {
     table, td, th {
         border:1px dotted var(--table-border);
         padding:5px;
+        margin-top: 4px;
+        margin-bottom: 4px;
     }
     td {
         white-space: pre;

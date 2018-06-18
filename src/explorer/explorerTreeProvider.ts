@@ -40,6 +40,10 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
         return element;
     }
 
+    getDbs() {
+        return this.dbs;
+    }
+
     getChildren(element?: SQLItem): Thenable<SQLItem[]> {
         return new Promise( (resolve, reject) => {
             if (element) {

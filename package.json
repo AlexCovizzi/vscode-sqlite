@@ -13,8 +13,10 @@
     "activationEvents": [
         "onCommand:sqlite.exploreDatabase",
         "onCommand:sqlite.closeExplorerDatabase",
+        "onCommand:sqlite.ctxExploreDatabase",
+        "onCommand:sqlite.ctxCloseExplorerDatabase",
         "onCommand:sqlite.newQuery",
-        "onCommand:sqlite.bindDatabase",
+        "onCommand:sqlite.useDatabase",
         "onCommand:sqlite.runDocumentQuery"
     ],
     "main": "./out/extension",
@@ -22,17 +24,27 @@
         "commands": [
             {
                 "command": "sqlite.exploreDatabase",
-                "title": "Open in Explorer",
+                "title": "Open Database in Explorer",
                 "category": "SQLite"
             },
             {
                 "command": "sqlite.closeExplorerDatabase",
+                "title": "Close Explorer Database",
+                "category": "SQLite"
+            },
+            {
+                "command": "sqlite.ctxExploreDatabase",
+                "title": "Open in Explorer",
+                "category": "SQLite"
+            },
+            {
+                "command": "sqlite.ctxCloseExplorerDatabase",
                 "title": "Close",
                 "category": "SQLite"
             },
             {
-                "command": "sqlite.bindDatabase",
-                "title": "Bind Database",
+                "command": "sqlite.useDatabase",
+                "title": "Use Database",
                 "category": "SQLite"
             },
             {
@@ -81,6 +93,14 @@
         "menus": {
             "commandPalette": [
                 {
+                    "command": "sqlite.exploreDatabase",
+                    "group": "sqlite"
+                },
+                {
+                    "command": "sqlite.closeExplorerDatabase",
+                    "group": "sqlite"
+                },
+                {
                     "command": "sqlite.newQuery",
                     "group": "sqlite"
                 },
@@ -90,16 +110,16 @@
                     "group": "sqlite"
                 },
                 {
-                    "command": "sqlite.bindDatabase",
+                    "command": "sqlite.useDatabase",
                     "when": "editorLangId == sql",
                     "group": "sqlite"
                 },
                 {
-                    "command": "sqlite.exploreDatabase",
+                    "command": "sqlite.ctxExploreDatabase",
                     "when": "sqlite.never"
                 },
                 {
-                    "command": "sqlite.closeExplorerDatabase",
+                    "command": "sqlite.ctxCloseExplorerDatabase",
                     "when": "sqlite.never"
                 },
                 {
@@ -118,7 +138,7 @@
             "explorer/context": [
                 {
                     "when": "resourceLangId == sqlite",
-                    "command": "sqlite.exploreDatabase",
+                    "command": "sqlite.ctxExploreDatabase",
                     "group": "navigation"
                 }
             ],
@@ -130,7 +150,7 @@
                 },
                 {
                     "when": "editorTextFocus && editorLangId == sql",
-                    "command": "sqlite.bindDatabase",
+                    "command": "sqlite.useDatabase",
                     "group": "sqlite@1"
                 }
             ],
@@ -158,7 +178,7 @@
                     "group": "sqlite@2"
                 },
                 {
-                    "command": "sqlite.closeExplorerDatabase",
+                    "command": "sqlite.ctxCloseExplorerDatabase",
                     "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem",
                     "group": "sqlite@3"
                 },

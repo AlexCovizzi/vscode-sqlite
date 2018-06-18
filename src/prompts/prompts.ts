@@ -1,5 +1,6 @@
 import { QuickPickItem, workspace, window } from 'vscode';
 import { basename } from 'path';
+import { DBExplorer } from '../explorer/explorer';
 
 namespace QuickPick {
     export class DatabaseItem implements QuickPickItem {
@@ -46,7 +47,26 @@ export function searchDatabase(hint?: string): Thenable<string> {
             if (item instanceof QuickPick.DatabaseItem) {
                 resolve(item.path);
             } else {
-                reject('No database found.');
+                reject();
+            }
+        });
+    });
+}
+
+export function pickExplorerDatabase(explorer: DBExplorer): Thenable<string> {
+    let dbs = explorer.getDatabases();
+    let items: QuickPick.DatabaseItem[] | QuickPick.ErrorItem[];
+    if (dbs.length === 0) {
+        items = [new QuickPick.ErrorItem('No database open in explorer')];
+    } else {
+        items = dbs.map(dbPath => new QuickPick.DatabaseItem(dbPath));
+    }
+    return new Promise((resolve, reject) => {
+        window.showQuickPick(items, {placeHolder: 'Choose a database to close.'}).then( (item) => {
+            if (item instanceof QuickPick.DatabaseItem) {
+                resolve(item.path);
+            } else {
+                reject();
             }
         });
     });

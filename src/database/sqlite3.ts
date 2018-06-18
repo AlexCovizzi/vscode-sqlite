@@ -54,6 +54,7 @@ export class SQLite {
         let data: Object[] = [];
 
         let lines = splitNotInString('\n', output);
+        lines = lines.filter(line => line.trim() !== '');
         
         let stmt = '';
         let rowsStr: string | null = null;

@@ -1,4 +1,4 @@
-import { TextDocument } from "vscode";
+import { TextDocument, Disposable } from "vscode";
 
 interface Bindings {
     [documentId: string]: string;
@@ -7,17 +7,19 @@ interface Bindings {
 /**
  * 
  */
-export class DatabaseBindings {
+export class DocumentDatabase implements Disposable {
     private bindings: Bindings;
 
     constructor() {
         this.bindings = {};
     }
 
-    bind(document: TextDocument | undefined, dbPath: string) {
+    bind(document: TextDocument | undefined, dbPath: string): boolean {
         if (document) {
             this.bindings[document.uri.toString()] = dbPath;
+            return true;
         }
+        return false;
     }
 
     get(document: TextDocument | undefined): string | undefined {
@@ -34,5 +36,9 @@ export class DatabaseBindings {
                 delete this.bindings[docId];
             }
         });
+    }
+
+    dispose() {
+        //
     }
 }

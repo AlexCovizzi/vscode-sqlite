@@ -18,7 +18,9 @@ export class Constants {
 export class Commands {
     public static exploreDatabase: string = 'sqlite.exploreDatabase';
     public static closeExplorerDatabase: string = 'sqlite.closeExplorerDatabase';
-    public static bindDatabase: string = 'sqlite.bindDatabase';
+    public static ctxExploreDatabase: string = 'sqlite.ctxExploreDatabase';
+    public static ctxCloseExplorerDatabase: string = 'sqlite.ctxCloseExplorerDatabase';
+    public static useDatabase: string = 'sqlite.useDatabase';
     public static newQuery: string = 'sqlite.newQuery';
     public static runDocumentQuery: string = 'sqlite.runDocumentQuery';
     public static refreshExplorer: string = 'sqlite.refreshExplorer';
