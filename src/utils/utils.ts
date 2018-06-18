@@ -55,7 +55,7 @@ export function findNotInString(character: string, str: string) {
     for (let index = 0; index < charArray.length; index++) {
         let char = charArray[index];
         let prev = index > 0? charArray[index - 1] : null;
-        //let next = index < charArray.length? charArray[index + 1] : null;
+        let next = index < charArray.length? charArray[index + 1] : null;
 
         // it's in string, go to next char
         if (prev !== '\\' && (char === '\'' || char === '"') && isInString === false) {
@@ -71,7 +71,7 @@ export function findNotInString(character: string, str: string) {
             continue;
         }
 
-        if (char === character && isInString === false) {
+        if ((character.length===1? char === character : char === character[0] && next === character[1]) && isInString === false) {
             found.push(index);
             continue;
         }

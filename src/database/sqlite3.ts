@@ -2,6 +2,7 @@ import * as child_process from 'child_process';
 import * as csv_parse from 'csv-parse/lib/sync';
 import { DebugLogger } from '../logging/logger';
 import { splitNotInString } from '../utils/utils';
+import { platform } from 'os';
 
 /* regex */
 const reNewLine = /(?!\B\"[^\"]*)\n(?![^\"]*\"\B)/g; // match new lines not in quotes
@@ -53,7 +54,8 @@ export class SQLite {
     public static parseOutput(output: string) {
         let data: Object[] = [];
 
-        let lines = splitNotInString('\n', output);
+        let splitChar = platform() === 'win32'? '\r\n' : '\n';
+        let lines = splitNotInString(splitChar, output);
         lines = lines.filter(line => line.trim() !== '');
         
         let stmt = '';
