@@ -34,7 +34,7 @@ namespace QuickPick {
  */
 export function searchDatabase(hint?: string): Thenable<string> {
     const promise = new Promise<QuickPick.DatabaseItem[] | QuickPick.ErrorItem[]>((resolve, reject) => {
-        workspace.findFiles('**/*.db', '**/*.sqlite').then((filesUri) => {
+        workspace.findFiles('**/*.{db,sqlite,sqlite3}').then((filesUri) => {
             if (filesUri.length === 0) {
                 resolve([new QuickPick.ErrorItem('No database found.')]);
             } else {

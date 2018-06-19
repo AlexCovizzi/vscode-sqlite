@@ -151,8 +151,9 @@ export class MainController implements Disposable {
             let hint = 'Choose which database to use for this document';
             Prompts.searchDatabase(hint).then((dbPath) => {
                 let doc = getEditorSqlDocument();
-                let success = this.documentDatabase.bind(doc, dbPath);
-                if (success) {
+                if (doc) {
+                    this.documentDatabase.bind(doc, dbPath);
+                    this.documentDatabaseStatusBar.update();
                     OutputLogger.log(`Document '${doc? doc.uri.fsPath : ''}' uses '${dbPath}'`);
                 }
                 resolve(dbPath);
