@@ -44,4 +44,17 @@ suite("splitNotInString Tests", function () {
         
         assert.deepStrictEqual(actual, expected);
     });
+
+    test("strings in quotes separated by windows new lines should return strings", function() {
+        let char = '\r\n';
+        let substr1 = `"string in quotes"`;
+        let substr2 = `"another string in quotes" "with another one"`;
+        let substr3 = `"lets make it tree fidde"'`;
+        let str = `${substr1}${char}${substr2}${char}${substr3}`;
+
+        let expected = [substr1, substr2, substr3];
+        let actual = utils.splitNotInString(char, str);
+        
+        assert.deepStrictEqual(actual, expected);
+    });
 });

@@ -83,11 +83,11 @@ export function splitNotInString(char: string, str: string) {
     let idxs = findNotInString(char, str);
     let substrs: string[] = [];
     idxs.forEach( (idx, i) => {
-        let start = i > 0? idxs[i-1]+1 : 0;
+        let start = i > 0? idxs[i-1]+char.length : 0;
         let substr = str.substring(start, idx);
         substrs.push(substr);
     });
-    substrs.push(str.substring(idxs === []? 0 : idxs[idxs.length-1]+1));
+    substrs.push(str.substring(idxs === []? 0 : idxs[idxs.length-1]+char.length));
     return substrs;
 }
 
