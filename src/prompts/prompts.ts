@@ -105,11 +105,11 @@ function showAutoQuickPick(items: QuickPickItem[] | Thenable<QuickPickItem[]>, h
                 if (items.length === 1) {
                     let item = items[0];
                     resolve(item);
-                }
 
-                if (cancTockenSource) {
-                    cancTockenSource.cancel();
-                    cancTockenSource.dispose();
+                    if (cancTockenSource) {
+                        cancTockenSource.cancel();
+                        cancTockenSource.dispose();
+                    }
                 }
             });
         }

@@ -209,8 +209,8 @@
                 },
                 "sqlite.autopick": {
                     "type": "boolean",
-                    "default": "false",
-                    "description": "Autopick database when there is only one."
+                    "default": false,
+                    "description": "Autopick database when there is only one choice."
                 }
             }
         }

@@ -8,6 +8,10 @@ export namespace Configuration {
 
     export function autopick(): boolean {
         const autopick = workspace.getConfiguration().get('sqlite.autopick');
-        return autopick? true : false;
+        if (!( typeof autopick === 'boolean')) {
+            return false;
+        } else {
+            return autopick? true : false;
+        }
     }
 }
