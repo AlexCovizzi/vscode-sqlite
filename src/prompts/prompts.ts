@@ -1,6 +1,7 @@
-import { QuickPickItem, workspace, window } from 'vscode';
+import { QuickPickItem, workspace, window, CancellationTokenSource, CancellationToken } from 'vscode';
 import { basename } from 'path';
 import { DBExplorer } from '../explorer/explorer';
+import { Configuration } from '../configurations/configurations';
 
 namespace QuickPick {
     export class DatabaseItem implements QuickPickItem {
@@ -16,7 +17,9 @@ namespace QuickPick {
             this.description = path;
         }
     }
+    
     export class ErrorItem implements QuickPickItem {
+        stack?: string | undefined;
         label: string;
         description?: string;
         detail?: string;
@@ -42,14 +45,17 @@ export function searchDatabase(hint?: string): Thenable<string> {
             }
         });
     });
-    return new Promise((resolve, reject) => {
-        window.showQuickPick(promise, {placeHolder: hint? hint : 'Choose a database to open.'}).then( (item) => {
-            if (item instanceof QuickPick.DatabaseItem) {
-                resolve(item.path);
-            } else {
-                reject();
+    return new Promise( (resolve, reject) => {
+        hint = hint? hint : 'Choose a database to open.';
+        showAutoQuickPick(promise, hint).then(
+            item => {
+                if (item instanceof QuickPick.DatabaseItem) {
+                    resolve(item.path);
+                } else {
+                    reject();
+                }
             }
-        });
+        );
     });
 }
 
@@ -62,11 +68,61 @@ export function pickExplorerDatabase(explorer: DBExplorer): Thenable<string> {
         items = dbs.map(dbPath => new QuickPick.DatabaseItem(dbPath));
     }
     return new Promise((resolve, reject) => {
-        window.showQuickPick(items, {placeHolder: 'Choose a database to close.'}).then( (item) => {
+        showAutoQuickPick(items, 'Choose a database to close.').then( (item) => {
             if (item instanceof QuickPick.DatabaseItem) {
                 resolve(item.path);
             } else {
                 reject();
+            }
+        });
+    });
+}
+
+/**
+ * Show a selection list that returns immediatly if autopick is true and there is only one item.
+ * Autopick depends on the configuration sqlite.autopick
+ * @param hint 
+ */
+function showAutoQuickPick(items: QuickPickItem[] | Thenable<QuickPickItem[]>, hint?: string): Thenable<QuickPickItem> {
+    const autopick = Configuration.autopick();
+
+    if (autopick && items instanceof Array && items.length === 1) {
+        let item = items[0];
+        return new Promise(resolve => resolve(item));
+    }
+    
+    return new Promise((resolve, reject) => {
+        let cancTockenSource: CancellationTokenSource | undefined;
+        let cancToken: CancellationToken | undefined;
+
+        /* items is a Thenable, if there is only one item
+           i need to resolve the only item and cancel the quickpick */
+        if (autopick && !(items instanceof Array)) {
+            cancTockenSource = new CancellationTokenSource();
+            cancToken = cancTockenSource.token;
+
+            items.then( items => {
+                if (items.length === 1) {
+                    let item = items[0];
+                    resolve(item);
+                }
+
+                if (cancTockenSource) {
+                    cancTockenSource.cancel();
+                    cancTockenSource.dispose();
+                }
+            });
+        }
+
+        window.showQuickPick(items, {placeHolder: hint? hint : ''}, cancToken).then( item => {
+            if ( item ) {
+                resolve(item);
+            } else {
+                resolve(undefined);
+            }
+            
+            if (cancTockenSource) {
+                cancTockenSource.dispose();
             }
         });
     });
