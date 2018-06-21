@@ -39,7 +39,8 @@ export function searchDatabase(hint?: string): Thenable<string> {
     const promise = new Promise<QuickPick.DatabaseItem[] | QuickPick.ErrorItem[]>((resolve, reject) => {
         workspace.findFiles('**/*.{db,sqlite,sqlite3}').then((filesUri) => {
             if (filesUri.length === 0) {
-                resolve([new QuickPick.ErrorItem('No database found.')]);
+                //resolve([new QuickPick.ErrorItem('No database found.')]);
+                resolve([]);
             } else {
                 resolve(filesUri.map(uri => new QuickPick.DatabaseItem(uri.fsPath)));
             }
@@ -63,7 +64,8 @@ export function pickExplorerDatabase(explorer: DBExplorer): Thenable<string> {
     let dbs = explorer.getDatabases();
     let items: QuickPick.DatabaseItem[] | QuickPick.ErrorItem[];
     if (dbs.length === 0) {
-        items = [new QuickPick.ErrorItem('No database open in explorer')];
+        //items = [new QuickPick.ErrorItem('No database open in explorer')];
+        items = [];
     } else {
         items = dbs.map(dbPath => new QuickPick.DatabaseItem(dbPath));
     }
