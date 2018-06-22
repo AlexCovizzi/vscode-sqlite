@@ -205,7 +205,7 @@
                 "sqlite.sqlite3": {
                     "type": "string",
                     "default": "sqlite3",
-                    "description": "SQLite3 command or binaries path."
+                    "description": "sqlite3 command or binaries path."
                 },
                 "sqlite.autopick": {
                     "type": "boolean",
