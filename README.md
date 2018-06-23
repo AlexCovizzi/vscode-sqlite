@@ -15,8 +15,6 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 * Sidebar explorer: list databases, tables and columns.
 
-![static/sqlite_explorer](https://raw.githubusercontent.com/AlexCovizzi/vscode-sqlite/master/static/sqlite_explorer.png)
-
 ## Commands
 
 * **SQLite: New Query** &nbsp; Create new untitled ```sql``` file.
