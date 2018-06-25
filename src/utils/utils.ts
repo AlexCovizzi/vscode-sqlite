@@ -13,7 +13,15 @@ export function sanitizeStringForHtml(s: string): string {
     s = s.replace('&', '&amp;');
     s = s.replace('/', '&#x2F;');
     s = s.replace(/<(\w+)>/, '&lt;$1&gt;');
+    s = replaceEscapedUnicodeWithChar(s);
     return s;
+}
+
+export function replaceEscapedUnicodeWithChar(s: string) {
+    return s.replace(/[^\\]?((?:\\[0-9]+){2,4})/g, (substring: string, ...args: any[]) => {
+        let hex = substring.split('\\').map(str => str? parseInt(str, 8).toString(16) : '').join('');
+        return new Buffer(hex, 'hex').toString('utf8');
+    });
 }
 
 /**
