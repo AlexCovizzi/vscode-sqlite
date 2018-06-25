@@ -28,6 +28,7 @@ export class SQLite {
             if (err) {
                 callback([], this.parseError(err.message));
             } else {
+                console.log(stdout);
                 callback(this.parseOutput(stdout), undefined);
             }
         });
@@ -72,14 +73,14 @@ export class SQLite {
                 }
                 // if its the last line push stmt and rows
                 if (index === lines.length-1) {
-                    let csv_parse_options = {delimiter: ' ', quote: '"', escape: '"'};
+                    let csv_parse_options = {delimiter: ' ', quote: '"', escape: '\\'};
                     let rows = rowsStr? csv_parse(rowsStr, csv_parse_options) : [];
                     data.push({stmt: stmt, rows: rows});
                 }
             } else {
                 // push previous (if there is) stmt and rows to data
                 if (prev) {
-                    let csv_parse_options = {delimiter: ' ', quote: '"', escape: '"'};
+                    let csv_parse_options = {delimiter: ' ', quote: '"', escape: '\\'};
                     let rows = rowsStr? csv_parse(rowsStr, csv_parse_options) : [];
                     data.push({stmt: stmt, rows: rows});
                     rowsStr = null;
