@@ -26,8 +26,12 @@ export function replaceEscapedOctetsWithChar(s: string) {
             prevChar = substring[0];
         }
         let octal = capgroup.split('\\').filter(s => s.trim() !== "");
-        let chars = octalToChars(octal);
-        return prevChar + chars;
+        try {
+            let chars = octalToChars(octal);
+            return prevChar + chars;
+        } catch(err) {
+            return substring;
+        }
     });
 }
 

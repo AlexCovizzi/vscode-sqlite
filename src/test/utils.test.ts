@@ -89,7 +89,7 @@ suite("replaceEscapedOctetsWithChar Tests", function () {
     });
 
     test("invalid escaped octet should be ignored", function() {
-        let str = "\\\\403\\239\\12\\346\\261\\211";
+        let str = "\\\\403\\2";
         let expected = str;
 
         let actual = utils.replaceEscapedOctetsWithChar(str);
