@@ -1,7 +1,6 @@
 import { platform } from "os";
 import { join } from "path";
 import { existsSync } from "fs";
-import { StringDecoder } from "string_decoder";
 
 /**
  * Sanitizes a string for html, that is:

@@ -28,7 +28,6 @@ export class SQLite {
             if (err) {
                 callback([], this.parseError(err.message));
             } else {
-                console.log(stdout);
                 callback(this.parseOutput(stdout), undefined);
             }
         });
