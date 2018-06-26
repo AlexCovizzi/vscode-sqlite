@@ -1,6 +1,7 @@
 import { platform } from "os";
 import { join } from "path";
 import { existsSync } from "fs";
+import { StringDecoder } from "string_decoder";
 
 /**
  * Sanitizes a string for html, that is:
@@ -18,21 +19,41 @@ export function sanitizeStringForHtml(s: string): string {
 }
 
 export function replaceEscapedOctetsWithChar(s: string) {
-    return s.replace(/(?:^|[^\\])((?:\\[0-9]{1,3}){2,3})/g, (substring: string, ...args: any[]) => {
+    return s.replace(/(?:^|[^\\])((?:\\[0-9]{3})+)/g, (substring: string, ...args: any[]) => {
         let capgroup: string = args[0].toString();
         let prevChar: string = '';
         if (substring.length > capgroup.length) {
             prevChar = substring[0];
         }
-        try {
-            let octets = capgroup.split('\\');
-            let decimals = octets.filter(str => str.trim() !== "").map(str => parseInt(str, 8));
-            let hex = decimals.map(dec => dec.toString(16)).join('');
-            return prevChar + new Buffer(hex, 'hex').toString('utf8');
-        } catch(err) {
-            return substring;
+        let octal = capgroup.split('\\').filter(s => s.trim() !== "");
+        let chars = octalToChars(octal);
+        return prevChar + chars;
+    });
+}
+
+export function octalToChars(octal: Array<string>) {
+    let hex: string = octal.map(octet => convertFromBaseToBase(octet, 8, 16)).join('');
+    return new Buffer(hex, 'hex').toString('utf8');
+}
+
+export function convertFromBaseToBase(str: string | number, fromBase: number, toBase: number) {
+    if (typeof(str) === 'number') {
+        str = str.toString();
+    }
+    var num = parseInt(str, fromBase);
+    return num.toString(toBase);
+}
+
+export function splitArrayByCondition<T>(arr: Array<T>, cond: (elem: T) => boolean): Array<T[]> {
+    let newArr: Array<T[]> = [];
+    arr.forEach(elem => {
+        if (cond(elem) || newArr === []) {
+            newArr.push([elem]);
+        } else {
+            newArr[newArr.length-1].push(elem);
         }
     });
+    return newArr;
 }
 
 /**

@@ -80,8 +80,8 @@ suite("replaceEscapedOctetsWithChar Tests", function () {
     });
 
     test("escaped escaped octet should be ignored", function() {
-        let str = "\\\\403\\303\\247";
-        let expected = "\\\\403ç";
+        let str = "\\\\403\\303\\247\\346\\261\\211";
+        let expected = "\\\\403ç汉";
 
         let actual = utils.replaceEscapedOctetsWithChar(str);
         
@@ -89,7 +89,7 @@ suite("replaceEscapedOctetsWithChar Tests", function () {
     });
 
     test("invalid escaped octet should be ignored", function() {
-        let str = "\\\\403\\239\\12";
+        let str = "\\\\403\\239\\12\\346\\261\\211";
         let expected = str;
 
         let actual = utils.replaceEscapedOctetsWithChar(str);
