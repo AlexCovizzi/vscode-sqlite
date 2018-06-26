@@ -13,14 +13,25 @@ export function sanitizeStringForHtml(s: string): string {
     s = s.replace('&', '&amp;');
     s = s.replace('/', '&#x2F;');
     s = s.replace(/<(\w+)>/, '&lt;$1&gt;');
-    s = replaceEscapedUnicodeWithChar(s);
+    s = replaceEscapedOctetsWithChar(s);
     return s;
 }
 
-export function replaceEscapedUnicodeWithChar(s: string) {
-    return s.replace(/[^\\]?((?:\\[0-9]+){2,4})/g, (substring: string, ...args: any[]) => {
-        let hex = substring.split('\\').map(str => str? parseInt(str, 8).toString(16) : '').join('');
-        return new Buffer(hex, 'hex').toString('utf8');
+export function replaceEscapedOctetsWithChar(s: string) {
+    return s.replace(/(?:^|[^\\])((?:\\[0-9]{1,3}){2,3})/g, (substring: string, ...args: any[]) => {
+        let capgroup: string = args[0].toString();
+        let prevChar: string = '';
+        if (substring.length > capgroup.length) {
+            prevChar = substring[0];
+        }
+        try {
+            let octets = capgroup.split('\\');
+            let decimals = octets.filter(str => str.trim() !== "").map(str => parseInt(str, 8));
+            let hex = decimals.map(dec => dec.toString(16)).join('');
+            return prevChar + new Buffer(hex, 'hex').toString('utf8');
+        } catch(err) {
+            return substring;
+        }
     });
 }
 

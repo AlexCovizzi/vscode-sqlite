@@ -58,3 +58,42 @@ suite("splitNotInString Tests", function () {
         assert.deepStrictEqual(actual, expected);
     });
 });
+
+suite("replaceEscapedOctetsWithChar Tests", function () {
+
+    test("escaped octets should be replaced with corresponding unicode char", function() {
+        let str = "hello\\303\\247world";
+        let expected = "helloçworld";
+
+        let actual = utils.replaceEscapedOctetsWithChar(str);
+        
+        assert.equal(actual, expected);
+    });
+
+    test("escaped octets at the start of the string should be replaced with corresponding unicode char", function() {
+        let str = "\\303\\247";
+        let expected = "ç";
+
+        let actual = utils.replaceEscapedOctetsWithChar(str);
+        
+        assert.equal(actual, expected);
+    });
+
+    test("escaped escaped octet should be ignored", function() {
+        let str = "\\\\403\\303\\247";
+        let expected = "\\\\403ç";
+
+        let actual = utils.replaceEscapedOctetsWithChar(str);
+        
+        assert.equal(actual, expected);
+    });
+
+    test("invalid escaped octet should be ignored", function() {
+        let str = "\\\\403\\239\\12";
+        let expected = str;
+
+        let actual = utils.replaceEscapedOctetsWithChar(str);
+        
+        assert.equal(actual, expected);
+    });
+});
