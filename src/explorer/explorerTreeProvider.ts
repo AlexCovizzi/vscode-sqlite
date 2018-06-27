@@ -48,7 +48,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
         return new Promise( (resolve, reject) => {
             if (element) {
                 if (element instanceof DBItem) {
-                    const query = `SELECT name FROM sqlite_master WHERE type="table";`;
+                    const query = `SELECT name FROM sqlite_master WHERE type="table" ORDER BY name ASC;`;
                     this.queryRunner.runQuery(element.dbPath, query).then(
                         resultSet => {
                             let tableItems: TableItem[] = [];
