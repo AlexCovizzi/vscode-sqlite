@@ -21,6 +21,7 @@
         "onCommand:sqlite.ctxExploreDatabase",
         "onCommand:sqlite.ctxCloseExplorerDatabase",
         "onCommand:sqlite.newQuery",
+        "onCommand:sqlite.quickQuery",
         "onCommand:sqlite.useDatabase",
         "onCommand:sqlite.runDocumentQuery"
     ],
@@ -60,6 +61,11 @@
                     "light": "resources/light/newquery.svg",
                     "dark": "resources/dark/newquery.svg"
                 }
+            },
+            {
+                "command": "sqlite.quickQuery",
+                "title": "Quick Query",
+                "category": "SQLite"
             },
             {
                 "command": "sqlite.runDocumentQuery",
@@ -107,6 +113,10 @@
                 },
                 {
                     "command": "sqlite.newQuery",
+                    "group": "sqlite"
+                },
+                {
+                    "command": "sqlite.quickQuery",
                     "group": "sqlite"
                 },
                 {
