@@ -62,7 +62,7 @@ export class ColumnItem extends SQLItem {
     parent: TableItem;
 
     constructor(parent: TableItem, private name:string, private type: string,
-            private notnull: boolean, private pk: boolean, command?: Command) {
+            private notnull: boolean, private pk: number, private defVal: string, command?: Command) {
         super(
             name+` : ${type.toLowerCase()}`,
             TreeItemCollapsibleState.None,
@@ -73,7 +73,10 @@ export class ColumnItem extends SQLItem {
     }
 
     get tooltip(): string {
-        return `${this.name}\n${this.type}${this.pk? '\nPRIMARY KEY' : ''}${this.notnull? '\nNOT NULL' : ''}`;
+        let pkTooltip = this.pk? '\nPRIMARY KEY' : '';
+        let notnullTooltip = this.notnull? '\nNOT NULL' : '';
+        let defvalTooltip = this.defVal !== 'NULL'? `\nDEFAULT: ${this.defVal}` : '';
+        return `${this.name}\n${this.type}${pkTooltip}${notnullTooltip}${defvalTooltip}`;
     }
 
 }
