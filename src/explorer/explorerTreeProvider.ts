@@ -48,7 +48,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
         return new Promise( (resolve, reject) => {
             if (element) {
                 if (element instanceof DBItem) {
-                    const query = `SELECT name FROM sqlite_master WHERE type="table";`;
+                    const query = `SELECT name FROM sqlite_master WHERE type="table" ORDER BY name ASC;`;
                     this.queryRunner.runQuery(element.dbPath, query).then(
                         resultSet => {
                             let tableItems: TableItem[] = [];
@@ -74,12 +74,18 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
                             if (resultSet.length > 0) {
                                 let result = resultSet[0];
                                 result.rows.forEach((row) => {
+                                    let colName = row[result.header.indexOf('name')];
+                                    let colType = row[result.header.indexOf('type')].toUpperCase();
+                                    let colNotNull = row[result.header.indexOf('notnull')] === '1' ? true : false;
+                                    let colPk = Number(row[result.header.indexOf('pk')]) || 0;
+                                    let colDefVal = row[result.header.indexOf('dflt_value')];
                                     let columnItem = new ColumnItem(
                                         element,
-                                        row[result.header.indexOf('name')],
-                                        row[result.header.indexOf('type')].toUpperCase(),
-                                        row[result.header.indexOf('notnull')] === '1' ? true : false,
-                                        row[result.header.indexOf('pk')] === '1' ? true : false
+                                        colName,
+                                        colType,
+                                        colNotNull,
+                                        colPk,
+                                        colDefVal
                                     );
                                     columnItems.push(columnItem);
                                 });

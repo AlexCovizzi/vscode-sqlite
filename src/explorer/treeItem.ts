@@ -62,7 +62,7 @@ export class ColumnItem extends SQLItem {
     parent: TableItem;
 
     constructor(parent: TableItem, private name:string, private type: string,
-            private notnull: boolean, private pk: boolean, command?: Command) {
+            private notnull: boolean, private pk: number, private defVal: string, command?: Command) {
         super(
             name+` : ${type.toLowerCase()}`,
             TreeItemCollapsibleState.None,
@@ -70,10 +70,21 @@ export class ColumnItem extends SQLItem {
         );
         this.parent = parent;
         this.contextValue = 'sqlite.columnItem';
+
+        let iconName = notnull? 'col_notnull.svg' : 'col_nullable.svg';
+        iconName = pk > 0? 'col_pk.svg' : iconName;
+
+        this.iconPath = {
+            light: join(__filename, '..', '..', '..', 'resources', 'light', iconName),
+            dark: join(__filename, '..', '..', '..', 'resources', 'dark', iconName)
+        };
     }
 
     get tooltip(): string {
-        return `${this.name}\n${this.type}${this.pk? '\nPRIMARY KEY' : ''}${this.notnull? '\nNOT NULL' : ''}`;
+        let pkTooltip = this.pk? '\nPRIMARY KEY' : '';
+        let notnullTooltip = this.notnull? '\nNOT NULL' : '';
+        let defvalTooltip = this.defVal !== 'NULL'? `\nDEFAULT: ${this.defVal}` : '';
+        return `${this.name}\n${this.type}${pkTooltip}${notnullTooltip}${defvalTooltip}`;
     }
 
 }
