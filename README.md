@@ -21,6 +21,8 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 * **SQLite: Run Query** &nbsp; Execute query script in the editor.
 
+* **SQLite: Quick Query** &nbsp; Choose a database and execute a query without creating a new ```sql``` document.
+
 * **SQLite: Use Database** &nbsp; Bind current ```sql``` document to the selected database.
 
 * **SQLite: Open Database in Explorer** &nbsp; Open the selected database in the sidebar explorer.

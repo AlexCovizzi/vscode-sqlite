@@ -8,7 +8,6 @@ import { Constants } from './constants/constants';
 let controller: MainController;
 
 export function activate(context: ExtensionContext): Promise<boolean> {
-
     OutputLogger.log(`Activating extension ${Constants.extensionName}-v${Constants.extensionVersion}...`);
 
     controller = new MainController(context);
