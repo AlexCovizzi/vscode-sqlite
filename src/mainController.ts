@@ -8,7 +8,8 @@ import { Commands, Constants } from './constants/constants';
 import { QueryRunner } from './database/queryRunner';
 import { ResultView, WebviewPanelController } from './resultView/resultView';
 import { ResultSet } from './database/resultSet';
-import * as Prompts from './prompts/prompts';
+import { pickWorkspaceDatabase, pickExplorerDatabase } from './prompts/quickpick';
+import { showQueryInputBox } from './prompts/inputbox';
 import { getEditorSqlDocument, newSqlDocument } from './sqlDocument/sqlDocument';
 import { DocumentDatabase } from './sqlDocument/documentDatabase';
 import { Configuration } from './configurations/configurations';
@@ -58,6 +59,9 @@ export class MainController implements Disposable {
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.newQuery, (item?: DBItem) => {
             this.onCommandEvent(() => this.onNewQuery(item? item.dbPath : undefined));
+        }));
+        this.context.subscriptions.push(commands.registerCommand(Commands.quickQuery, () => {
+            this.onCommandEvent(() => this.onQuickQuery());
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.refreshExplorer, () => {
             this.onCommandEvent(() => this.onRefreshExplorer());
@@ -115,6 +119,7 @@ export class MainController implements Disposable {
         });
     }
 
+
     private onCommandEvent(callback: any) {
         if (!this.activated) {
             window.showErrorMessage(`${Constants.extensionName} extension is not activated`);
@@ -127,13 +132,13 @@ export class MainController implements Disposable {
 
     private onExploreDatabase() {
         let hint = 'Choose a database to open in the explorer';
-        Prompts.searchDatabase(hint).then(
+        pickWorkspaceDatabase(hint).then(
             path => this.explorer.addToExplorer(path)
         );
     }
 
     private onCloseExplorerDatabase() {
-        Prompts.pickExplorerDatabase(this.explorer).then(
+        pickExplorerDatabase(this.explorer).then(
             path => this.explorer.removeFromExplorer(path)
         );
     }
@@ -149,7 +154,7 @@ export class MainController implements Disposable {
     private onUseDatabase(): Thenable<String> {
         return new Promise((resolve, reject) => {
             let hint = 'Choose which database to use for this document';
-            Prompts.searchDatabase(hint).then((dbPath) => {
+            pickWorkspaceDatabase(hint).then((dbPath) => {
                 let doc = getEditorSqlDocument();
                 if (doc) {
                     this.documentDatabase.bind(doc, dbPath);
@@ -170,6 +175,16 @@ export class MainController implements Disposable {
             resultSet => { commands.executeCommand(Commands.showQueryResult, resultSet); },
             err => { window.showErrorMessage(err); }
         );
+    }
+
+    private onQuickQuery() {
+        pickWorkspaceDatabase().then(dbPath => {
+            showQueryInputBox(dbPath).then(query => {
+                if (query) {
+                    commands.executeCommand(Commands.runQuery, dbPath, query);
+                }
+            });
+        });
     }
 
     private onRunTableQuery(dbPath: string, tableName: string) {

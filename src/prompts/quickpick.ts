@@ -35,8 +35,8 @@ namespace QuickPick {
  * Show a Quick Pick that lets you choose a database to open, from all the files in the workspace with extension .db or .sqlite
  * @param hint What to write in the QuickPick
  */
-export function searchDatabase(hint?: string): Thenable<string> {
-    const promise = new Promise<QuickPick.DatabaseItem[] | QuickPick.ErrorItem[]>((resolve, reject) => {
+export function pickWorkspaceDatabase(hint?: string): Thenable<string> {
+    const promise = new Promise<QuickPick.DatabaseItem[] | QuickPick.ErrorItem[]>((resolve) => {
         workspace.findFiles('**/*.{db,sqlite,sqlite3}').then((filesUri) => {
             if (filesUri.length === 0) {
                 //resolve([new QuickPick.ErrorItem('No database found.')]);
@@ -47,7 +47,7 @@ export function searchDatabase(hint?: string): Thenable<string> {
         });
     });
     return new Promise( (resolve, reject) => {
-        hint = hint? hint : 'Choose a database to open.';
+        hint = hint? hint : 'Choose a database.';
         showAutoQuickPick(promise, hint).then(
             item => {
                 if (item instanceof QuickPick.DatabaseItem) {

@@ -19,11 +19,26 @@ suite("SQLParser Tests", function () {
 
     test("Invalid SQL Query with only comments should return empty array", function() {
         let inline_comment = `-- comment on something before a new line`;
-        let multiline_comment = `/* something that spans multiple \n lkines and also that has ; another\n line yeah*/`;
+        let multiline_comment = `/* something that spans multiple and double dash -- qualcosa\n  also that has ;and /* \*/ another\n line yeah*/`;
         let query = `${inline_comment}\n${multiline_comment}`;
 
         let stmts = sqlparser.SQLParser.parse(query);
         
         assert.deepStrictEqual(stmts, []);
+    });
+
+    test("query of issue #6", function() {
+        let query = `/*
+        SELECT name || ' --> ' || 'POST';
+        FROM sqlite_master 
+        LIMIT 1;
+        */
+       
+       select "a" as const;`;
+
+       let actual = sqlparser.SQLParser.parse(query);
+       let expected = ['select "a" as const'];
+
+       assert.deepStrictEqual(actual, expected);
     });
 });

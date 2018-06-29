@@ -66,11 +66,13 @@ export class SQLParser {
             }
 
             // it's comment, go to next char
-            if (((char === '#' && nextChar === ' ') || (char === '-' && nextChar === '-') || (char === '/' && nextChar === '*')) && isInString === false) {
+            if (((char === '#' && nextChar === ' ') || (char === '-' && nextChar === '-') || (char === '/' && nextChar === '*'))
+                && isInString === false && isInComment === false) {
                 isInComment = true;
                 commentChar = char;
                 continue;
             }
+            
             // it's end of comment, go to next
             if (isInComment === true && (((commentChar === '#' || commentChar === '-') && char === '\n') || (commentChar === '/' && (char === '*' && nextChar === '/')))) {
                 // next char is end of */ comment, so i'll go past it

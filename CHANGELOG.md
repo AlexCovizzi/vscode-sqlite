@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.1.0 (2018)
+Added
+1. Added new command: Quick Query, execute a query directly without creating a nw document.
+2. Tables in the explorer are now ordered alphabetically.
+
 ## 0.0.4 (2018-06-26)
 Fixed
 1. unicode characters are now shown correctely

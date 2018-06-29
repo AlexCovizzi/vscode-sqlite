@@ -22,11 +22,12 @@ export class Commands {
     public static ctxCloseExplorerDatabase: string = 'sqlite.ctxCloseExplorerDatabase';
     public static useDatabase: string = 'sqlite.useDatabase';
     public static newQuery: string = 'sqlite.newQuery';
+    public static quickQuery: string = 'sqlite.quickQuery';
     public static runDocumentQuery: string = 'sqlite.runDocumentQuery';
     public static refreshExplorer: string = 'sqlite.refreshExplorer';
     public static runTableQuery: string = 'sqlite.runTableQuery';
     public static runSqliteMasterQuery: string = 'sqlite.runSqliteMasterQuery';
-    // private commands
+    // private commands (this commands are used internally and not declared in package.json)
     public static runQuery: string = 'sqlite.runQuery';
     public static showQueryResult: string = 'sqlite.showQueryResult';
 }
