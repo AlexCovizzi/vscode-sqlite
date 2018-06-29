@@ -70,6 +70,14 @@ export class ColumnItem extends SQLItem {
         );
         this.parent = parent;
         this.contextValue = 'sqlite.columnItem';
+
+        let iconName = notnull? 'col_notnull.svg' : 'col_nullable.svg';
+        iconName = pk > 0? 'col_pk.svg' : iconName;
+
+        this.iconPath = {
+            light: join(__filename, '..', '..', '..', 'resources', 'light', iconName),
+            dark: join(__filename, '..', '..', '..', 'resources', 'dark', iconName)
+        };
     }
 
     get tooltip(): string {
