@@ -6,6 +6,7 @@ Added
 2. Tables in the explorer are now ordered alphabetically.
 3. Explorer: new icons for primary key, not null and nullable fields.
 4. Explorer: added default value in the columns' tooltip when default value is not NULL
+
 Fixed
 1. Composite primary keys are now all recognized as primary keys.
 2. Comments inside a comment in an sql document are now parsed correctely.
