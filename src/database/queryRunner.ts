@@ -39,6 +39,29 @@ export class QueryRunner implements Disposable {
         });
     }
 
+    runQuerySync(dbPath: string, query: string): ResultSet | Error {
+        // remove comments
+        query = SQLParser.parse(query).join(';\n') + ";";
+        OutputLogger.log(`[QUERY] ${query}`);
+        
+        let ret = SQLite.querySync(this.cmdSqlite, dbPath, query);
+        if (ret instanceof Error) {
+            return ret;
+        } else {
+            let resultSet = new ResultSet();
+            ret.forEach(obj => {
+                let stmt = (<any> obj)['stmt'];
+                let rows = (<any> obj)['rows'];
+                resultSet.push({
+                    stmt: stmt,
+                    header: rows.length > 0? rows.shift() : [],
+                    rows: rows
+                });
+            });
+            return resultSet;
+        }
+    }
+
     dispose() {
         this.disposable.dispose();
     }

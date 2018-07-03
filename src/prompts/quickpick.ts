@@ -1,6 +1,6 @@
 import { QuickPickItem, workspace, window, CancellationTokenSource, CancellationToken } from 'vscode';
 import { basename } from 'path';
-import { DBExplorer } from '../explorer/explorer';
+import { SQLiteExplorer } from '../explorer/explorer';
 import { Configuration } from '../configurations/configurations';
 
 namespace QuickPick {
@@ -60,7 +60,7 @@ export function pickWorkspaceDatabase(hint?: string): Thenable<string> {
     });
 }
 
-export function pickExplorerDatabase(explorer: DBExplorer): Thenable<string> {
+export function pickExplorerDatabase(explorer: SQLiteExplorer): Thenable<string> {
     let dbs = explorer.getDatabases();
     let items: QuickPick.DatabaseItem[] | QuickPick.ErrorItem[];
     if (dbs.length === 0) {

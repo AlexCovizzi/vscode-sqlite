@@ -1,113 +1,83 @@
 import { TreeDataProvider, Event, TreeItem, EventEmitter } from "vscode";
 import { SQLItem, DBItem, TableItem, ColumnItem } from "./treeItem";
 import { QueryRunner } from "../database/queryRunner";
+import { DatabaseInfo } from "../database/databaseInfo";
 
 export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
 
     private _onDidChangeTreeData: EventEmitter<SQLItem | undefined> = new EventEmitter<SQLItem | undefined>();
     readonly onDidChangeTreeData: Event<SQLItem | undefined> = this._onDidChangeTreeData.event;
 
-    private dbs: string[] = [];
+    private databaseInfoList: DatabaseInfo[] = [];
 
     constructor(private queryRunner: QueryRunner) {
     }
     
     refresh(): void {
+        this.databaseInfoList.forEach(dbInfo => dbInfo.unload());
         this._onDidChangeTreeData.fire();
     }
 
     addToTree(dbPath: string) {
-        let isNew = this.dbs.findIndex(db => db === dbPath) < 0;
+        let isNew = this.databaseInfoList.findIndex(dbInfo => dbInfo.dbPath === dbPath) < 0;
         if (isNew) {
-            this.dbs.push(dbPath);
-            this.refresh();
+            let databaseInfo = new DatabaseInfo(this.queryRunner, dbPath);
+            this.databaseInfoList.push(databaseInfo);
             return true;
         }
         return false;
     }
 
     removeFromTree(dbPath: string) {
-        let index = this.dbs.findIndex(db => db === dbPath);
+        let index = this.databaseInfoList.findIndex(dbInfo => dbInfo.dbPath === dbPath);
         if (index > -1) {
-            this.dbs.splice(index, 1);
+            this.databaseInfoList.splice(index, 1);
         }
         this.refresh();
         
-        return this.dbs.length;
+        return this.databaseInfoList.length;
     }
     
     getTreeItem(element: SQLItem): TreeItem {
         return element;
     }
 
-    getDbs() {
-        return this.dbs;
+    getDatabases() {
+        return this.databaseInfoList.map(dbInfo => dbInfo.dbPath);
     }
 
     getChildren(element?: SQLItem): Thenable<SQLItem[]> {
         return new Promise( (resolve, reject) => {
             if (element) {
                 if (element instanceof DBItem) {
-                    const query = `SELECT name FROM sqlite_master WHERE type="table" ORDER BY name ASC;`;
-                    this.queryRunner.runQuery(element.dbPath, query).then(
-                        resultSet => {
-                            let tableItems: TableItem[] = [];
-                            
-                            if (resultSet.length > 0) {
-                                resultSet[0].rows.forEach((row) => {
-                                    let tableItem = new TableItem(element, row[0]);
-                                    tableItems.push(tableItem);
-                                });
-                            }
-                            resolve(tableItems);
-                        },
-                        err => {
-                            resolve([]);
-                        }
-                    );
+                    let items: TableItem[] = [];
+                    let dbInfo = this.databaseInfoList.find(dbInfo => dbInfo.dbPath === element.dbPath);
+                    if (dbInfo) {
+                        items = dbInfo.tables().map(tblInfo => new TableItem(element, tblInfo.name));
+                    }
+                    resolve(items);
                 } else if (element instanceof TableItem) {
-                    let query = `PRAGMA table_info(${element.label});`;
-                    this.queryRunner.runQuery(element.parent.dbPath, query).then(
-                        resultSet => {
-                            let columnItems: ColumnItem[] = [];
-
-                            if (resultSet.length > 0) {
-                                let result = resultSet[0];
-                                result.rows.forEach((row) => {
-                                    let colName = row[result.header.indexOf('name')];
-                                    let colType = row[result.header.indexOf('type')].toUpperCase();
-                                    let colNotNull = row[result.header.indexOf('notnull')] === '1' ? true : false;
-                                    let colPk = Number(row[result.header.indexOf('pk')]) || 0;
-                                    let colDefVal = row[result.header.indexOf('dflt_value')];
-                                    let columnItem = new ColumnItem(
-                                        element,
-                                        colName,
-                                        colType,
-                                        colNotNull,
-                                        colPk,
-                                        colDefVal
-                                    );
-                                    columnItems.push(columnItem);
-                                });
-                            }
-                            resolve(columnItems);
-                        },
-                        err => {
-                            resolve([]);
+                    let items: ColumnItem[] = [];
+                    let dbInfo = this.databaseInfoList.find(dbInfo => dbInfo.dbPath === element.parent.dbPath);
+                    if (dbInfo) {
+                        let tableInfo = dbInfo.tables().find(tblInfo => tblInfo.name === element.label);
+                        if (tableInfo) {
+                            items = tableInfo.columns().map(colInfo => {
+                                return new ColumnItem(element, colInfo.name, colInfo.type,
+                                    colInfo.notnull, colInfo.pk, colInfo.defVal );
+                            });
                         }
-                    );
-                } else if (element instanceof ColumnItem) {
+                    }
+                    resolve(items);
+                } else {
                     resolve([]);
                 }
             } else {
-                let dbItems: DBItem[] = [];
-                this.dbs.forEach(dbPath => {
-                    dbItems.push(new DBItem(dbPath));
-                });
-                resolve(dbItems);
+                let items: DBItem[] = [];
+                items = this.databaseInfoList.map(dbInfo => new DBItem(dbInfo.dbPath));
+                resolve(items);
             }
         });
     }
 
-    
 }

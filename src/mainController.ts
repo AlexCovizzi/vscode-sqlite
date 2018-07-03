@@ -2,7 +2,7 @@
 
 import { Uri, commands, ExtensionContext, window, Disposable } from 'vscode';
 import { getSqliteBinariesPath } from './utils/utils';
-import { DBExplorer } from './explorer/explorer';
+import { SQLiteExplorer } from './explorer/explorer';
 import { DBItem, TableItem } from './explorer/treeItem';
 import { Commands, Constants } from './constants/constants';
 import { QueryRunner } from './database/queryRunner';
@@ -25,7 +25,7 @@ export class MainController implements Disposable {
     private activated = false;
 
     private queryRunner!: QueryRunner;
-    private explorer!: DBExplorer;
+    private explorer!: SQLiteExplorer;
     private resultView!: ResultView;
     private documentDatabase!: DocumentDatabase;
     private documentDatabaseStatusBar!: DocumentDatabaseStatusBar;
@@ -101,7 +101,7 @@ export class MainController implements Disposable {
             }
 
             this.queryRunner = new QueryRunner(cmdSqlite);
-            this.explorer = new DBExplorer(this.queryRunner);
+            this.explorer = new SQLiteExplorer(this.queryRunner);
             this.documentDatabase = new DocumentDatabase();
             this.documentDatabaseStatusBar = new DocumentDatabaseStatusBar(this.documentDatabase);
             this.resultView = new WebviewPanelController();
