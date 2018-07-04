@@ -1,12 +1,12 @@
 'use strict';
 
-import { Uri, commands, ExtensionContext, window, Disposable } from 'vscode';
+import { Uri, commands, ExtensionContext, window, Disposable, workspace, ViewColumn } from 'vscode';
 import { getSqliteBinariesPath } from './utils/utils';
 import { DBExplorer } from './explorer/explorer';
 import { DBItem, TableItem } from './explorer/treeItem';
 import { Commands, Constants } from './constants/constants';
 import { QueryRunner } from './database/queryRunner';
-import { ResultView, WebviewPanelController } from './resultView/resultView';
+import { ResultView } from './resultView/resultView';
 import { ResultSet } from './database/resultSet';
 import { pickWorkspaceDatabase, pickExplorerDatabase } from './prompts/quickpick';
 import { showQueryInputBox } from './prompts/inputbox';
@@ -79,6 +79,9 @@ export class MainController implements Disposable {
         this.context.subscriptions.push(commands.registerCommand(Commands.showQueryResult, (resultSet: ResultSet) => {
             this.onCommandEvent(() => this.onShowQueryResult(resultSet));
         }));
+        this.context.subscriptions.push(commands.registerCommand(Commands.showAndSaveNewFile, (language: string, content: string) => {
+            this.onCommandEvent(() => this.onShowAndSaveNewFile(language, content));
+        }));
 
         return this.initialize();
     }
@@ -104,7 +107,7 @@ export class MainController implements Disposable {
             this.explorer = new DBExplorer(this.queryRunner);
             this.documentDatabase = new DocumentDatabase();
             this.documentDatabaseStatusBar = new DocumentDatabaseStatusBar(this.documentDatabase);
-            this.resultView = new WebviewPanelController();
+            this.resultView = new ResultView();
 
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
@@ -224,6 +227,17 @@ export class MainController implements Disposable {
 
     private onShowQueryResult(resultSet: ResultSet) {
         this.resultView.show(resultSet);
+    }
+
+    private onShowAndSaveNewFile(language: string, content: string) {
+        workspace.openTextDocument({language: language, content: content}).then(
+            doc => {
+                window.showTextDocument(doc, ViewColumn.One).then(() => {
+                    commands.executeCommand('workbench.action.files.saveAs');
+                });
+            },
+            err => console.log(err)
+        );
     }
 
     private getCmdSqlite(): string | undefined {

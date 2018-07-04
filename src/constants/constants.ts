@@ -30,4 +30,5 @@ export class Commands {
     // private commands (this commands are used internally and not declared in package.json)
     public static runQuery: string = 'sqlite.runQuery';
     public static showQueryResult: string = 'sqlite.showQueryResult';
+    public static showAndSaveNewFile: string = 'sqlite.showAndSaveNewFile';
 }

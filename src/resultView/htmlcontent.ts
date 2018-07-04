@@ -16,6 +16,36 @@ export function getHtml(content: string) {
                     ${content}
                 </div>
             </body>
+            <script>
+                (function() {
+                    const vscode = acquireVsCodeApi();
+
+                    let btnExportJsonList = document.getElementsByClassName("export-json");
+                    Array.prototype.forEach.call(btnExportJsonList, function(btn) {
+                        btn.onclick = function() { exportJSON(btn.value) };
+                    });
+
+                    let btnExportCsvList = document.getElementsByClassName("export-csv");
+                    Array.prototype.forEach.call(btnExportCsvList, function(btn) {
+                        btn.onclick = function() { exportCSV(btn.value) };
+                    });
+                    
+                    function exportJSON(result_id) {
+                        vscode.postMessage({
+                            command: 'export.json',
+                            text: JSON.stringify({result_id: result_id})
+                        });
+                    }
+
+                    function exportCSV(result_id) {
+                        vscode.postMessage({
+                            command: 'export.csv',
+                            text: JSON.stringify({result_id: result_id})
+                        });
+                    }
+                    
+                }())
+            </script>
         </html>
         `;
 }
@@ -64,6 +94,15 @@ function getCss() {
     .enumerated tr td:first-child, tr th:first-child {
         font-style: italic;
         background: var(--table-header);
+    }
+
+    .btn {
+        background-color: var(--table-header);
+        border: none;
+        color: inherit;
+        padding: 4px 4px;
+        margin: 4px 2px;
+        cursor: pointer;
     }
     `;
 }
