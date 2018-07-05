@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.1.1 (5 Jul 2018)
+Added
+1. New setting: ```sqlite3.logLevel```, to set the logging level of the output channel.
+2. New setting: ```sqlite3.showTableLimit```, to limit the records displayed when showing a table using Show Table (in SQLite Explorer).
+
+Changed
+1. ```sql``` document database can now be changed from the status bar.
+2. SQLite output channel now displays time and log level.
+
 ## 0.1.0 (29 Jun 2018)
 Added
 1. Added new command: Quick Query, execute a query directly without creating a new sql document.
