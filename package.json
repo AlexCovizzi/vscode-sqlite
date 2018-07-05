@@ -224,8 +224,24 @@
                 },
                 "sqlite.autopick": {
                     "type": "boolean",
-                    "default": false,
+                    "default": true,
                     "description": "Autopick database when there is only one choice."
+                },
+                "sqlite.logLevel": {
+                    "type": "string",
+                    "enum": [
+                        "DEBUG",
+                        "INFO",
+                        "WARN",
+                        "ERROR"
+                    ],
+                    "default": "INFO",
+                    "description": "Logging level in the output channel."
+                },
+                "sqlite.showTableLimit": {
+                    "type": "number",
+                    "default": -1,
+                    "description": "Limit records to this number when displaying a table using Show Table. (-1 to not limit)"
                 }
             }
         }

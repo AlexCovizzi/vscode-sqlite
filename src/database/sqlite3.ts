@@ -1,6 +1,6 @@
 import * as child_process from 'child_process';
 import * as csv_parse from 'csv-parse/lib/sync';
-import { DebugLogger } from '../logging/logger';
+import { logger } from '../logging/logger';
 import { splitNotInString } from '../utils/utils';
 import { platform } from 'os';
 
@@ -22,7 +22,7 @@ export class SQLite {
             ];
             
         const cmd = `${cmdSqlite} ${args.join(' ')}`;
-        DebugLogger.info(`[QUERY CMD] ${cmd}`);
+        logger.debug(`[QUERY CMD] ${cmd}`);
 
         child_process.exec(cmd, {maxBuffer: SQLite.EXEC_OUT_BUFFER}, (err: Error, stdout: string, stderr: string) => {
             if (err) {
@@ -31,6 +31,28 @@ export class SQLite {
                 callback(this.parseOutput(stdout), undefined);
             }
         });
+    }
+
+    static querySync(cmdSqlite: string, dbPath: string, query: string): Object[] | Error {
+        query = this.sanitizeQuery(query);
+        
+        const args = [
+            `"${dbPath}"`, `"${query}"`,
+            `-header`, // print the headers before the result rows
+            `-nullvalue "NULL"`, // print NULL for null values
+            `-echo`, // print the statement before the result
+            `-cmd ".mode tcl"`, // execute this command before the query, in mode tcl each field is in double quotes
+            ];
+            
+        const cmd = `${cmdSqlite} ${args.join(' ')}`;
+        logger.debug(`[QUERY CMD] ${cmd}`);
+
+        try {
+            let stdout = child_process.execSync(cmd, {maxBuffer: SQLite.EXEC_OUT_BUFFER});
+            return this.parseOutput(stdout.toString());
+        } catch(err) {
+            return this.parseError(err.message);
+        }
     }
 
     /**

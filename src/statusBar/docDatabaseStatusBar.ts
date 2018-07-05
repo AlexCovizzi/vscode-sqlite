@@ -2,6 +2,7 @@ import { DocumentDatabase } from "../sqlDocument/documentDatabase";
 import { StatusBarItem, window, StatusBarAlignment, Disposable, workspace } from "vscode";
 import { getEditorSqlDocument } from "../sqlDocument/sqlDocument";
 import { basename } from "path";
+import { Commands } from "../constants/constants";
 
 export class DocumentDatabaseStatusBar implements Disposable {
     private disposable: Disposable;
@@ -11,6 +12,7 @@ export class DocumentDatabaseStatusBar implements Disposable {
         let subscriptions: Disposable[] = [];
 
         this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Right, 100);
+        this.statusBarItem.command = Commands.useDatabase;
         subscriptions.push(this.statusBarItem);
 
         subscriptions.push(window.onDidChangeActiveTextEditor(e => this.update()));
@@ -25,13 +27,18 @@ export class DocumentDatabaseStatusBar implements Disposable {
         let doc = getEditorSqlDocument();
         if (doc) {
             let db = this.documentDatabase.get(doc);
+            let dbPath: string;
+            let dbName: string;
             if (db) {
-                this.statusBarItem.tooltip = `SQlite Database: ${db}`;
-                this.statusBarItem.text = `SQLite Database: ${basename(db)}`;
-                this.statusBarItem.show();
+                dbPath = db;
+                dbName = basename(dbPath);
             } else {
-                this.statusBarItem.hide();
+                dbPath = 'No database';
+                dbName = dbPath;
             }
+            this.statusBarItem.tooltip = `SQLite: ${dbPath}`;
+            this.statusBarItem.text = `SQLite: ${dbName}`;
+            this.statusBarItem.show();
         } else {
             this.statusBarItem.hide();
         }

@@ -1,6 +1,3 @@
-import { platform } from "os";
-import { join } from "path";
-import { existsSync } from "fs";
 
 /**
  * Sanitizes a string for html, that is:
@@ -59,35 +56,6 @@ export function splitArrayByCondition<T>(arr: Array<T>, cond: (elem: T) => boole
     return newArr;
 }
 
-/**
- * Get the path of the sqlite3 binaries based on the platform.
- * If there are no binaries for the platform returns an empty string.
- * @param extensionPath The path of this extension
- */
-export function getSqliteBinariesPath(extensionPath: string) {
-    let plat = platform();
-    let sqliteBin: string;
-    switch (plat) {
-        case 'win32':
-            sqliteBin = 'sqlite-win32-x86.exe';
-            break;
-        case 'linux':
-            sqliteBin = 'sqlite-linux-x86';
-            break;
-        case 'darwin':
-            sqliteBin = 'sqlite-osx-x86';
-            break;
-        default:
-            sqliteBin = '';
-            break;
-    }
-    if (sqliteBin) {
-        let path = join(extensionPath, 'bin', sqliteBin);
-        return existsSync(path)? path : '';
-    } else {
-        return '';
-    }
-}
 
 export function findNotInString(character: string, str: string) {
     let charArray: Array <string> = Array.from(str);

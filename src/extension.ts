@@ -2,15 +2,20 @@
 
 import { ExtensionContext } from 'vscode';
 import { MainController } from './mainController';
-import { OutputLogger } from './logging/logger';
+import { logger } from './logging/logger';
 import { Constants } from './constants/constants';
 
 let controller: MainController;
 
 export function activate(context: ExtensionContext): Promise<boolean> {
+<<<<<<< HEAD
     OutputLogger.log(`Activating extension ${Constants.extensionName}-v${Constants.extensionVersion}...`);
+=======
+>>>>>>> dev
 
     controller = new MainController(context);
+
+    logger.info(`Activating extension ${Constants.extensionName} v${Constants.extensionVersion}...`);
     
     context.subscriptions.push(controller);
 

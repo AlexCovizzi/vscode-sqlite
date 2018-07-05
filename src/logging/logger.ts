@@ -1,44 +1,88 @@
 import { window, OutputChannel } from "vscode";
 import { Constants } from "../constants/constants";
+import { Configuration } from "../configuration/configuration";
 
-export namespace DebugLogger {
-    export function debug(msg: any) {
-        log(`[DEBUG] ${msg.toString()}`);
-    }
-    export function error(msg: any) {
-        log(`[ERROR] ${msg.toString()}`);
-    }
-    export function info(msg: any) {
-        log(`[INFO] ${msg.toString()}`);
-    }
-    export function warn(msg: any) {
-        log(`[WARN] ${msg.toString()}`);
+enum Level {
+    DEBUG = "DEBUG",
+    INFO = "INFO",
+    WARN = "WARN",
+    ERROR = "ERROR"
+}
+
+class Logger {
+
+    private configuration!: Configuration;
+    private outputChannel: OutputChannel;
+
+    constructor() {
+        this.outputChannel = window.createOutputChannel(`${Constants.outputChannelName}`);
     }
 
-    export function log(msg: string) {
+    setConfiguration(configuration: Configuration) {
+        this.configuration = configuration;
+    }
+
+    debug(msg: any) {
+        this.log(`${msg.toString()}`, Level.DEBUG);
+    }
+
+    info(msg: any) {
+        this.log(`${msg.toString()}`, Level.INFO);
+    }
+
+    warn(msg: any) {
+        this.log(`${msg.toString()}`, Level.WARN);
+    }
+
+    error(msg: any) {
+        this.log(`${msg.toString()}`, Level.ERROR);
+    }
+
+    output(msg: any) {
+        this.outputChannel.appendLine(msg.toString());
+    }
+
+    showOutput() {
+        this.outputChannel.show();
+    }
+
+    getOutputChannel(): OutputChannel {
+        return this.outputChannel;
+    }
+
+    private log(msg: string, level: Level) {
         const time = new Date().toLocaleTimeString();
-        let outputMsg = `[${time}][${Constants.extensionName} v-${Constants.extensionVersion}] ${msg}`;
-        if (msg.startsWith('[E')) {
-            console.error(outputMsg);
-        } else if (msg.startsWith('[W')) {
-            console.warn(outputMsg);
-        } else {
-            console.log(outputMsg);
+        msg = `[${time}][${Constants.extensionName}][${level}] ${msg}`;
+        switch(level) {
+            case Level.ERROR: console.error(msg); break;
+            case Level.WARN: console.warn(msg); break;
+            case Level.INFO: console.info(msg); break;
+            default: console.log(msg); break;
+        }
+        // log to output channel
+        if (this.configuration && logLevelGreaterThan(level, this.configuration.logLevel as Level)) {
+            this.output(msg);
         }
     }
 }
 
-export namespace OutputLogger {
-    const outputChannel = window.createOutputChannel(`${Constants.outputChannelName}`);
-
-    export function showOutput() {
-        outputChannel.show();
-    }
-    export function getOutputChannel(): OutputChannel {
-        return outputChannel;
-    }
-
-    export function log(msg: any) {
-        outputChannel.appendLine(msg.toString());
+/**
+ * Verify if log level l1 is greater than log level l2
+ * DEBUG < INFO < WARN < ERROR
+ */
+function logLevelGreaterThan(l1: Level, l2: Level) {
+    switch(l2) {
+        case Level.ERROR:
+            return (l1 === Level.ERROR);
+        case Level.WARN:
+            return (l1 === Level.WARN || l1 === Level.ERROR);
+        case Level.INFO:
+            return (l1 === Level.INFO || l1 === Level.WARN || l1 === Level.ERROR);
+        case Level.DEBUG:
+            return true;
+        default:
+            return (l1 === Level.INFO || l1 === Level.WARN || l1 === Level.ERROR);
     }
 }
+
+export const logger: Logger = new Logger();

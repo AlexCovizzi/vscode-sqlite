@@ -2,7 +2,7 @@ import { window, commands, Disposable } from "vscode";
 import { ExplorerTreeProvider } from "./explorerTreeProvider";
 import { QueryRunner } from "../database/queryRunner";
 
-export class DBExplorer implements Disposable {
+export class SQLiteExplorer implements Disposable {
     private disposable: Disposable;
     private explorerTreeProvider: ExplorerTreeProvider;
 
@@ -36,7 +36,7 @@ export class DBExplorer implements Disposable {
     }
 
     getDatabases() {
-        return this.explorerTreeProvider.getDbs();
+        return this.explorerTreeProvider.getDatabases();
     }
 
     refreshExplorer() {
