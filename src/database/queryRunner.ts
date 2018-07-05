@@ -2,7 +2,7 @@ import { Disposable } from "vscode";
 import { ResultSet } from "../database/resultSet";
 import { SQLite } from "../database/sqlite3";
 import { SQLParser } from "./sqlparser";
-import { OutputLogger } from "../logging/logger";
+import { logger } from "../logging/logger";
 import { Configuration } from "../configuration/configuration";
 
 export class QueryRunner implements Disposable {
@@ -23,7 +23,7 @@ export class QueryRunner implements Disposable {
 
         // remove comments
         query = SQLParser.parse(query).join(';\n') + ";";
-        OutputLogger.log(`[QUERY] ${query}`);
+        logger.output(`[QUERY] ${query}`);
         
         return new Promise ((resolve, reject) => {
             SQLite.query(sqlite3, dbPath, query, (data: Object[], err?: Error) => {
@@ -55,7 +55,7 @@ export class QueryRunner implements Disposable {
 
         // remove comments
         query = SQLParser.parse(query).join(';\n') + ";";
-        OutputLogger.log(`[QUERY] ${query}`);
+        logger.output(`[QUERY] ${query}`);
         
         let ret = SQLite.querySync(sqlite3, dbPath, query);
         if (ret instanceof Error) {

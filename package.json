@@ -224,8 +224,13 @@
                 },
                 "sqlite.autopick": {
                     "type": "boolean",
-                    "default": false,
+                    "default": true,
                     "description": "Autopick database when there is only one choice."
+                },
+                "sqlite.debug": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show more information in the output channel"
                 }
             }
         }

@@ -1,5 +1,5 @@
 import { workspace, Disposable } from "vscode";
-import { OutputLogger } from "../logging/logger";
+import { logger } from "../logging/logger";
 import { validateOrFallback } from "../utils/cmdSqliteUtils";
 
 export class Configuration implements Disposable {
@@ -7,6 +7,7 @@ export class Configuration implements Disposable {
 
     sqlite3?: string;
     autopick!: boolean;
+    debug!: boolean;
 
     constructor(private extensionPath: string) {
         this.load();
@@ -20,7 +21,8 @@ export class Configuration implements Disposable {
     private load() {
         this.sqlite3 = this._sqlite3();
         this.autopick = this._autopick();
-        OutputLogger.log(`Loaded configuration.`);
+        this.debug = this._debug();
+        logger.output(`Loaded configuration.`);
     }
 
     dispose() {
@@ -34,11 +36,20 @@ export class Configuration implements Disposable {
     }
 
     private _autopick(): boolean {
-        const autopick = workspace.getConfiguration().get('sqlite.autopick');
+        let autopick = workspace.getConfiguration().get('sqlite.autopick');
         if (!( typeof autopick === 'boolean')) {
             return false;
         } else {
             return autopick? true : false;
+        }
+    }
+
+    private _debug(): boolean {
+        let debug = workspace.getConfiguration().get('sqlite.debug');
+        if (!( typeof debug === 'boolean')) {
+            return false;
+        } else {
+            return debug? true : false;
         }
     }
 }

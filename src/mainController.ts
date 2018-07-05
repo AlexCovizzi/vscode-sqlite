@@ -11,7 +11,7 @@ import { pickWorkspaceDatabase, pickListDatabase } from './prompts/quickpick';
 import { showQueryInputBox } from './prompts/inputbox';
 import { getEditorSqlDocument, newSqlDocument } from './sqlDocument/sqlDocument';
 import { DocumentDatabase } from './sqlDocument/documentDatabase';
-import { OutputLogger } from './logging/logger';
+import { logger } from './logging/logger';
 import { DocumentDatabaseStatusBar } from './statusBar/docDatabaseStatusBar';
 import { Configuration } from './configuration/configuration';
 
@@ -102,8 +102,10 @@ export class MainController implements Disposable {
             self.context.subscriptions.push(this.resultView);
             self.context.subscriptions.push(this.documentDatabase);
             self.context.subscriptions.push(this.documentDatabaseStatusBar);
+
+            logger.setConfiguration(this.configuration);
             
-            OutputLogger.log('Extension activated!\n');
+            logger.output('Extension activated!\n');
 
             this.activated = true;
             resolve(true);
@@ -150,7 +152,7 @@ export class MainController implements Disposable {
                 if (doc) {
                     this.documentDatabase.bind(doc, dbPath);
                     this.documentDatabaseStatusBar.update();
-                    OutputLogger.log(`Document '${doc? doc.uri.fsPath : ''}' uses '${dbPath}'`);
+                    logger.output(`Document '${doc? doc.uri.fsPath : ''}' uses '${dbPath}'`);
                 }
                 resolve(dbPath);
             });

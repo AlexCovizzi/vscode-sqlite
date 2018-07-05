@@ -1,6 +1,6 @@
 import * as child_process from 'child_process';
 import * as csv_parse from 'csv-parse/lib/sync';
-import { DebugLogger } from '../logging/logger';
+import { logger } from '../logging/logger';
 import { splitNotInString } from '../utils/utils';
 import { platform } from 'os';
 
@@ -22,7 +22,7 @@ export class SQLite {
             ];
             
         const cmd = `${cmdSqlite} ${args.join(' ')}`;
-        DebugLogger.info(`[QUERY CMD] ${cmd}`);
+        logger.info(`[QUERY CMD] ${cmd}`);
 
         child_process.exec(cmd, {maxBuffer: SQLite.EXEC_OUT_BUFFER}, (err: Error, stdout: string, stderr: string) => {
             if (err) {
@@ -45,7 +45,7 @@ export class SQLite {
             ];
             
         const cmd = `${cmdSqlite} ${args.join(' ')}`;
-        DebugLogger.info(`[QUERY CMD] ${cmd}`);
+        logger.info(`[QUERY CMD] ${cmd}`);
 
         try {
             let stdout = child_process.execSync(cmd, {maxBuffer: SQLite.EXEC_OUT_BUFFER});
