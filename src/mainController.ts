@@ -1,22 +1,19 @@
 'use strict';
 
 import { Uri, commands, ExtensionContext, window, Disposable } from 'vscode';
-import { getSqliteBinariesPath } from './utils/utils';
 import { SQLiteExplorer } from './explorer/explorer';
 import { DBItem, TableItem } from './explorer/treeItem';
 import { Commands, Constants } from './constants/constants';
 import { QueryRunner } from './database/queryRunner';
 import { ResultView, WebviewPanelController } from './resultView/resultView';
 import { ResultSet } from './database/resultSet';
-import { pickWorkspaceDatabase, pickExplorerDatabase } from './prompts/quickpick';
+import { pickWorkspaceDatabase, pickListDatabase } from './prompts/quickpick';
 import { showQueryInputBox } from './prompts/inputbox';
 import { getEditorSqlDocument, newSqlDocument } from './sqlDocument/sqlDocument';
 import { DocumentDatabase } from './sqlDocument/documentDatabase';
-import { Configuration } from './configurations/configurations';
-import { OutputLogger, DebugLogger } from './logging/logger';
-import { execSync } from 'child_process';
-import * as commandExists from 'command-exists';
+import { OutputLogger } from './logging/logger';
 import { DocumentDatabaseStatusBar } from './statusBar/docDatabaseStatusBar';
+import { Configuration } from './configuration/configuration';
 
 /**
  * Initialize controllers, register commands, run commands
@@ -24,6 +21,7 @@ import { DocumentDatabaseStatusBar } from './statusBar/docDatabaseStatusBar';
 export class MainController implements Disposable {
     private activated = false;
 
+    private configuration!: Configuration;
     private queryRunner!: QueryRunner;
     private explorer!: SQLiteExplorer;
     private resultView!: ResultView;
@@ -91,21 +89,14 @@ export class MainController implements Disposable {
         let self = this;
 
         return new Promise( (resolve, reject) => {
-            let cmdSqlite = this.getCmdSqlite();
-            if (!cmdSqlite) {
-                OutputLogger.log('Failed to activate extension.\n');
-                window.showErrorMessage(`Failed to activate ${Constants.extensionName} extension. `+
-                                        `For more informations see ${Constants.outputChannelName} output channel`);
-                resolve(false);
-                return;
-            }
-
-            this.queryRunner = new QueryRunner(cmdSqlite);
+            this.configuration = new Configuration(this.context.extensionPath);
+            this.queryRunner = new QueryRunner(this.configuration);
             this.explorer = new SQLiteExplorer(this.queryRunner);
             this.documentDatabase = new DocumentDatabase();
             this.documentDatabaseStatusBar = new DocumentDatabaseStatusBar(this.documentDatabase);
             this.resultView = new WebviewPanelController();
 
+            self.context.subscriptions.push(this.configuration);
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
             self.context.subscriptions.push(this.resultView);
@@ -132,13 +123,13 @@ export class MainController implements Disposable {
 
     private onExploreDatabase() {
         let hint = 'Choose a database to open in the explorer';
-        pickWorkspaceDatabase(hint).then(
+        pickWorkspaceDatabase(this.configuration.autopick, hint).then(
             path => this.explorer.addToExplorer(path)
         );
     }
 
     private onCloseExplorerDatabase() {
-        pickExplorerDatabase(this.explorer).then(
+        pickListDatabase(this.explorer.getDatabases(), this.configuration.autopick).then(
             path => this.explorer.removeFromExplorer(path)
         );
     }
@@ -154,7 +145,7 @@ export class MainController implements Disposable {
     private onUseDatabase(): Thenable<String> {
         return new Promise((resolve, reject) => {
             let hint = 'Choose which database to use for this document';
-            pickWorkspaceDatabase(hint).then((dbPath) => {
+            pickWorkspaceDatabase(this.configuration.autopick, hint).then((dbPath) => {
                 let doc = getEditorSqlDocument();
                 if (doc) {
                     this.documentDatabase.bind(doc, dbPath);
@@ -178,7 +169,7 @@ export class MainController implements Disposable {
     }
 
     private onQuickQuery() {
-        pickWorkspaceDatabase().then(dbPath => {
+        pickWorkspaceDatabase(this.configuration.autopick).then(dbPath => {
             showQueryInputBox(dbPath).then(query => {
                 if (query) {
                     commands.executeCommand(Commands.runQuery, dbPath, query);
@@ -226,52 +217,5 @@ export class MainController implements Disposable {
         this.resultView.show(resultSet);
     }
 
-    private getCmdSqlite(): string | undefined {
-        let cmdSqlite = Configuration.sqlite3();
-        if (!commandExists.sync(cmdSqlite) || cmdSqlite.trim() === '') {
-            OutputLogger.log(`'${cmdSqlite}' is not recognized as a command.`);
-            // fallback to sqlite3 binaries in {extension}/bin
-            return this.sqliteBinariesFallback();
-        }
-        
-        if (!this.isCmdSqliteValid(cmdSqlite)) {
-            OutputLogger.log(`'${cmdSqlite}' is not a valid command.`);
-            // fallback to sqlite3 binaries in {extension}/bin
-            return this.sqliteBinariesFallback();
-        }
-
-        return cmdSqlite;
-    }
-
-    private sqliteBinariesFallback(): string | undefined {
-        let binPath = getSqliteBinariesPath(this.context.extensionPath);
-        if (binPath === '') {
-            OutputLogger.log(`Fallback binaries not found.`);
-            return undefined;
-        } else {
-            OutputLogger.log(`Falling back to binaries '${binPath}'...`);
-        }
-
-        if (!this.isCmdSqliteValid(binPath)) {
-            OutputLogger.log(`Invalid binaries '${binPath}'.`);
-            return undefined;
-        } else {
-            return binPath;
-        }
-    }
-
-    private isCmdSqliteValid(cmdSqlite: string) {
-        try {
-            let out = execSync(`${cmdSqlite} -version`).toString();
-            // out must be: {version at least 3} {date} {time} {hex string (the length varies)}
-            // this is to check that the command is actually for sqlite3
-            if (out.match(/3\.[0-9]{1,2}\.[0-9]{1,2} [0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}\:[0-9]{2}\:[0-9]{2} [a-f0-9]{0,90}/)) {
-                return true;
-            }
-        } catch(e) {
-            return DebugLogger.error(e.message);
-        }
-        return false;
-    }
 }
 
