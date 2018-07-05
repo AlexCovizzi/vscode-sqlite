@@ -23,6 +23,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
         if (isNew) {
             let databaseInfo = new DatabaseInfo(this.queryRunner, dbPath);
             this.databaseInfoList.push(databaseInfo);
+            this.refresh();
             return true;
         }
         return false;
