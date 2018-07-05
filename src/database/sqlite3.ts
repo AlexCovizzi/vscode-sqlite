@@ -22,7 +22,7 @@ export class SQLite {
             ];
             
         const cmd = `${cmdSqlite} ${args.join(' ')}`;
-        logger.info(`[QUERY CMD] ${cmd}`);
+        logger.debug(`[QUERY CMD] ${cmd}`);
 
         child_process.exec(cmd, {maxBuffer: SQLite.EXEC_OUT_BUFFER}, (err: Error, stdout: string, stderr: string) => {
             if (err) {
@@ -45,7 +45,7 @@ export class SQLite {
             ];
             
         const cmd = `${cmdSqlite} ${args.join(' ')}`;
-        logger.info(`[QUERY CMD] ${cmd}`);
+        logger.debug(`[QUERY CMD] ${cmd}`);
 
         try {
             let stdout = child_process.execSync(cmd, {maxBuffer: SQLite.EXEC_OUT_BUFFER});

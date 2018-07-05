@@ -105,7 +105,7 @@ export class MainController implements Disposable {
 
             logger.setConfiguration(this.configuration);
             
-            logger.output('Extension activated!\n');
+            logger.info('Extension activated!');
 
             this.activated = true;
             resolve(true);
@@ -152,7 +152,7 @@ export class MainController implements Disposable {
                 if (doc) {
                     this.documentDatabase.bind(doc, dbPath);
                     this.documentDatabaseStatusBar.update();
-                    logger.output(`Document '${doc? doc.uri.fsPath : ''}' uses '${dbPath}'`);
+                    logger.info(`Document '${doc? doc.uri.fsPath : ''}' uses '${dbPath}'`);
                 }
                 resolve(dbPath);
             });
@@ -181,7 +181,8 @@ export class MainController implements Disposable {
     }
 
     private onRunTableQuery(dbPath: string, tableName: string) {
-        let query = `SELECT * FROM ${tableName} LIMIT 500;`;
+        let limit = this.configuration.showTableLimit >= 0? `LIMIT ${this.configuration.showTableLimit}` : ``;
+        let query = `SELECT * FROM ${tableName} ${limit};`;
         commands.executeCommand(Commands.runQuery, dbPath, query);
     }
 

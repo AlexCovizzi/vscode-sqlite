@@ -16,7 +16,7 @@ export function validateOrFallback(sqlite3: string, extensionPath: string): stri
     }
     
     if (!validateCmdSqlite(sqlite3)) {
-        logger.warn(`'${sqlite3}' is not a valid command.`);
+        logger.warn(`'${sqlite3}' is not a valid command. Falling back to binaries.`);
         // fallback to sqlite3 binaries in {extension}/bin
         return sqliteBinariesFallback(extensionPath);
     }
@@ -30,7 +30,7 @@ function sqliteBinariesFallback(extensionPath: string): string | undefined {
         logger.error(`Fallback binaries not found.`);
         return undefined;
     } else {
-        logger.info(`Falling back to binaries '${binPath}'...`);
+        logger.info(`Fallback binaries found: '${binPath}'`);
     }
 
     if (!validateCmdSqlite(binPath)) {

@@ -7,7 +7,8 @@ export class Configuration implements Disposable {
 
     sqlite3?: string;
     autopick!: boolean;
-    debug!: boolean;
+    logLevel!: string;
+    showTableLimit!: number;
 
     constructor(private extensionPath: string) {
         this.load();
@@ -21,8 +22,9 @@ export class Configuration implements Disposable {
     private load() {
         this.sqlite3 = this._sqlite3();
         this.autopick = this._autopick();
-        this.debug = this._debug();
-        logger.output(`Loaded configuration.`);
+        this.logLevel = this._logLevel();
+        this.showTableLimit = this._showTableLimit();
+        logger.debug(`Configuration loaded.`);
     }
 
     dispose() {
@@ -44,13 +46,16 @@ export class Configuration implements Disposable {
         }
     }
 
-    private _debug(): boolean {
-        let debug = workspace.getConfiguration().get('sqlite.debug');
-        if (!( typeof debug === 'boolean')) {
-            return false;
-        } else {
-            return debug? true : false;
-        }
+    private _logLevel(): string {
+        let logLevelConf = workspace.getConfiguration().get('sqlite.logLevel');
+        let logLevel = logLevelConf? logLevelConf.toString() : "INFO";
+        return logLevel;
+    }
+
+    private _showTableLimit(): number {
+        let showTableLimitConf = workspace.getConfiguration().get('sqlite.showTableLimit');
+        let showTableLimit = Number.parseInt(showTableLimitConf? showTableLimitConf.toString() : '-1');
+        return showTableLimit;
     }
 }
 

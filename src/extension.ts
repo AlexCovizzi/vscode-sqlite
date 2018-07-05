@@ -9,9 +9,9 @@ let controller: MainController;
 
 export function activate(context: ExtensionContext): Promise<boolean> {
 
-    logger.output(`Activating extension ${Constants.extensionName}-v${Constants.extensionVersion}...`);
-
     controller = new MainController(context);
+
+    logger.info(`Activating extension ${Constants.extensionName} v${Constants.extensionVersion}...`);
     
     context.subscriptions.push(controller);
 

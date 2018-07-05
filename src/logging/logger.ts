@@ -5,17 +5,16 @@ import { Configuration } from "../configuration/configuration";
 enum Level {
     DEBUG = "DEBUG",
     INFO = "INFO",
-    WARNING = "WARNING",
+    WARN = "WARN",
     ERROR = "ERROR"
 }
 
 class Logger {
 
-    private configuration?: Configuration;
+    private configuration!: Configuration;
     private outputChannel: OutputChannel;
 
     constructor() {
-        console.log("Logger activated");
         this.outputChannel = window.createOutputChannel(`${Constants.outputChannelName}`);
     }
 
@@ -23,19 +22,19 @@ class Logger {
         this.configuration = configuration;
     }
 
-    debug(msg: any, output?: boolean) {
+    debug(msg: any) {
         this.log(`${msg.toString()}`, Level.DEBUG);
     }
 
-    info(msg: any, output?: boolean) {
+    info(msg: any) {
         this.log(`${msg.toString()}`, Level.INFO);
     }
 
-    warn(msg: any, output?: boolean) {
-        this.log(`${msg.toString()}`, Level.WARNING);
+    warn(msg: any) {
+        this.log(`${msg.toString()}`, Level.WARN);
     }
 
-    error(msg: any, output?: boolean) {
+    error(msg: any) {
         this.log(`${msg.toString()}`, Level.ERROR);
     }
 
@@ -53,17 +52,36 @@ class Logger {
 
     private log(msg: string, level: Level) {
         const time = new Date().toLocaleTimeString();
-        msg = `[${time}][${Constants.extensionName} v-${Constants.extensionVersion}][${level}] ${msg}`;
+        msg = `[${time}][${Constants.extensionName}][${level}] ${msg}`;
         switch(level) {
             case Level.ERROR: console.error(msg); break;
-            case Level.WARNING: console.warn(msg); break;
+            case Level.WARN: console.warn(msg); break;
             case Level.INFO: console.info(msg); break;
             default: console.log(msg); break;
         }
-        // forward to output channel
-        if (this.configuration && this.configuration.debug) {
+        // log to output channel
+        if (this.configuration && logLevelGreaterThan(level, this.configuration.logLevel as Level)) {
             this.output(msg);
         }
+    }
+}
+
+/**
+ * Verify if log level l1 is greater than log level l2
+ * DEBUG < INFO < WARN < ERROR
+ */
+function logLevelGreaterThan(l1: Level, l2: Level) {
+    switch(l2) {
+        case Level.ERROR:
+            return (l1 === Level.ERROR);
+        case Level.WARN:
+            return (l1 === Level.WARN || l1 === Level.ERROR);
+        case Level.INFO:
+            return (l1 === Level.INFO || l1 === Level.WARN || l1 === Level.ERROR);
+        case Level.DEBUG:
+            return true;
+        default:
+            return (l1 === Level.INFO || l1 === Level.WARN || l1 === Level.ERROR);
     }
 }
 

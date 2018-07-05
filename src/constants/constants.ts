@@ -1,33 +1,34 @@
 
 const pkg = require('../../package.json');
 
-export class Constants {
+export namespace Constants {
     /* extension */
-    public static extensionName = pkg.displayName;
-    public static extensionVersion = pkg.version;
+    export const extensionName = pkg.name;
+    export const extensionDisplayName = pkg.displayName;
+    export const extensionVersion = pkg.version;
 
     /* output channel */
-    public static outputChannelName: string = `${Constants.extensionName}`;
+    export const outputChannelName: string = `${extensionDisplayName}`;
 
     /* webview panel */
-    public static webviewPanelTitle = 'SQLite';
+    export const webviewPanelTitle = 'SQLite';
     //public static htmlAssetsPath = join(__dirname, '..', '..', 'www');
 
 }
 
-export class Commands {
-    public static exploreDatabase: string = 'sqlite.exploreDatabase';
-    public static closeExplorerDatabase: string = 'sqlite.closeExplorerDatabase';
-    public static ctxExploreDatabase: string = 'sqlite.ctxExploreDatabase';
-    public static ctxCloseExplorerDatabase: string = 'sqlite.ctxCloseExplorerDatabase';
-    public static useDatabase: string = 'sqlite.useDatabase';
-    public static newQuery: string = 'sqlite.newQuery';
-    public static quickQuery: string = 'sqlite.quickQuery';
-    public static runDocumentQuery: string = 'sqlite.runDocumentQuery';
-    public static refreshExplorer: string = 'sqlite.refreshExplorer';
-    public static runTableQuery: string = 'sqlite.runTableQuery';
-    public static runSqliteMasterQuery: string = 'sqlite.runSqliteMasterQuery';
+export namespace Commands {
+    export const exploreDatabase: string = 'sqlite.exploreDatabase';
+    export const closeExplorerDatabase: string = 'sqlite.closeExplorerDatabase';
+    export const ctxExploreDatabase: string = 'sqlite.ctxExploreDatabase';
+    export const ctxCloseExplorerDatabase: string = 'sqlite.ctxCloseExplorerDatabase';
+    export const useDatabase: string = 'sqlite.useDatabase';
+    export const newQuery: string = 'sqlite.newQuery';
+    export const quickQuery: string = 'sqlite.quickQuery';
+    export const runDocumentQuery: string = 'sqlite.runDocumentQuery';
+    export const refreshExplorer: string = 'sqlite.refreshExplorer';
+    export const runTableQuery: string = 'sqlite.runTableQuery';
+    export const runSqliteMasterQuery: string = 'sqlite.runSqliteMasterQuery';
     // private commands (this commands are used internally and not declared in package.json)
-    public static runQuery: string = 'sqlite.runQuery';
-    public static showQueryResult: string = 'sqlite.showQueryResult';
+    export const runQuery: string = 'sqlite.runQuery';
+    export const showQueryResult: string = 'sqlite.showQueryResult';
 }
