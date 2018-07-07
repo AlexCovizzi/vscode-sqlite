@@ -1,6 +1,8 @@
 import * as csvStringify from 'csv-stringify/lib/sync';
 import { ResultSet } from "../database/resultSet";
 import { HTMLTable } from "./htmlTable";
+import { Uri } from 'vscode';
+import { join } from 'path';
 
 /**
  * Format a query result to html.
@@ -10,16 +12,18 @@ import { HTMLTable } from "./htmlTable";
  * 
  * @param resultSet query result to format
  */
-export function formatToHTML(resultSet: ResultSet): string {
+export function formatToHTML(resultSet: ResultSet, resourcesPath: Uri): string {
     let html = '';
+    let csvIcon = join(resourcesPath.toString(), 'csv.svg');
+    let jsonIcon = join(resourcesPath.toString(), 'json.svg');
 
     resultSet.forEach(result => {
         html += `<div>`;
         html += `<code>${result.stmt}</code>`;
         html += ` &nbsp;&nbsp; `;
         html += `<div style="display: inline-block;">`;
-        html += `<button class="btn export-json" value="${result.id}" >Export json</button>`;
-        html += `<button class="btn export-csv" value="${result.id}" >Export csv</button>`;
+        html += `<button class="btn export-json" value="${result.id}" ><img src="${jsonIcon}" alt="Export json"></button>`;
+        html += `<button class="btn export-csv" value="${result.id}" ><img src="${csvIcon}" alt="Export csv"></button>`;
         html += `</div>`;
         html += `</div>`;
         if (result.rows.length > 0) {

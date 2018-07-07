@@ -1,4 +1,4 @@
-import { WebviewPanel, window, ViewColumn, Disposable } from "vscode";
+import { WebviewPanel, window, ViewColumn, Disposable, Uri } from "vscode";
 import { EventEmitter } from "events";
 
 /**
@@ -8,7 +8,7 @@ export class Webview extends EventEmitter {
     private disposable?: Disposable;
     private panel: WebviewPanel | undefined;
 
-    constructor(private type: string, private title: string) {
+    constructor(private resourcesPath: Uri, private type: string, private title: string) {
         super();
     }
 
@@ -30,9 +30,9 @@ export class Webview extends EventEmitter {
         let subscriptions = [];
 
         let options = {
-            enableScripts: true, // we dont need js scripts for now
+            enableScripts: true,
             retainContextWhenHidden: false, // we dont need to keep the state
-            localResourceRoots: [] // we dont need any resource for now
+            localResourceRoots: [this.resourcesPath]
         };
 
         this.panel = window.createWebviewPanel(this.type, this.title, ViewColumn.Two,

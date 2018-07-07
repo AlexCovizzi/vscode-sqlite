@@ -2,17 +2,20 @@
 import { ResultSet } from "../database/resultSet";
 import { formatToHTML, formatToJSON, formatToCSV } from "./resultFormatter";
 import { getHtml } from "./htmlcontent";
-import { Disposable, commands } from "vscode";
+import { Disposable, commands, Uri } from "vscode";
 import { Webview } from "./webview";
 import { Constants, Commands } from "../constants/constants";
+import { join } from "path";
 
 
 export class ResultView implements Disposable {
     private webview: Webview;
     private resultSet?: ResultSet;
+    private resourcesPath: Uri;
 
-    constructor() {
-        this.webview = new Webview('query-result', Constants.webviewPanelTitle);
+    constructor(extensionPath: string) {
+        this.resourcesPath = Uri.file(join(extensionPath, 'resources', 'views', 'query_result')).with({scheme: 'vscode-resource'})
+        this.webview = new Webview(this.resourcesPath, 'query-result', Constants.webviewPanelTitle);
         this.webview.on('export.json', (data: Object) => this.exportJson(data));
         this.webview.on('export.csv', (data: Object) => this.exportCsv(data));
     }
@@ -20,7 +23,7 @@ export class ResultView implements Disposable {
     show(resultSet: ResultSet): void {
         this.resultSet = resultSet;
 
-        let htmlFormattedResult = formatToHTML(resultSet);
+        let htmlFormattedResult = formatToHTML(resultSet, this.resourcesPath);
         let html = getHtml(htmlFormattedResult);
         this.webview.show(html);
     }

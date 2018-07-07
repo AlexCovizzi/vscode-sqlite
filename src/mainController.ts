@@ -107,7 +107,7 @@ export class MainController implements Disposable {
             this.explorer = new DBExplorer(this.queryRunner);
             this.documentDatabase = new DocumentDatabase();
             this.documentDatabaseStatusBar = new DocumentDatabaseStatusBar(this.documentDatabase);
-            this.resultView = new ResultView();
+            this.resultView = new ResultView(this.context.extensionPath);
 
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
