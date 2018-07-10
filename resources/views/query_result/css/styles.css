@@ -1,0 +1,13 @@
+/* colors */
+:root {
+    --table-border: #ccc;
+    --table-header: rgba(127, 127, 127, 0.5);
+}
+
+.separator {
+    padding: 8px;
+}
+
+.result-wrapper {
+    margin: 16px 0px;
+}

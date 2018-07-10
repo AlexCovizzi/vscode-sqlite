@@ -1,0 +1,35 @@
+
+.result-header {
+    background-color: rgba(127, 127, 127, 0.25);
+    padding: 4px 4px;
+    position: relative;
+    z-index: 10;
+    margin: 0px 0px;
+}
+
+.result-header > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.result-header > ul li.left {
+    float: left;
+}
+
+.result-header > ul li.right {
+    float: right;
+}
+
+.result-header-action {
+    padding: 0px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin: 2px 2px;
+}
+
+.stmt-wrapper {
+    width: 80%;
+}
