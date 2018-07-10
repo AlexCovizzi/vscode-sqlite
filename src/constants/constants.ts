@@ -31,4 +31,5 @@ export namespace Commands {
     // private commands (this commands are used internally and not declared in package.json)
     export const runQuery: string = 'sqlite.runQuery';
     export const showQueryResult: string = 'sqlite.showQueryResult';
+    export const showAndSaveNewFile: string = 'sqlite.showAndSaveNewFile';
 }

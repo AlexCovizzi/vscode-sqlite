@@ -1,0 +1,42 @@
+.result-table {
+    margin-bottom: 8px;
+}
+
+.result-table > table {
+    border-collapse:collapse;
+    display: block;
+    overflow: auto;
+    margin-bottom: 4px;
+}
+
+.result-table > table td, th {
+    border:1px dotted var(--table-border);
+    padding:5px;
+}
+
+.result-table > table td {
+    white-space: pre;
+}
+
+.result-table > table th {
+    background: var(--table-header)
+}
+
+.result-table > table.no-result {
+    margin-top: 8px;
+}
+
+/* enumerated table */
+table.enumerated {
+    counter-reset: serial-number;
+}
+
+table.enumerated td:first-child:before {
+    counter-increment: serial-number;
+    content: counter(serial-number);
+}
+
+table.enumerated tr td:first-child, tr th:first-child {
+    font-style: italic;
+    background: var(--table-header);
+}

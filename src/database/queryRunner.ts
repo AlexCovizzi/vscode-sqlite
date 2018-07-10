@@ -31,10 +31,11 @@ export class QueryRunner implements Disposable {
                     reject(err.message);
                 } else {
                     let resultSet = new ResultSet();
-                    data.forEach(obj => {
+                    data.forEach((obj, index) => {
                         let stmt = (<any> obj)['stmt'];
                         let rows = (<any> obj)['rows'];
                         resultSet.push({
+                            id: index,
                             stmt: stmt,
                             header: rows.length > 0? rows.shift() : [],
                             rows: rows

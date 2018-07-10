@@ -262,7 +262,9 @@
     },
     "dependencies": {
         "@types/csv-parse": "^1.1.11",
+        "@types/csv-stringify": "^1.4.2",
         "command-exists": "^1.2.6",
-        "csv-parse": "^2.5.0"
+        "csv-parse": "^2.5.0",
+        "csv-stringify": "^3.1.1"
     }
 }

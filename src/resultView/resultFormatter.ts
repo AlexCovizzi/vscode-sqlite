@@ -1,38 +1,30 @@
+import * as csvStringify from 'csv-stringify/lib/sync';
 import { ResultSet } from "../database/resultSet";
-import { HTMLTable } from "./htmlTable";
 
 /**
- * Not implemented yet.
  * @param resultSet query result to format
  */
-export function formatToJSON(resultSet: ResultSet): string {
-    return 'Not implemented yet.';
+export function formatToJSON(resultSet: ResultSet, result_id?: number): string {
+    if (result_id !== undefined) {
+        let result = resultSet.find(res => res.id === result_id) || {};
+        return JSON.stringify(result, null, 2);
+    } else {
+        return resultSet.toJSON();
+    }
 }
 
 /**
- * Format a query result to html.
- * A single result is formatted to an html table.
- * Every table is separated by a <div class='separator'></div>.
- * If a result is empty (has no rows) show no result found message.
- * 
  * @param resultSet query result to format
  */
-export function formatToHTML(resultSet: ResultSet): string {
-    let html = '';
-
-    resultSet.forEach(result => {
-        html += `<code>${result.stmt}</code>`;
-        if (result.rows.length > 0) {
-            let htmlTable = new HTMLTable(true);
-            htmlTable.setHeader(result.header);
-            result.rows.forEach(row => {
-                htmlTable.addRow(row);
-            });
-            html += htmlTable.toString();
-        } else {
-            html += `<table class="no-result"><td>No result found</td></table>`;
-        }
-        html += `<div class="separator"></div>`;
-    });
-    return html;
+export function formatToCSV(resultSet: ResultSet, result_id: number): string {
+    let header: string[] = [];
+    let rows: string[][] = [];
+    let result = resultSet.find(res => res.id === result_id);
+    if (result) {
+        header = result.header;
+        rows = result.rows;
+    }
+    let options = { columns: header, header: true };
+    let csv = csvStringify(rows, options);
+    return csv;
 }

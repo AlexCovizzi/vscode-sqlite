@@ -1,7 +1,7 @@
 import * as child_process from 'child_process';
 import * as csv_parse from 'csv-parse/lib/sync';
 import { logger } from '../logging/logger';
-import { splitNotInString } from '../utils/utils';
+import { splitNotInString, replaceEscapedOctetsWithChar } from '../utils/utils';
 import { platform } from 'os';
 
 /* regex */
@@ -73,6 +73,7 @@ export class SQLite {
         return Error();
     }
 
+    // TODO: refactor this part and maybe move it in its own module
     public static parseOutput(output: string) {
         let data: Object[] = [];
 
@@ -96,6 +97,7 @@ export class SQLite {
                 if (index === lines.length-1) {
                     let csv_parse_options = {delimiter: ' ', quote: '"', escape: '\\'};
                     let rows = rowsStr? csv_parse(rowsStr, csv_parse_options) : [];
+                    rows = rows.map((row: string[]) => row.map(field => replaceEscapedOctetsWithChar(field)));
                     data.push({stmt: stmt, rows: rows});
                 }
             } else {
@@ -103,6 +105,7 @@ export class SQLite {
                 if (prev) {
                     let csv_parse_options = {delimiter: ' ', quote: '"', escape: '\\'};
                     let rows = rowsStr? csv_parse(rowsStr, csv_parse_options) : [];
+                    rows = rows.map((row: string[]) => row.map(field => replaceEscapedOctetsWithChar(field)));
                     data.push({stmt: stmt, rows: rows});
                     rowsStr = null;
                 }
@@ -114,6 +117,7 @@ export class SQLite {
             }
 
         }
+
         return data;
     }
 
