@@ -3,19 +3,19 @@ import { ResultSet } from "../database/resultSet";
 import { SQLite } from "../database/sqlite3";
 import { SQLParser } from "./sqlparser";
 import { logger } from "../logging/logger";
-import { Configuration } from "../configuration/configuration";
+import { Setting } from "../configuration/configuration";
 
 export class QueryRunner implements Disposable {
     private disposable: Disposable;
 
-    constructor(private configuration: Configuration) {
+    constructor(private sqlite3: Setting<string|undefined>, ) {
         let subscriptions: Disposable[] = [];
 
         this.disposable = Disposable.from(...subscriptions);
     }
 
     runQuery(dbPath: string, query: string): Thenable<ResultSet> {
-        let sqlite3: string = this.configuration.sqlite3 || '';
+        let sqlite3: string = this.sqlite3.get() || '';
         if (sqlite3 === '') {
             const err = `Error: sqlite3 command/path not found or invalid.`;
             return new Promise((resolve, reject) => reject(err));
@@ -48,7 +48,7 @@ export class QueryRunner implements Disposable {
     }
 
     runQuerySync(dbPath: string, query: string): ResultSet | Error {
-        let sqlite3: string = this.configuration.sqlite3 || '';
+        let sqlite3: string = this.sqlite3.get() || '';
         if (sqlite3 === '') {
             const err = `Error: sqlite3 command/path not found or invalid.`;
             return new Error(err);
@@ -63,10 +63,11 @@ export class QueryRunner implements Disposable {
             return ret;
         } else {
             let resultSet = new ResultSet();
-            ret.forEach(obj => {
+            ret.forEach((obj, index) => {
                 let stmt = (<any> obj)['stmt'];
                 let rows = (<any> obj)['rows'];
                 resultSet.push({
+                    id: index,
                     stmt: stmt,
                     header: rows.length > 0? rows.shift() : [],
                     rows: rows

@@ -4,7 +4,8 @@
     padding: 4px 4px;
     position: relative;
     z-index: 10;
-    margin: 0px 0px;
+    box-shadow: 0px 1px 1px rgba(0,0,0,0.5);
+    margin: 1px 0px;
 }
 
 .result-header > ul {

@@ -46,7 +46,7 @@ export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenabl
     });
     return new Promise( (resolve, reject) => {
         hint = hint? hint : 'Choose a database.';
-        showAutoQuickPick(promise, autopick, hint).then(
+        showAutoQuickPick(autopick, promise, hint).then(
             item => {
                 if (item instanceof QuickPick.DatabaseItem) {
                     resolve(item.path);
@@ -58,7 +58,7 @@ export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenabl
     });
 }
 
-export function pickListDatabase(dbs: string[], autopick: boolean): Thenable<string> {
+export function pickListDatabase(autopick: boolean, dbs: string[]): Thenable<string> {
     let items: QuickPick.DatabaseItem[] | QuickPick.ErrorItem[];
     if (dbs.length === 0) {
         //items = [new QuickPick.ErrorItem('No database open in explorer')];
@@ -67,7 +67,7 @@ export function pickListDatabase(dbs: string[], autopick: boolean): Thenable<str
         items = dbs.map(dbPath => new QuickPick.DatabaseItem(dbPath));
     }
     return new Promise((resolve, reject) => {
-        showAutoQuickPick(items, autopick, 'Choose a database to close.').then( (item) => {
+        showAutoQuickPick(autopick, items, 'Choose a database to close.').then( (item) => {
             if (item instanceof QuickPick.DatabaseItem) {
                 resolve(item.path);
             } else {
@@ -82,7 +82,7 @@ export function pickListDatabase(dbs: string[], autopick: boolean): Thenable<str
  * Autopick depends on the configuration sqlite.autopick
  * @param hint 
  */
-function showAutoQuickPick(items: QuickPickItem[] | Thenable<QuickPickItem[]>, autopick: boolean, hint?: string): Thenable<QuickPickItem> {
+function showAutoQuickPick(autopick: boolean, items: QuickPickItem[] | Thenable<QuickPickItem[]>, hint?: string): Thenable<QuickPickItem> {
     
     if (autopick && items instanceof Array && items.length === 1) {
         let item = items[0];

@@ -93,7 +93,7 @@ export class MainController implements Disposable {
 
         return new Promise( (resolve, reject) => {
             this.configuration = new Configuration(this.context.extensionPath);
-            this.queryRunner = new QueryRunner(this.configuration);
+            this.queryRunner = new QueryRunner(this.configuration.sqlite3);
             this.explorer = new SQLiteExplorer(this.queryRunner);
             this.documentDatabase = new DocumentDatabase();
             this.documentDatabaseStatusBar = new DocumentDatabaseStatusBar(this.documentDatabase);
@@ -106,7 +106,7 @@ export class MainController implements Disposable {
             self.context.subscriptions.push(this.documentDatabase);
             self.context.subscriptions.push(this.documentDatabaseStatusBar);
 
-            logger.setConfiguration(this.configuration);
+            logger.setLogLevel(this.configuration.logLevel);
             
             logger.info('Extension activated!');
 
@@ -116,11 +116,11 @@ export class MainController implements Disposable {
     }
 
 
-    private onCommandEvent(callback: any) {
+    private onCommandEvent(fn: any) {
         if (!this.activated) {
             window.showErrorMessage(`${Constants.extensionName} extension is not activated`);
         } else {
-            callback();
+            fn();
         }
     }
 
@@ -128,13 +128,13 @@ export class MainController implements Disposable {
 
     private onExploreDatabase() {
         let hint = 'Choose a database to open in the explorer';
-        pickWorkspaceDatabase(this.configuration.autopick, hint).then(
+        pickWorkspaceDatabase(this.configuration.autopick.get(), hint).then(
             path => this.explorer.addToExplorer(path)
         );
     }
 
     private onCloseExplorerDatabase() {
-        pickListDatabase(this.explorer.getDatabases(), this.configuration.autopick).then(
+        pickListDatabase(this.configuration.autopick.get(), this.explorer.getDatabases()).then(
             path => this.explorer.removeFromExplorer(path)
         );
     }
@@ -150,12 +150,12 @@ export class MainController implements Disposable {
     private onUseDatabase(): Thenable<String> {
         return new Promise((resolve, reject) => {
             let hint = 'Choose which database to use for this document';
-            pickWorkspaceDatabase(this.configuration.autopick, hint).then((dbPath) => {
+            pickWorkspaceDatabase(this.configuration.autopick.get(), hint).then((dbPath) => {
                 let doc = getEditorSqlDocument();
                 if (doc) {
                     this.documentDatabase.bind(doc, dbPath);
                     this.documentDatabaseStatusBar.update();
-                    logger.info(`Document '${doc? doc.uri.fsPath : ''}' uses '${dbPath}'`);
+                    logger.info(`'${doc? doc.uri.fsPath : ''}' => '${dbPath}'`);
                 }
                 resolve(dbPath);
             });
@@ -174,7 +174,7 @@ export class MainController implements Disposable {
     }
 
     private onQuickQuery() {
-        pickWorkspaceDatabase(this.configuration.autopick).then(dbPath => {
+        pickWorkspaceDatabase(this.configuration.autopick.get()).then(dbPath => {
             showQueryInputBox(dbPath).then(query => {
                 if (query) {
                     commands.executeCommand(Commands.runQuery, dbPath, query);
@@ -184,7 +184,7 @@ export class MainController implements Disposable {
     }
 
     private onRunTableQuery(dbPath: string, tableName: string) {
-        let limit = this.configuration.showTableLimit >= 0? `LIMIT ${this.configuration.showTableLimit}` : ``;
+        let limit = this.configuration.showTableLimit.get() >= 0? `LIMIT ${this.configuration.showTableLimit.get()}` : ``;
         let query = `SELECT * FROM ${tableName} ${limit};`;
         commands.executeCommand(Commands.runQuery, dbPath, query);
     }

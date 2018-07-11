@@ -1,7 +1,7 @@
 /* colors */
 :root {
     --table-border: #ccc;
-    --table-header: rgba(127, 127, 127, 0.5);
+    --table-header: var(--vscode-sideBarSectionHeader-background); /*rgba(127, 127, 127, 0.5);*/
 }
 
 .separator {

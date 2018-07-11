@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { dirname, join } from "path";
 import { Uri } from "vscode";
+import { sanitizeStringForHtml } from "../utils/utils";
 
 interface Cache {
     [tplPath: string]: string;
@@ -76,6 +77,14 @@ export class TemplateEngine {
         return path;
     }
 
+    _tpl_sanitize(value: any) {
+        if (typeof value === 'string') {
+            return sanitizeStringForHtml(value);
+        } else {
+            return value;
+        }
+    }
+
     private readWithCache(tplPath: string) {
         let tpl: string = '';
         if (tplPath in this.cache) {
@@ -124,7 +133,13 @@ class TplStack {
     }
 
     pushVal(str: string) {
-        this.stack.push(`_s.push(${str});`);
+        if (str.indexOf('(') > 0) {
+            // the string is a method invocation, we push it like that
+            this.stack.push(`_s.push(${str});`);
+        } else {
+            // the string is a value, we need to sanitize it
+            this.stack.push(`_s.push(self._engine._tpl_sanitize(${str}));`);
+        }
     }
 
     pushStr(str: string) {

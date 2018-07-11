@@ -1,16 +1,28 @@
-import { workspace, Disposable } from "vscode";
+import { workspace, Disposable, window } from "vscode";
 import { logger } from "../logging/logger";
 import { validateOrFallback } from "../utils/cmdSqliteUtils";
+
+export class Setting<T> {
+    private value!: T;
+    constructor() {
+    }
+    get(): T { return this.value; }
+    set(value: T) { this.value = value }
+}
 
 export class Configuration implements Disposable {
     private disposable: Disposable;
 
-    sqlite3?: string;
-    autopick!: boolean;
-    logLevel!: string;
-    showTableLimit!: number;
+    sqlite3!: Setting<string|undefined>;
+    autopick!: Setting<boolean>;
+    logLevel!: Setting<string>;
+    showTableLimit!: Setting<number>;
 
     constructor(private extensionPath: string) {
+        this.sqlite3 = new Setting();
+        this.autopick = new Setting();
+        this.logLevel = new Setting();
+        this.showTableLimit = new Setting();
         this.load();
 
         let subscriptions = [];
@@ -20,10 +32,10 @@ export class Configuration implements Disposable {
     }
 
     private load() {
-        this.sqlite3 = this._sqlite3();
-        this.autopick = this._autopick();
-        this.logLevel = this._logLevel();
-        this.showTableLimit = this._showTableLimit();
+        this.sqlite3.set(this._sqlite3());
+        this.autopick.set(this._autopick());
+        this.logLevel.set(this._logLevel());
+        this.showTableLimit.set(this._showTableLimit());
         logger.debug(`Configuration loaded.`);
     }
 
@@ -34,7 +46,11 @@ export class Configuration implements Disposable {
     private _sqlite3() {
         let sqlite3Conf = workspace.getConfiguration().get('sqlite.sqlite3');
         let sqlite3: string | undefined = sqlite3Conf? sqlite3Conf.toString() : '';
-        return validateOrFallback(sqlite3, this.extensionPath);
+        sqlite3 = validateOrFallback(sqlite3, this.extensionPath);
+        if (sqlite3 === undefined) { 
+            window.showErrorMessage("Unable to execute sqlite3 queries, change the sqlite3.sqlite3 setting to fix this issue.")
+        }
+        return sqlite3;
     }
 
     private _autopick(): boolean {

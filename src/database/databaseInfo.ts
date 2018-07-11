@@ -1,7 +1,7 @@
 import { QueryRunner } from "./queryRunner";
 
 /**
- * Contains info about the database.
+ * Contains info about the database
  */
 export class DatabaseInfo {
     private _tables?: TableInfo[];

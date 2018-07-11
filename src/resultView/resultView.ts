@@ -1,6 +1,5 @@
 
 import { ResultSet } from "../database/resultSet";
-import { formatToJSON, formatToCSV } from "./resultFormatter";
 import { Disposable, commands } from "vscode";
 import { Webview } from "./webview";
 import { Constants, Commands } from "../constants/constants";
@@ -34,7 +33,7 @@ export class ResultView implements Disposable {
         let result_id = data.hasOwnProperty('result_id')? Number.parseInt((<any>data)['result_id']) : -1;
         let json: string = '{}';
         if (this.resultSet) {
-            json = formatToJSON(this.resultSet, result_id);
+            json = this.resultSet.toJson(result_id);
         }
         commands.executeCommand(Commands.showAndSaveNewFile, 'json', json);
     }
@@ -43,7 +42,7 @@ export class ResultView implements Disposable {
         let result_id = data.hasOwnProperty('result_id')? Number.parseInt((<any>data)['result_id']) : -1;
         let csv: string = '';
         if (this.resultSet) {
-            csv = formatToCSV(this.resultSet, result_id);
+            csv = this.resultSet.toCsv(result_id);
         }
         commands.executeCommand(Commands.showAndSaveNewFile, 'csv', csv);
     }

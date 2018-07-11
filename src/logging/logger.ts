@@ -1,6 +1,6 @@
 import { window, OutputChannel } from "vscode";
 import { Constants } from "../constants/constants";
-import { Configuration } from "../configuration/configuration";
+import { Setting } from "../configuration/configuration";
 
 enum Level {
     DEBUG = "DEBUG",
@@ -11,15 +11,15 @@ enum Level {
 
 class Logger {
 
-    private configuration!: Configuration;
+    private logLevel!: Setting<string>;
     private outputChannel: OutputChannel;
 
     constructor() {
         this.outputChannel = window.createOutputChannel(`${Constants.outputChannelName}`);
     }
 
-    setConfiguration(configuration: Configuration) {
-        this.configuration = configuration;
+    setLogLevel(logLevel: Setting<string>) {
+        this.logLevel = logLevel;
     }
 
     debug(msg: any) {
@@ -60,7 +60,7 @@ class Logger {
             default: console.log(msg); break;
         }
         // log to output channel
-        if (this.configuration && logLevelGreaterThan(level, this.configuration.logLevel as Level)) {
+        if (this.logLevel && logLevelGreaterThan(level, this.logLevel.get() as Level)) {
             this.output(msg);
         }
     }
