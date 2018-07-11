@@ -8,7 +8,7 @@ import { platform } from 'os';
 const reNewLine = /(?!\B\"[^\"]*)\n(?![^\"]*\"\B)/g; // match new lines not in quotes
 
 export class SQLite {
-    private static EXEC_OUT_BUFFER = 1024*1024; // should be enough to print the query output
+    private static EXEC_OUT_BUFFER = 2*1024*1024; // should be enough to print the query output
 
     static query(cmdSqlite: string, dbPath: string, query: string, callback: (rows: Object[], err?:Error) => void) {
         query = this.sanitizeQuery(query);
