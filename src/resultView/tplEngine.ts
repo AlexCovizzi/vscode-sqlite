@@ -77,6 +77,11 @@ export class TemplateEngine {
         return path;
     }
 
+    _tpl_html(str: string, rootPath: string, ctx: TplContext) {
+        let path = join(rootPath, str);
+        return this.process(path, ctx);
+    }
+
     _tpl_sanitize(value: any) {
         if (typeof value === 'string') {
             return sanitizeStringForHtml(value);
@@ -103,6 +108,9 @@ class TplStack {
 
     constructor(tplPath: string) {
         this.rootPath = dirname(tplPath);
+        // replace backslash with double backslash for windows
+        this.rootPath = this.rootPath.replace(/\\/g, '\\\\');
+        
         this.stack = [];
 
         this.pushJs(`let self = this;`);

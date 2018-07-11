@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.1 (11 Jul 2018)
+Fixed
+1. Fixed bug that prevented the query result from showing on Windows.
+
 ## 0.2.0 (11 Jul 2018)
 Added
 1. Export query result to Json.
