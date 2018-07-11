@@ -9,6 +9,9 @@ Added
 Changed
 1. Improved query result graphic.
 
+Fixed
+1. Explorer: Show Table can now display more records.
+
 ## 0.1.2 (5 Jul 2018)
 Fixed
 1.  Fixed bug that prevented the database from showing in the explorer if it was previously closed.
