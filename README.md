@@ -17,6 +17,8 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 * Query SQLite3 databases and view results in a table.
 
+* Export query results to ```json``` and ```csv```.
+
 * Sidebar explorer: list databases, tables and columns.
 
 ## Commands

@@ -1,5 +1,18 @@
 # Change Log
 
+## 0.2.0 (11 Jul 2018)
+Added
+1. Export query result to Json.
+2. Export query result to Csv.
+3. Show/Hide query result.
+
+Changed
+1. Improved query result graphic.
+
+## 0.1.2 (5 Jul 2018)
+Fixed
+1.  Fixed bug that prevented the database from showing in the explorer if it was previously closed.
+
 ## 0.1.1 (5 Jul 2018)
 Added
 1. New setting: ```sqlite3.logLevel```, to set the logging level of the output channel.
