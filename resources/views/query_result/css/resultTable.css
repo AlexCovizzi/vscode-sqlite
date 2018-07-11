@@ -23,7 +23,10 @@
 }
 
 .result-table > table.no-result {
-    margin-top: 8px;
+}
+
+.result-table > table.no-result td:after {
+    content: 'No result found';
 }
 
 /* enumerated table */

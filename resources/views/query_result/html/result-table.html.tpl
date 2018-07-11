@@ -17,8 +17,6 @@
         <% } %>
     </table>
   <% } else { %>
-    <table class="no-result">
-      <td>No result found</td>
-    </table>
+    <table class="no-result"> <td></td> </table>
   <% } %>
 </div>
