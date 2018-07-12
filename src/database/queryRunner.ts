@@ -22,7 +22,7 @@ export class QueryRunner implements Disposable {
         }
 
         // remove comments
-        query = SQLParser.parse(query).join(';\n') + ";";
+        query = SQLParser.parse(query).join('; ') + ";";
         logger.info(`[QUERY] ${query}`);
         
         return new Promise ((resolve, reject) => {
@@ -55,7 +55,7 @@ export class QueryRunner implements Disposable {
         }
 
         // remove comments
-        query = SQLParser.parse(query).join(';\n') + ";";
+        query = SQLParser.parse(query).join('; ') + ";";
         logger.info(`[QUERY] ${query}`);
         
         let ret = SQLite.querySync(sqlite3, dbPath, query);
