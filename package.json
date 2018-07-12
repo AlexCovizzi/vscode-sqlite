@@ -241,7 +241,7 @@
                 "sqlite.recordsPerPage": {
                     "type": "number",
                     "default": 50,
-                    "description": "Number of records to show per page."
+                    "description": "Number of records to show per page. (-1 to show all records)"
                 }
             }
         }

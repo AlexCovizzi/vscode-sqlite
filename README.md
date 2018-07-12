@@ -45,7 +45,7 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 * `"sqlite.logLevel": <string>` &nbsp; Set output channel log level (DEBUG, INFO, WARN, ERROR).
 
-* `"sqlite.showTableLimit": <number>` &nbsp; Limit records diplayed when showing a table using Show Table (-1 to not limit).
+* `"sqlite.recordsPerPage": <number>` &nbsp; Number of records to show per page. (-1 to show all records).
 
 
 ## Known Issues

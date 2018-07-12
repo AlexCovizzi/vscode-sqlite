@@ -1,5 +1,17 @@
 # Change Log
 
+## 0.2.2 (12 Jul 2018)
+Added
+1. Pagination, tables are now displayed in pages, each page with a set number of records.
+2. Setting: ```sqlite.recordsPerPage```, to set the number of records per page.
+
+Removed
+1. Setting: ```sqlite.showTableLimit```, now that pagination is supported this setting is useless.
+
+Fixed
+1. Fixed a bug that prevented the export button from working correctely.
+1. Fixed a bug that prevented the correct execution on Windows of queries composed of multiple statements.
+
 ## 0.2.1 (11 Jul 2018)
 Fixed
 1. Fixed bug that prevented the query result from showing on Windows.
