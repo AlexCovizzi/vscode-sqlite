@@ -79,7 +79,8 @@ function paginator(config) {
     // hide rows not on current page and show the rows that are
     if (rows_per_page > 0) {
         if (lastPage !== undefined) {
-            for (var i=(lastPage-1)*rows_per_page; i<lastPage*rows_per_page; i++) {
+            let lastRow = lastPage*rows_per_page < trs.length? lastPage*rows_per_page : trs.length;
+            for (var i=(lastPage-1)*rows_per_page; i<lastRow; i++) {
                 trs[i].style.display = "none";
             }
         } else {
@@ -88,7 +89,8 @@ function paginator(config) {
             }
         }
 
-        for (var i=(page-1)*rows_per_page; i<page*rows_per_page; i++) {
+        let lastRow = page*rows_per_page < trs.length? page*rows_per_page : trs.length;
+        for (var i=(page-1)*rows_per_page; i<lastRow; i++) {
             trs[i].style.display = "";
         }
     } else {
