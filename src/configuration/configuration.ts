@@ -16,13 +16,13 @@ export class Configuration implements Disposable {
     sqlite3!: Setting<string|undefined>;
     autopick!: Setting<boolean>;
     logLevel!: Setting<string>;
-    showTableLimit!: Setting<number>;
+    recordsPerPage!: Setting<number>;
 
     constructor(private extensionPath: string) {
         this.sqlite3 = new Setting();
         this.autopick = new Setting();
         this.logLevel = new Setting();
-        this.showTableLimit = new Setting();
+        this.recordsPerPage = new Setting();
         this.load();
 
         let subscriptions = [];
@@ -35,7 +35,7 @@ export class Configuration implements Disposable {
         this.sqlite3.set(this._sqlite3());
         this.autopick.set(this._autopick());
         this.logLevel.set(this._logLevel());
-        this.showTableLimit.set(this._showTableLimit());
+        this.recordsPerPage.set(this._recordsPerPage());
         logger.debug(`Configuration loaded.`);
     }
 
@@ -68,10 +68,10 @@ export class Configuration implements Disposable {
         return logLevel;
     }
 
-    private _showTableLimit(): number {
-        let showTableLimitConf = workspace.getConfiguration().get('sqlite.showTableLimit');
-        let showTableLimit = Number.parseInt(showTableLimitConf? showTableLimitConf.toString() : '-1');
-        return showTableLimit;
+    private _recordsPerPage(): number {
+        let recordsPerPageConf = workspace.getConfiguration().get('sqlite.recordsPerPage');
+        let recordsPerPage = Number.parseInt(recordsPerPageConf? recordsPerPageConf.toString() : '50');
+        return recordsPerPage;
     }
 }
 

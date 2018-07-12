@@ -14,10 +14,16 @@
             <div class="result-wrapper">
               <%= html("result-header.html.tpl", {stmt: result.stmt, id: result.id}) %>
               <%= html("result-table.html.tpl", {header: result.header, rows: result.rows, id: result.id}) %>
+              <div class="separator"></div>
             </div>
           <% } %>
         </div>
     </body>
 
+    <script>
+      var recordsPerPage = <%= this.recordsPerPage %>;
+    </script>
+
+    <%= js("../js/paginator.js") %>
     <%= js("../js/index.js") %>
 </html>

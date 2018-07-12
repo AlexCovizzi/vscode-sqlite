@@ -1,5 +1,5 @@
 .result-table {
-    margin-bottom: 8px;
+    padding-bottom: 8px;
 }
 
 .result-table > table {
@@ -22,14 +22,16 @@
     background: var(--table-header)
 }
 
-.result-table > table.no-result {
+.enumerated tr td:first-child, tr th:first-child {
+    font-style: italic;
+    background: var(--table-header);
 }
 
-.result-table > table.no-result td:after {
+.result-table > table.no-result td::after {
     content: 'No result found';
 }
 
-/* enumerated table */
+/* enumerated table
 table.enumerated {
     counter-reset: serial-number;
 }
@@ -38,8 +40,43 @@ table.enumerated td:first-child:before {
     counter-increment: serial-number;
     content: counter(serial-number);
 }
+ */
 
-table.enumerated tr td:first-child, tr th:first-child {
-    font-style: italic;
+/* paginator */
+.pagination button {
+    display: none;
+    color: inherit;
+    background: none;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+}
+
+.pagination button:first-child,.pagination button:last-child {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.pagination input {
+    color: inherit;
     background: var(--table-header);
+    border: none;
+    text-decoration: none;
+    text-align: center;
+}
+
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.pagination button.active {
+    /*display: inline-block;*/
+}
+
+.pagination button:disabled {
+    color: rgba(127,127,127,0.5);
+}
+
+.pagination > select, .pagination > span {
+    display: none;
 }

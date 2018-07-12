@@ -3,6 +3,16 @@ var exportJson;
 var exportCsv;
 
 (function() {
+
+    let resultTableList = Array.from(document.getElementsByClassName("result-table"));
+    resultTableList.forEach(elem => {
+        paginator({
+            tableId: elem.getElementsByTagName('table')[0].id,
+            box: elem.getElementsByClassName("pagination")[0],
+            rows_per_page: recordsPerPage
+        });
+    });
+    
     const vscode = acquireVsCodeApi();
     window.addEventListener('message', function(event) {
         let command = event.data.command;

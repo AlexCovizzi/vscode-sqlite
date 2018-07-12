@@ -184,8 +184,7 @@ export class MainController implements Disposable {
     }
 
     private onRunTableQuery(dbPath: string, tableName: string) {
-        let limit = this.configuration.showTableLimit.get() >= 0? `LIMIT ${this.configuration.showTableLimit.get()}` : ``;
-        let query = `SELECT * FROM ${tableName} ${limit};`;
+        let query = `SELECT * FROM ${tableName};`;
         commands.executeCommand(Commands.runQuery, dbPath, query);
     }
 
@@ -220,7 +219,7 @@ export class MainController implements Disposable {
     }
 
     private onShowQueryResult(resultSet: ResultSet) {
-        this.resultView.show(resultSet);
+        this.resultView.show(resultSet, this.configuration.recordsPerPage.get());
     }
 
     private onShowAndSaveNewFile(language: string, content: string) {

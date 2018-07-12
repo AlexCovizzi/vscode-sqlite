@@ -18,12 +18,12 @@ export class ResultView implements Disposable {
         this.webview.on('export.csv', (data: Object) => this.exportCsv(data));
     }
 
-    show(resultSet: ResultSet): void {
+    show(resultSet: ResultSet, recordsPerPage: number): void {
         this.resultSet = resultSet;
 
         let tplPath = join(this.resourcesPath, 'views', 'query_result', 'html', 'index.html.tpl');
         try {
-            this.webview.show(tplPath, {resultSet: resultSet});
+            this.webview.show(tplPath, {resultSet: resultSet, recordsPerPage: recordsPerPage});
         } catch(err) {
             console.log(err);
         }

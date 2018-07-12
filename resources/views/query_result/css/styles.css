@@ -5,7 +5,15 @@
 }
 
 .separator {
-    padding: 8px;
+    height: 8px;
+}
+
+.right {
+    float: right;
+}
+
+.center {
+    text-align: center;
 }
 
 .result-wrapper {
