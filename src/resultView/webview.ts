@@ -60,7 +60,6 @@ export class Webview extends EventEmitter {
     }
 
     dispose() {
-        this.removeAllListeners();
         this.panel = undefined;
         if (this.disposable) {
             this.disposable.dispose();

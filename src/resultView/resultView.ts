@@ -49,7 +49,7 @@ export class ResultView implements Disposable {
 
     dispose() {
         this.webview.dispose();
-        console.log(this.webview);
+        this.webview.removeAllListeners();
     }
 }
 
