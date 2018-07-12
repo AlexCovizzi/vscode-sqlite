@@ -8,9 +8,8 @@ import { platform } from 'os';
 const reNewLine = /(?!\B\"[^\"]*)\n(?![^\"]*\"\B)/g; // match new lines not in quotes
 
 export class SQLite {
-    private static EXEC_OUT_BUFFER = 2*1024*1024; // should be enough to print the query output
 
-    static query(cmdSqlite: string, dbPath: string, query: string, callback: (rows: Object[], err?:Error) => void) {
+    static query(cmdSqlite: string, dbPath: string, query: string, outputBuffer: number, callback: (rows: Object[], err?:Error) => void) {
         query = this.sanitizeQuery(query);
         
         const args = [
@@ -24,7 +23,7 @@ export class SQLite {
         const cmd = `${cmdSqlite} ${args.join(' ')}`;
         logger.debug(`[QUERY CMD] ${cmd}`);
 
-        child_process.exec(cmd, {maxBuffer: SQLite.EXEC_OUT_BUFFER}, (err: Error, stdout: string, stderr: string) => {
+        child_process.exec(cmd, {maxBuffer: outputBuffer}, (err: Error, stdout: string, stderr: string) => {
             if (err) {
                 callback([], this.parseError(err.message));
             } else {
@@ -33,7 +32,7 @@ export class SQLite {
         });
     }
 
-    static querySync(cmdSqlite: string, dbPath: string, query: string): Object[] | Error {
+    static querySync(cmdSqlite: string, dbPath: string, query: string, outputBuffer: number): Object[] | Error {
         query = this.sanitizeQuery(query);
         
         const args = [
@@ -48,7 +47,7 @@ export class SQLite {
         logger.debug(`[QUERY CMD] ${cmd}`);
 
         try {
-            let stdout = child_process.execSync(cmd, {maxBuffer: SQLite.EXEC_OUT_BUFFER});
+            let stdout = child_process.execSync(cmd, {maxBuffer: outputBuffer});
             return this.parseOutput(stdout.toString());
         } catch(err) {
             return this.parseError(err.message);
@@ -70,7 +69,11 @@ export class SQLite {
                 return new Error(lines[i]);
             }
         }
-        return Error();
+        // overwrite "max output buffer exceeded" error message
+        if (message.startsWith("stdout")) {
+            message += ": increase setting sqlite.outputBuffer value to display this table.";
+        }
+        return Error(message);
     }
 
     // TODO: refactor this part and maybe move it in its own module

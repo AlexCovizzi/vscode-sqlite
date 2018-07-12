@@ -241,7 +241,14 @@
                 "sqlite.recordsPerPage": {
                     "type": "number",
                     "default": 50,
+                    "minimum": -1,
                     "description": "Number of records to show per page. (-1 to show all records)"
+                },
+                "sqlite.outputBuffer": {
+                    "type": "number",
+                    "default": 1048576,
+                    "minimum": 1,
+                    "description": "Query output buffer in bytes, increase only if you need to display a big number of records."
                 }
             }
         }

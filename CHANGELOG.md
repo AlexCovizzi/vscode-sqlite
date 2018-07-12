@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.3 (12 Jul 2018)
+Added
+1. Setting: ```sqlite.outputBuffer```, query output buffer in bytes.
+
 ## 0.2.2 (12 Jul 2018)
 Added
 1. Pagination, tables are now displayed in pages, each page with a set number of records.

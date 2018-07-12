@@ -17,12 +17,14 @@ export class Configuration implements Disposable {
     autopick!: Setting<boolean>;
     logLevel!: Setting<string>;
     recordsPerPage!: Setting<number>;
+    outputBuffer!: Setting<number>;
 
     constructor(private extensionPath: string) {
         this.sqlite3 = new Setting();
         this.autopick = new Setting();
         this.logLevel = new Setting();
         this.recordsPerPage = new Setting();
+        this.outputBuffer = new Setting();
         this.load();
 
         let subscriptions = [];
@@ -36,6 +38,7 @@ export class Configuration implements Disposable {
         this.autopick.set(this._autopick());
         this.logLevel.set(this._logLevel());
         this.recordsPerPage.set(this._recordsPerPage());
+        this.outputBuffer.set(this._outputBuffer());
         logger.debug(`Configuration loaded.`);
     }
 
@@ -72,6 +75,13 @@ export class Configuration implements Disposable {
         let recordsPerPageConf = workspace.getConfiguration().get('sqlite.recordsPerPage');
         let recordsPerPage = Number.parseInt(recordsPerPageConf? recordsPerPageConf.toString() : '50');
         return recordsPerPage;
+    }
+
+    private _outputBuffer(): number {
+        const def = 1024*1024;
+        let outputBufferConf = workspace.getConfiguration().get('sqlite.outputBuffer');
+        let outputBuffer = Number.parseInt(outputBufferConf? outputBufferConf.toString() : def.toString());
+        return outputBuffer;
     }
 }
 

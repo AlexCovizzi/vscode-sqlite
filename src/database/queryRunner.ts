@@ -8,7 +8,7 @@ import { Setting } from "../configuration/configuration";
 export class QueryRunner implements Disposable {
     private disposable: Disposable;
 
-    constructor(private sqlite3: Setting<string|undefined>, ) {
+    constructor(private sqlite3: Setting<string|undefined>, private outputBuffer: Setting<number>) {
         let subscriptions: Disposable[] = [];
 
         this.disposable = Disposable.from(...subscriptions);
@@ -26,7 +26,7 @@ export class QueryRunner implements Disposable {
         logger.info(`[QUERY] ${query}`);
         
         return new Promise ((resolve, reject) => {
-            SQLite.query(sqlite3, dbPath, query, (data: Object[], err?: Error) => {
+            SQLite.query(sqlite3, dbPath, query, this.outputBuffer.get(), (data: Object[], err?: Error) => {
                 if (err) {
                     reject(err.message);
                 } else {
@@ -58,7 +58,7 @@ export class QueryRunner implements Disposable {
         query = SQLParser.parse(query).join('; ') + ";";
         logger.info(`[QUERY] ${query}`);
         
-        let ret = SQLite.querySync(sqlite3, dbPath, query);
+        let ret = SQLite.querySync(sqlite3, dbPath, query, this.outputBuffer.get());
         if (ret instanceof Error) {
             return ret;
         } else {

@@ -47,6 +47,8 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 * `"sqlite.recordsPerPage": <number>` &nbsp; Number of records to show per page. (-1 to show all records).
 
+* `"sqlite.outputBuffer": <number>` &nbsp; Query output buffer in bytes.
+
 
 ## Known Issues
 
