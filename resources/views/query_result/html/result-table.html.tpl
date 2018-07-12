@@ -21,7 +21,7 @@
       </tbody>
     </table>
   <% } else { %>
-    <table class="no-result"> <td></td> </table>
+    <table id="table_<%= this.id %>" class="no-result"> <tbody><td></td></tbody> </table>
   <% } %>
   <div class="pagination center"></div>
 </div>

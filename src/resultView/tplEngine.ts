@@ -68,7 +68,6 @@ export class TemplateEngine {
 
     _tpl_js(str: string, rootPath: string) {
         let path = this._tpl_resource(str, rootPath);
-        console.log(path);
         return `<script src="${path}"></script>`;
     }
 
