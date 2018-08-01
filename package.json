@@ -92,8 +92,17 @@
                 }
             }
         ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "database",
+                    "title": "SQLite",
+                    "icon": "resources/icon/database.svg"
+                }
+            ]
+        },
         "views": {
-            "explorer": [
+            "database": [
                 {
                     "id": "sqlite.sqliteExplorer",
                     "name": "SQLite Explorer",
