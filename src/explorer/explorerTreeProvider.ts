@@ -1,12 +1,14 @@
-import { TreeDataProvider, Event, TreeItem, EventEmitter } from "vscode";
-import { SQLItem, DBItem, TableItem, ColumnItem } from "./treeItem";
+import { TreeDataProvider, Event, TreeItem, EventEmitter, ProviderResult } from "vscode";
+import { DBItem, TableItem, ColumnItem } from "./treeItem";
 import { QueryRunner } from "../database/queryRunner";
-import { DatabaseInfo } from "../database/databaseInfo";
+import { DatabaseInfo, TableInfo, ColumnInfo } from "../database/databaseInfo";
 
-export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
+type ItemInfo = DatabaseInfo | TableInfo | ColumnInfo;
 
-    private _onDidChangeTreeData: EventEmitter<SQLItem | undefined> = new EventEmitter<SQLItem | undefined>();
-    readonly onDidChangeTreeData: Event<SQLItem | undefined> = this._onDidChangeTreeData.event;
+export class ExplorerTreeProvider implements TreeDataProvider<ItemInfo> {
+
+    private _onDidChangeTreeData: EventEmitter<ItemInfo | undefined> = new EventEmitter<ItemInfo | undefined>();
+    readonly onDidChangeTreeData: Event<ItemInfo | undefined> = this._onDidChangeTreeData.event;
 
     private databaseInfoList: DatabaseInfo[] = [];
 
@@ -14,7 +16,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
     }
     
     refresh(): void {
-        this.databaseInfoList.forEach(dbInfo => dbInfo.unload());
+        this.databaseInfoList.forEach(dbInfo => dbInfo.reset());
         this._onDidChangeTreeData.fire();
     }
 
@@ -39,46 +41,37 @@ export class ExplorerTreeProvider implements TreeDataProvider<SQLItem> {
         return this.databaseInfoList.length;
     }
     
-    getTreeItem(element: SQLItem): TreeItem {
-        return element;
+    getTreeItem(element: ItemInfo): TreeItem {
+        if (element instanceof DatabaseInfo) {
+            return new DBItem(element.dbPath);
+        }
+        if (element instanceof TableInfo) {
+            return new TableItem(element.name);
+        }
+        if (element instanceof ColumnInfo) {
+            return new ColumnItem(element.name, element.type, element.notnull, element.pk, element.defVal);
+        }
+        return new TreeItem('No value');
     }
 
     getDatabases() {
         return this.databaseInfoList.map(dbInfo => dbInfo.dbPath);
     }
 
-    getChildren(element?: SQLItem): Thenable<SQLItem[]> {
-        return new Promise( (resolve, reject) => {
-            if (element) {
-                if (element instanceof DBItem) {
-                    let items: TableItem[] = [];
-                    let dbInfo = this.databaseInfoList.find(dbInfo => dbInfo.dbPath === element.dbPath);
-                    if (dbInfo) {
-                        items = dbInfo.tables().map(tblInfo => new TableItem(element, tblInfo.name));
-                    }
-                    resolve(items);
-                } else if (element instanceof TableItem) {
-                    let items: ColumnItem[] = [];
-                    let dbInfo = this.databaseInfoList.find(dbInfo => dbInfo.dbPath === element.parent.dbPath);
-                    if (dbInfo) {
-                        let tableInfo = dbInfo.tables().find(tblInfo => tblInfo.name === element.label);
-                        if (tableInfo) {
-                            items = tableInfo.columns().map(colInfo => {
-                                return new ColumnItem(element, colInfo.name, colInfo.type,
-                                    colInfo.notnull, colInfo.pk, colInfo.defVal );
-                            });
-                        }
-                    }
-                    resolve(items);
-                } else {
-                    resolve([]);
-                }
-            } else {
-                let items: DBItem[] = [];
-                items = this.databaseInfoList.map(dbInfo => new DBItem(dbInfo.dbPath));
-                resolve(items);
+    getChildren(element?: ItemInfo): ProviderResult<ItemInfo[]> {
+        if (element) {
+            if (element instanceof DatabaseInfo) {
+                return element.tables();
             }
-        });
+            if (element instanceof TableInfo) {
+                return element.columns();
+            }
+            if (element instanceof ColumnInfo) {
+                return [];
+            }
+        } else {
+            return this.databaseInfoList;
+        }
     }
 
 }

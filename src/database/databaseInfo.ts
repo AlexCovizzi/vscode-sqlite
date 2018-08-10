@@ -1,60 +1,35 @@
 import { QueryRunner } from "./queryRunner";
 
-/**
- * Contains info about the database
- */
 export class DatabaseInfo {
     private _tables?: TableInfo[];
 
     constructor(private queryRunner: QueryRunner, public dbPath: string) {
     }
 
-    /**
-     * Load tables and columns info for this database.
-     */
-    load(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.tables().forEach(tbl => tbl.columns());
-            resolve();
-        });
-    }
-
-    /**
-     * Unload tables and columns info for this database.
-     */
-    unload() {
+    reset() {
         this._tables = undefined;
     }
 
-    /**
-     * Unload and then load tables and columns info for this database.
-     */
-    reload(): Promise<void> {
-        this.unload();
-        return this.load();
-    }
-
-    /**
-     * Return tables info for this database.
-     * If not already loaded they will be loaded synchronously.
-     */
-    tables(): TableInfo[] {
+    tables(): PromiseLike<TableInfo[]> {
         if (this._tables === undefined) {
             const query = `SELECT name FROM sqlite_master WHERE type="table" ORDER BY name ASC;`;
-            let resultSet = this.queryRunner.runQuerySync(this.dbPath, query);
-            if (resultSet instanceof Error) {
-                this._tables = [];
-            } else {
-                let tables: string[] = [];
-                if (resultSet.length > 0) {
-                    resultSet[0].rows.forEach(row => {
-                        tables.push(row[0]);
-                    });
+            return this.queryRunner.runQuery(this.dbPath, query).then(
+                resultSet => {
+                    let tables: string[] = [];
+                    if (resultSet.length > 0) {
+                        resultSet[0].rows.forEach(row => {
+                            tables.push(row[0]);
+                        });
+                    }
+                    this._tables = tables.map(tbl => new TableInfo(this.queryRunner, this.dbPath, tbl));
+                    return Promise.resolve(this._tables);
+                },
+                error => {
+                    return Promise.resolve([]);
                 }
-                this._tables = tables.map(tbl => new TableInfo(this.queryRunner, this.dbPath, tbl));
-            }
+            );
         }
-        return this._tables;
+        return Promise.resolve(this._tables);
     }
 }
 
@@ -64,31 +39,34 @@ export class TableInfo {
     constructor(private queryRunner: QueryRunner, public dbPath: string, public name: string) {
     }
 
-    columns(): ColumnInfo[] {
+    columns(): PromiseLike<ColumnInfo[]> {
         if (this._columns === undefined) {
             let query = `PRAGMA table_info(${this.name});`;
-            let resultSet = this.queryRunner.runQuerySync(this.dbPath, query);
-            if (resultSet instanceof Error) {
-                this._columns = [];
-            } else {
-                let cols: ColumnInfo[] = [];
+            return this.queryRunner.runQuery(this.dbPath, query).then(
+                resultSet => {
+                    let cols: ColumnInfo[] = [];
 
-                if (resultSet.length > 0) {
-                    let result = resultSet[0];
-                    result.rows.forEach((row) => {
-                        let colName = row[result.header.indexOf('name')];
-                        let colType = row[result.header.indexOf('type')].toUpperCase();
-                        let colNotNull = row[result.header.indexOf('notnull')] === '1' ? true : false;
-                        let colPk = Number(row[result.header.indexOf('pk')]) || 0;
-                        let colDefVal = row[result.header.indexOf('dflt_value')];
-                        cols.push(new ColumnInfo(this.dbPath, this.name, colName, 
-                                                 colType, colNotNull, colPk, colDefVal));
-                    });
+                    if (resultSet.length > 0) {
+                        let result = resultSet[0];
+                        result.rows.forEach((row) => {
+                            let colName = row[result.header.indexOf('name')];
+                            let colType = row[result.header.indexOf('type')].toUpperCase();
+                            let colNotNull = row[result.header.indexOf('notnull')] === '1' ? true : false;
+                            let colPk = Number(row[result.header.indexOf('pk')]) || 0;
+                            let colDefVal = row[result.header.indexOf('dflt_value')];
+                            cols.push(new ColumnInfo(this.dbPath, this.name, colName, 
+                                                    colType, colNotNull, colPk, colDefVal));
+                        });
+                    }
+                    this._columns = cols;
+                    return Promise.resolve(this._columns);
+                },
+                error => {
+                    return Promise.resolve([]);
                 }
-                this._columns = cols;
-            }
+            );
         }
-        return this._columns;
+        return Promise.resolve(this._columns);
     }
 }
 

@@ -32,28 +32,6 @@ export class SQLite {
         });
     }
 
-    static querySync(cmdSqlite: string, dbPath: string, query: string, outputBuffer: number): Object[] | Error {
-        query = this.sanitizeQuery(query);
-        
-        const args = [
-            `"${dbPath}"`, `"${query}"`,
-            `-header`, // print the headers before the result rows
-            `-nullvalue "NULL"`, // print NULL for null values
-            `-echo`, // print the statement before the result
-            `-cmd ".mode tcl"`, // execute this command before the query, in mode tcl each field is in double quotes
-            ];
-            
-        const cmd = `${cmdSqlite} ${args.join(' ')}`;
-        logger.debug(`[QUERY CMD] ${cmd}`);
-
-        try {
-            let stdout = child_process.execSync(cmd, {maxBuffer: outputBuffer});
-            return this.parseOutput(stdout.toString());
-        } catch(err) {
-            return this.parseError(err.message);
-        }
-    }
-
     /**
      * replace " with \"
      */
