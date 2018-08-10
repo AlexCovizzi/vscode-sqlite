@@ -1,134 +1,83 @@
-/**
- * Adapted from https://github.com/TeamSQL/SQL-Statement-Parser by TeamSQL
- * - support for postgre, mssql, mysql removed
- * - comments are removed from the statements
- * - new lines not in quotes are replaced with space
- */
+export namespace SQLParser {
 
-export class SQLParser {
-
-    static parse(query : string) : Array <string> {
-        var queries: Array <string> = [];
-        var flag = true;
-        var restOfQuery: any = null;
-
-        while (flag) {
-            if (restOfQuery === null) {
-                restOfQuery = query;
-            }
-            var statementAndRest = this.getStatements(restOfQuery, ';');
-
-            var statement = statementAndRest[0];
-            if (statement !== null && statement.trim() !== "") {
-                // dont add  statements that dont start with a letter
-                if (statement.charAt(0).toLowerCase().match(/[a-z]/i)) {
-                    queries.push(statement);
-                }
-            }
-
-            restOfQuery = statementAndRest[1];
-            if (restOfQuery === null || restOfQuery.trim() === "") {
-                break;
-            }
-        }
-
-        return queries;
-    }
-
-    private static getStatements(query : string, delimiter : string) : Array <string | null> {
-        var charArray: Array <string> = Array.from(query);
-        var previousChar: string | null = null;
-        var nextChar: string | null = null;
-        var isInComment: boolean = false;
-        var commentChar: string | null = null;
-        var isInString: boolean = false;
-        var stringChar: string | null = null;
-        var isInTag: boolean = false;
-        var initIndex: number | null = null; // start of query
-
-        var resultQueries: Array <string | null> = [];
-        for (var index = 0; index < charArray.length; index++) {
-
-            var char = charArray[index];
-            if (index > 0) {
-                previousChar = charArray[index - 1];
-            }
-
-            if (index < charArray.length) {
-                nextChar = charArray[index + 1];
-            }
-
-            // it's in string, go to next char
-            if (previousChar !== '\\' && (char === '\'' || char === '"') && isInString === false && isInComment === false) {
-                isInString = true;
-                stringChar = char;
-                continue;
-            }
-
-            // it's comment, go to next char
-            if (((char === '#' && nextChar === ' ') || (char === '-' && nextChar === '-') || (char === '/' && nextChar === '*'))
-                && isInString === false && isInComment === false) {
-                isInComment = true;
-                commentChar = char;
-                continue;
-            }
+    export function parse(query: string): string[] {
+        let charArray: Array <string> = Array.from(query);
+        let statements: string[] = [''];
+        let prevChar: string = '';
+        let nextChar: string = '';
+        let isInComment: boolean = false;
+        let isInString: boolean = false;
+        let commentChar: string = '';
+        let stringChar: string = '';
+        
+        for (let i = 0; i < charArray.length; i++) {
+            let char = charArray[i];
+            prevChar = i > 0? charArray[i-1] : "";
+            nextChar = i < charArray.length? charArray[i+1] : "";
             
-            // it's end of comment, go to next
-            if (isInComment === true && (((commentChar === '#' || commentChar === '-') && char === '\n') || (commentChar === '/' && (char === '*' && nextChar === '/')))) {
-                // next char is end of */ comment, so i'll go past it
-                if (commentChar === '/' && (char === '*' && nextChar === '/')) {
-                    index++;
+            if (isInString) {
+                // end of string
+                if (char === stringChar) {
+                    isInString = false;
+                    stringChar = "";
                 }
-                isInComment = false;
-                commentChar = null;
-                initIndex = index+1;
-                continue;
+
+                statements[statements.length-1] += char;
+            } else if (isInComment) {
+                // end of -- comment
+                if (commentChar === '-' && char === '\n') {
+                    isInComment = false;
+                    commentChar = "";
+                    continue;
+                }
+                // end of /* comment
+                if (commentChar === '/' && char === '/' && prevChar === '*') {
+                    isInComment = false;
+                    commentChar = "";
+                    continue;
+                }
+            } else {
+                // end of statement
+                if (char === ';') {
+                    statements[statements.length-1] += char;
+                    statements.push('');
+                    continue;
+                }
+
+                // new lines are replaced with a space
+                if (char === '\n') {
+                    if (prevChar === '\r') {
+                        // we are on windows
+                        statements[statements.length-1] = statements[statements.length-1].slice(0, -1);
+                    }
+                    statements[statements.length-1] += ' ';
+                    continue;
+                }
+
+                // start of comment
+                if ( (char === '-' && nextChar === '-') || (char === '/' && nextChar === '*')) {
+                    isInComment = true;
+                    commentChar = char;
+                    i++; // we are not interested in the next char
+                    continue;
+                }
+
+                // start of string
+                if (char === '"' || char === '\'') {
+                    isInString = true;
+                    stringChar = char;
+                    statements[statements.length-1] += char;
+                    continue;
+                }
+
+                statements[statements.length-1] += char;
             }
-
-            // string closed, go to next char
-            if (previousChar !== '\\' && char === stringChar && isInString === true) {
-                isInString = false;
-                stringChar = null;
-                continue;
-            }
-
-            // it's a new line, replace with space
-            if (char === '\n' && isInString === false && isInComment === false && isInTag === false) {
-                charArray[index] = ' ';
-            }
-
-            // it's a query, continue until you get delimiter hit
-            if (char.toLowerCase() === delimiter.toLowerCase() && isInString === false && isInComment === false && isInTag === false) {
-                var splittingIndex = index;
-                // if (delimiter == ";") {     splittingIndex = index + 1 }
-                resultQueries = this.getQueryParts(charArray.join(''), initIndex? initIndex : 0, splittingIndex, delimiter);
-                break;
-
-            }
-
         }
-        
-        if (resultQueries.length === 0) {
-            if (query !== null) {
-                query = query.trim();
-            }
-            resultQueries.push(query, null);
-        }
 
-        return resultQueries;
-    }
-
-    private static getQueryParts(query : string, initIndex: number, splittingIndex : number, delimiter : string) : Array < string > {
-        var statement: string = query.substring(initIndex, splittingIndex);
-        var restOfQuery: string = query.substring(splittingIndex + delimiter.length);
-        var result: Array <string> = [];
-        if (statement !== null) {
-            statement = statement.trim();
-        }
-        
-        result.push(statement);
-        result.push(restOfQuery);
-        return result;
+        return statements
+                .map(stmt => stmt.trim())
+                .filter(stmt => stmt !== "")
+                .map(stmt => stmt.endsWith(';')? stmt : stmt += ';');
     }
 
 }
