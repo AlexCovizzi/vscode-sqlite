@@ -47,38 +47,6 @@ export class QueryRunner implements Disposable {
         });
     }
 
-    runQuerySync(dbPath: string, query: string): ResultSet | Error {
-        let sqlite3: string = this.sqlite3.get() || '';
-        if (sqlite3 === '') {
-            const err = `Error: sqlite3 command/path not found or invalid.`;
-            return new Error(err);
-        }
-
-        // remove comments
-        query = SQLParser.parse(query).join('; ') + ";";
-        logger.info(`[QUERY] ${query}`);
-        
-        let ret = SQLite.querySync(sqlite3, dbPath, query, this.outputBuffer.get());
-        if (ret instanceof Error) {
-            return ret;
-        } else {
-            let resultSet = new ResultSet();
-            ret.forEach((obj, index) => {
-                let stmt = (<any> obj)['stmt'];
-                let rows = (<any> obj)['rows'];
-                resultSet.push({
-                    id: index,
-                    stmt: stmt,
-                    header: rows.length > 0? rows.shift() : [],
-                    rows: rows
-                });
-            });
-            return resultSet;
-        }
-    }
-
-
-
     dispose() {
         this.disposable.dispose();
     }

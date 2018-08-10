@@ -39,15 +39,13 @@ export class DBItem extends SQLItem {
 }
 
 export class TableItem extends SQLItem {
-    parent: DBItem;
 
-    constructor(parent: DBItem, name: string, command?: Command) {
+    constructor(name: string, command?: Command) {
         super(
             name,
             TreeItemCollapsibleState.Collapsed,
             command
         );
-        this.parent = parent;
         this.contextValue = 'sqlite.tableItem';
     }
 
@@ -59,16 +57,15 @@ export class TableItem extends SQLItem {
 }
 
 export class ColumnItem extends SQLItem {
-    parent: TableItem;
 
-    constructor(parent: TableItem, private name:string, private type: string,
+    constructor(private name:string, private type: string,
             private notnull: boolean, private pk: number, private defVal: string, command?: Command) {
         super(
             name+` : ${type.toLowerCase()}`,
             TreeItemCollapsibleState.None,
             command
         );
-        this.parent = parent;
+        
         this.contextValue = 'sqlite.columnItem';
 
         let iconName = notnull? 'col_notnull.svg' : 'col_nullable.svg';

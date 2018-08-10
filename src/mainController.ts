@@ -2,7 +2,6 @@
 
 import { Uri, commands, ExtensionContext, window, Disposable, workspace, ViewColumn } from 'vscode';
 import { SQLiteExplorer } from './explorer/explorer';
-import { DBItem, TableItem } from './explorer/treeItem';
 import { Commands, Constants } from './constants/constants';
 import { QueryRunner } from './database/queryRunner';
 import { ResultView } from './resultView/resultView';
@@ -14,6 +13,7 @@ import { DocumentDatabase } from './sqlDocument/documentDatabase';
 import { logger } from './logging/logger';
 import { DocumentDatabaseStatusBar } from './statusBar/docDatabaseStatusBar';
 import { Configuration } from './configuration/configuration';
+import { TableInfo, DatabaseInfo } from './database/databaseInfo';
 
 /**
  * Initialize controllers, register commands, run commands
@@ -46,8 +46,8 @@ export class MainController implements Disposable {
         this.context.subscriptions.push(commands.registerCommand(Commands.ctxExploreDatabase, (uri: Uri) => {
             this.onCommandEvent(() => this.onCtxExploreDatabase(uri.fsPath));
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.ctxCloseExplorerDatabase, (item: DBItem) => {
-            this.onCommandEvent(() => this.onCtxCloseExplorerDatabase(item.dbPath));
+        this.context.subscriptions.push(commands.registerCommand(Commands.ctxCloseExplorerDatabase, (dbInfo: DatabaseInfo) => {
+            this.onCommandEvent(() => this.onCtxCloseExplorerDatabase(dbInfo.dbPath));
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.useDatabase, () => {
             this.onCommandEvent(() => this.onUseDatabase());
@@ -55,8 +55,8 @@ export class MainController implements Disposable {
         this.context.subscriptions.push(commands.registerCommand(Commands.runDocumentQuery, () => {
             this.onCommandEvent(() => this.onRunDocumentQuery());
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.newQuery, (item?: DBItem) => {
-            this.onCommandEvent(() => this.onNewQuery(item? item.dbPath : undefined));
+        this.context.subscriptions.push(commands.registerCommand(Commands.newQuery, (dbInfo?: DatabaseInfo) => {
+            this.onCommandEvent(() => this.onNewQuery(dbInfo? dbInfo.dbPath : undefined));
         }));
         this.context.subscriptions.push(commands.registerCommand(Commands.quickQuery, () => {
             this.onCommandEvent(() => this.onQuickQuery());
@@ -64,11 +64,11 @@ export class MainController implements Disposable {
         this.context.subscriptions.push(commands.registerCommand(Commands.refreshExplorer, () => {
             this.onCommandEvent(() => this.onRefreshExplorer());
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.runTableQuery, (tableItem: TableItem) => {
-            this.onCommandEvent(() => this.onRunTableQuery(tableItem.parent.dbPath, tableItem.label));
+        this.context.subscriptions.push(commands.registerCommand(Commands.runTableQuery, (tableInfo: TableInfo) => {
+            this.onCommandEvent(() => this.onRunTableQuery(tableInfo.dbPath, tableInfo.name));
         }));
-        this.context.subscriptions.push(commands.registerCommand(Commands.runSqliteMasterQuery, (dbItem: DBItem) => {
-            this.onCommandEvent(() => this.onRunSqliteMasterQuery(dbItem.dbPath));
+        this.context.subscriptions.push(commands.registerCommand(Commands.runSqliteMasterQuery, (dbInfo: DatabaseInfo) => {
+            this.onCommandEvent(() => this.onRunSqliteMasterQuery(dbInfo.dbPath));
         }));
         // private commands
         this.context.subscriptions.push(commands.registerCommand(Commands.runQuery, (dbPath: string, query: string) => {
