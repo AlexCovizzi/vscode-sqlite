@@ -211,7 +211,8 @@ export class MainController implements Disposable {
     private onRunDocumentQuery() {
         let doc = getEditorSqlDocument();
         if (doc) {
-            let text = doc.getText();
+            let selection = window.activeTextEditor? window.activeTextEditor.selection : undefined;
+            let text = doc.getText(selection);
             let dbPath = this.documentDatabase.get(doc);
             if (dbPath) {
                 commands.executeCommand(Commands.runQuery, dbPath, text);
