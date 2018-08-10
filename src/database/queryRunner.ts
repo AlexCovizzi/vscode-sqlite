@@ -22,7 +22,7 @@ export class QueryRunner implements Disposable {
         }
 
         // remove comments
-        query = SQLParser.parse(query).join('; ') + ";";
+        query = SQLParser.parse(query).join('');
         logger.info(`[QUERY] ${query}`);
         
         return new Promise ((resolve, reject) => {
