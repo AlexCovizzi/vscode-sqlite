@@ -212,6 +212,7 @@ export class MainController implements Disposable {
         let doc = getEditorSqlDocument();
         if (doc) {
             let selection = window.activeTextEditor? window.activeTextEditor.selection : undefined;
+            selection = selection && selection.isEmpty? undefined : selection;
             let text = doc.getText(selection);
             let dbPath = this.documentDatabase.get(doc);
             if (dbPath) {
