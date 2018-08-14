@@ -14,7 +14,7 @@ export class QueryRunner implements Disposable {
         this.disposable = Disposable.from(...subscriptions);
     }
 
-    runQuery(dbPath: string, query: string, callback?: (error: Error) => void): Thenable<ResultSet> {
+    runQuery(dbPath: string, query: string, callback: (resultSet?: ResultSet, error?: Error) => void) {
         let sqlite3: string = this.sqlite3.get() || '';
         if (sqlite3 === '') {
             const err = `Error: sqlite3 command/path not found or invalid.`;
@@ -25,19 +25,7 @@ export class QueryRunner implements Disposable {
         query = SQLParser.parse(query).join('');
         logger.info(`[QUERY] ${query}`);
         
-        return new Promise ((resolve, reject) => {
-            SQLite.query(sqlite3, dbPath, query, (resultSet?: ResultSet, error?: Error) => {
-                if (error && callback) {
-                    callback(error);
-                }
-
-                if (resultSet) {
-                    resolve(resultSet);
-                } else {
-                    reject();
-                }
-            });
-        });
+        SQLite.query(sqlite3, dbPath, query, callback);
     }
 
     dispose() {

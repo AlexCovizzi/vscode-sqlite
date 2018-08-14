@@ -13,23 +13,25 @@ export class DatabaseInfo {
     tables(): PromiseLike<TableInfo[]> {
         if (this._tables === undefined) {
             const query = `SELECT name FROM sqlite_master WHERE type="table" ORDER BY name ASC;`;
-            return this.queryRunner.runQuery(this.dbPath, query).then(
-                resultSet => {
-                    let tables: string[] = [];
-                    if (resultSet.length > 0) {
-                        resultSet[0].rows.forEach(row => {
-                            tables.push(row[0]);
-                        });
+            return new Promise((resolve, reject) => {
+                this.queryRunner.runQuery(this.dbPath, query, (resultSet?, err?) => {
+                    if (resultSet) {
+                        let tables: string[] = [];
+                        if (resultSet.length > 0) {
+                            resultSet[0].rows.forEach(row => {
+                                tables.push(row[0]);
+                            });
+                        }
+                        this._tables = tables.map(tbl => new TableInfo(this.queryRunner, this.dbPath, tbl));
+                        resolve(this._tables);
+                    } else {
+                        resolve([])
                     }
-                    this._tables = tables.map(tbl => new TableInfo(this.queryRunner, this.dbPath, tbl));
-                    return Promise.resolve(this._tables);
-                },
-                error => {
-                    return Promise.resolve([]);
-                }
-            );
+                });
+            });
+        } else {
+            return Promise.resolve(this._tables);
         }
-        return Promise.resolve(this._tables);
     }
 }
 
@@ -42,31 +44,34 @@ export class TableInfo {
     columns(): PromiseLike<ColumnInfo[]> {
         if (this._columns === undefined) {
             let query = `PRAGMA table_info(${this.name});`;
-            return this.queryRunner.runQuery(this.dbPath, query).then(
-                resultSet => {
-                    let cols: ColumnInfo[] = [];
+            return new Promise((resolve, reject) => {
+                this.queryRunner.runQuery(this.dbPath, query, (resultSet?, err?) => {
+                    if (resultSet) {
+                        let cols: ColumnInfo[] = [];
 
-                    if (resultSet.length > 0) {
-                        let result = resultSet[0];
-                        result.rows.forEach((row) => {
-                            let colName = row[result.header.indexOf('name')];
-                            let colType = row[result.header.indexOf('type')].toUpperCase();
-                            let colNotNull = row[result.header.indexOf('notnull')] === '1' ? true : false;
-                            let colPk = Number(row[result.header.indexOf('pk')]) || 0;
-                            let colDefVal = row[result.header.indexOf('dflt_value')];
-                            cols.push(new ColumnInfo(this.dbPath, this.name, colName, 
-                                                    colType, colNotNull, colPk, colDefVal));
-                        });
+                        if (resultSet.length > 0) {
+                            let result = resultSet[0];
+                            result.rows.forEach((row) => {
+                                let colName = row[result.header.indexOf('name')];
+                                let colType = row[result.header.indexOf('type')].toUpperCase();
+                                let colNotNull = row[result.header.indexOf('notnull')] === '1' ? true : false;
+                                let colPk = Number(row[result.header.indexOf('pk')]) || 0;
+                                let colDefVal = row[result.header.indexOf('dflt_value')];
+                                cols.push(new ColumnInfo(this.dbPath, this.name, colName, 
+                                                        colType, colNotNull, colPk, colDefVal));
+                            });
+                        }
+                        this._columns = cols;
+
+                        resolve(this._columns);
+                    } else {
+                        resolve([]);
                     }
-                    this._columns = cols;
-                    return Promise.resolve(this._columns);
-                },
-                error => {
-                    return Promise.resolve([]);
-                }
-            );
+                });
+            });
+        } else {
+            return Promise.resolve(this._columns);
         }
-        return Promise.resolve(this._columns);
     }
 }
 

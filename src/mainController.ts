@@ -148,17 +148,15 @@ export class MainController implements Disposable {
     }
 
     private onUseDatabase(): Thenable<String> {
-        return new Promise((resolve, reject) => {
-            let hint = 'Choose which database to use for this document';
-            pickWorkspaceDatabase(this.configuration.autopick.get(), hint).then((dbPath) => {
-                let doc = getEditorSqlDocument();
-                if (doc) {
-                    this.documentDatabase.bind(doc, dbPath);
-                    this.documentDatabaseStatusBar.update();
-                    logger.info(`'${doc? doc.uri.fsPath : ''}' => '${dbPath}'`);
-                }
-                resolve(dbPath);
-            });
+        let hint = 'Choose which database to use for this document';
+        return pickWorkspaceDatabase(this.configuration.autopick.get(), hint).then((dbPath) => {
+            let doc = getEditorSqlDocument();
+            if (doc) {
+                this.documentDatabase.bind(doc, dbPath);
+                this.documentDatabaseStatusBar.update();
+                logger.info(`'${doc? doc.uri.fsPath : ''}' => '${dbPath}'`);
+            }
+            return Promise.resolve(dbPath);
         });
     }
 
@@ -167,17 +165,15 @@ export class MainController implements Disposable {
     }
 
     private onRunQuery(dbPath: string, query: string) {
-        this.queryRunner.runQuery(dbPath, query, err => {
-            logger.error(err.message);
-            window.showErrorMessage(err.message);
-        }).then(
-            resultSet => {
-                commands.executeCommand(Commands.showQueryResult, resultSet); 
-            },
-            rejected => {
-                //
+        this.queryRunner.runQuery(dbPath, query, (resultSet?, err?) => {
+            if (err) {
+                logger.error(err.message);
+                window.showErrorMessage(err.message);
             }
-        );
+            if (resultSet) {
+                commands.executeCommand(Commands.showQueryResult, resultSet);
+            }
+        });
     }
 
     private onQuickQuery() {
