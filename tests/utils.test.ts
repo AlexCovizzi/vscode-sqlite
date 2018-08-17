@@ -1,7 +1,6 @@
-import * as assert from 'assert';
-import * as utils from '../utils/utils';
+import * as utils from '../src/utils/utils';
 
-suite("findNotInString Tests", function () {
+describe("findNotInString Tests", function () {
 
     test("string with new lines inside quotes should return indexes of new lines not in quotes", function() {
         let char = '\n';
@@ -13,11 +12,11 @@ suite("findNotInString Tests", function () {
         let expected = [stmt1.length, stmt1.length+stmt2.length+1];
         let actual = utils.findNotInString(char, str);
         
-        assert.deepStrictEqual(actual, expected);
+        expect(actual).toEqual(expected);
     });
 });
 
-suite("splitNotInString Tests", function () {
+describe("splitNotInString Tests", function () {
 
     test("string with new lines inside quotes should return substrings where new lines", function() {
         let char = '\n';
@@ -29,7 +28,7 @@ suite("splitNotInString Tests", function () {
         let expected = [stmt1, stmt2, stmt3];
         let actual = utils.splitNotInString(char, str);
         
-        assert.deepStrictEqual(actual, expected);
+        expect(actual).toEqual(expected);
     });
 
     test("strings in quotes separated by new lines should return strings", function() {
@@ -42,7 +41,7 @@ suite("splitNotInString Tests", function () {
         let expected = [substr1, substr2, substr3];
         let actual = utils.splitNotInString(char, str);
         
-        assert.deepStrictEqual(actual, expected);
+        expect(actual).toEqual(expected);
     });
 
     test("strings in quotes separated by windows new lines should return strings", function() {
@@ -55,11 +54,11 @@ suite("splitNotInString Tests", function () {
         let expected = [substr1, substr2, substr3];
         let actual = utils.splitNotInString(char, str);
         
-        assert.deepStrictEqual(actual, expected);
+        expect(actual).toEqual(expected);
     });
 });
 
-suite("replaceEscapedOctetsWithChar Tests", function () {
+describe("replaceEscapedOctetsWithChar Tests", function () {
 
     test("escaped octets should be replaced with corresponding unicode char", function() {
         let str = "hello\\303\\247world";
@@ -67,7 +66,7 @@ suite("replaceEscapedOctetsWithChar Tests", function () {
 
         let actual = utils.replaceEscapedOctetsWithChar(str);
         
-        assert.equal(actual, expected);
+        expect(actual).toEqual(expected);
     });
 
     test("escaped octets at the start of the string should be replaced with corresponding unicode char", function() {
@@ -76,7 +75,7 @@ suite("replaceEscapedOctetsWithChar Tests", function () {
 
         let actual = utils.replaceEscapedOctetsWithChar(str);
         
-        assert.equal(actual, expected);
+        expect(actual).toEqual(expected);
     });
 
     test("escaped escaped octet should be ignored", function() {
@@ -85,7 +84,7 @@ suite("replaceEscapedOctetsWithChar Tests", function () {
 
         let actual = utils.replaceEscapedOctetsWithChar(str);
         
-        assert.equal(actual, expected);
+        expect(actual).toEqual(expected);
     });
 
     test("invalid escaped octet should be ignored", function() {
@@ -94,6 +93,6 @@ suite("replaceEscapedOctetsWithChar Tests", function () {
 
         let actual = utils.replaceEscapedOctetsWithChar(str);
         
-        assert.equal(actual, expected);
+        expect(actual).toEqual(expected);
     });
 });

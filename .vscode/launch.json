@@ -25,10 +25,7 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}",
-                "--extensionTestsPath=${workspaceFolder}/out/test"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/out/test/**/*.js"
+                "--extensionTestsPath=${workspaceFolder}/tests"
             ],
             "preLaunchTask": "npm: watch"
         }

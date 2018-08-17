@@ -1,5 +1,6 @@
 .vscode/**
 .vscode-test/**
+tests/**
 .test_db/**
 out/test/**
 out/**/*.map

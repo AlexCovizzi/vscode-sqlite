@@ -18,7 +18,6 @@
     },
     "include": [
         "src/**/*.ts",
-        "src/**/dblite.js",
     ],
     "exclude": [
         "node_modules",
