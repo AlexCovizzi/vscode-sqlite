@@ -82,46 +82,42 @@ export function pickListDatabase(autopick: boolean, dbs: string[]): Thenable<str
  * Autopick depends on the configuration sqlite.autopick
  * @param hint 
  */
-function showAutoQuickPick(autopick: boolean, items: QuickPickItem[] | Thenable<QuickPickItem[]>, hint?: string): Thenable<QuickPickItem> {
+export function showAutoQuickPick(autopick: boolean, items: QuickPickItem[] | Thenable<QuickPickItem[]>, hint?: string): Thenable<QuickPickItem> {
     
     if (autopick && items instanceof Array && items.length === 1) {
         let item = items[0];
         return new Promise(resolve => resolve(item));
-    }
-    
-    return new Promise((resolve, reject) => {
-        let cancTockenSource: CancellationTokenSource | undefined;
-        let cancToken: CancellationToken | undefined;
+    } else {
+        return new Promise((resolve, reject) => {
+            let cancTockenSource: CancellationTokenSource | undefined;
+            let cancToken: CancellationToken | undefined;
 
-        /* items is a Thenable, if there is only one item
-           i need to resolve the only item and cancel the quickpick */
-        if (autopick && !(items instanceof Array)) {
-            cancTockenSource = new CancellationTokenSource();
-            cancToken = cancTockenSource.token;
+            /* items is a Thenable, if there is only one item
+            i need to resolve the only item and cancel the quickpick */
+            if (autopick && !(items instanceof Array)) {
+                cancTockenSource = new CancellationTokenSource();
+                cancToken = cancTockenSource.token;
 
-            items.then( items => {
-                if (items.length === 1) {
-                    let item = items[0];
-                    resolve(item);
+                items.then( items => {
+                    if (items.length === 1) {
+                        let item = items[0];
+                        resolve(item);
 
-                    if (cancTockenSource) {
-                        cancTockenSource.cancel();
-                        cancTockenSource.dispose();
+                        if (cancTockenSource) {
+                            cancTockenSource.cancel();
+                            cancTockenSource.dispose();
+                        }
                     }
+                });
+            }
+
+            window.showQuickPick(items, {placeHolder: hint? hint : ''}, cancToken).then( item => {
+                resolve(item);
+                
+                if (cancTockenSource) {
+                    cancTockenSource.dispose();
                 }
             });
-        }
-
-        window.showQuickPick(items, {placeHolder: hint? hint : ''}, cancToken).then( item => {
-            if ( item ) {
-                resolve(item);
-            } else {
-                resolve(undefined);
-            }
-            
-            if (cancTockenSource) {
-                cancTockenSource.dispose();
-            }
         });
-    });
+    }
 }
