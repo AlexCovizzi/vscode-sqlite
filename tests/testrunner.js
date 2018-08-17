@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 
 var { spawn } = require('child_process');
-var { join } = require('path');
 
 const configuration = {
     jestPath: null,
@@ -20,6 +19,8 @@ function run(testsRoot, clb) {
     }
 
     var jestArgs = [];
+    jestArgs.push(configuration.jestPath);
+
     if (configuration.jestConfig) {
         jestArgs.push('--config');
         jestArgs.push(configuration.jestConfig);
@@ -32,8 +33,8 @@ function run(testsRoot, clb) {
     }
 
     console.log(configuration.jestPath+'\n');
-
-    var jest = spawn(configuration.jestPath, jestArgs, { env: process.env });
+    
+    var jest = spawn('node', jestArgs, { env: process.env });
 
     jest.stdout.on('data', (data) => console.log(`${data}`));
 
