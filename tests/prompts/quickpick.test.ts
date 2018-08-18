@@ -1,12 +1,7 @@
 import * as vscode from 'vscode';
 import * as quickpick from '../../src/prompts/quickpick';
 
-jest.mock('vscode', () => ({
-    window: {
-        showQuickPick: jest.fn()
-    },
-    CancellationTokenSource: jest.fn(),
-}));
+jest.mock('vscode');
 
 describe('quickpick.ts', () => {
 
@@ -14,10 +9,9 @@ describe('quickpick.ts', () => {
 
         beforeEach(() => {
             (vscode.window.showQuickPick as jest.Mock).mockClear();
-            (vscode.CancellationTokenSource as any).mockClear();
         });
 
-        test('should return a promise that resolves to an item if multiple items are passed as argument and one is choosen', () => {
+        test('should return a promise that resolves to an item if multiple items are passed as argument and one is choosen', (done) => {
             const items = [{label: "item0"}, {label: "item1"}, {label: "item2"}];
             let item = items[Math.floor(Math.random()*items.length)];
 
@@ -25,32 +19,40 @@ describe('quickpick.ts', () => {
             
             quickpick.showAutoQuickPick(false, Promise.resolve(items)).then(item => {
                 expect(items).toContainEqual(item);
+
+                done();
             });
         });
 
-        test('should return a promise that resolves to undefined if no item is choosen', () => {
+        test('should return a promise that resolves to undefined if no item is choosen', (done) => {
             const items = [{label: "item0"}, {label: "item1"}, {label: "item2"}];
 
             (vscode.window.showQuickPick as jest.Mock).mockResolvedValue(undefined);
             
             quickpick.showAutoQuickPick(false, Promise.resolve(items)).then(item => {
                 expect(item).toBeUndefined();
+
+                done();
             });
         });
 
-        test('should return the only item if autopick is true and an item is passed', () => {
+        test('should return the only item if autopick is true and an item is passed', (done) => {
             const items = [{label: "item0"}];
             
             quickpick.showAutoQuickPick(true, items).then(item => {
                 expect(item).toEqual(items[0]);
+
+                done();
             });
         });
 
-        test('should return the only item if autopick is true and a promise that resolves to an item is passed', () => {
+        test('should return the only item if autopick is true and a promise that resolves to an item is passed', (done) => {
             const items = [{label: "item0"}];
 
             quickpick.showAutoQuickPick(true, Promise.resolve(items)).then(item => {
                 expect(item).toEqual(items[0]);
+
+                done();
             });
         });
 
@@ -61,26 +63,22 @@ describe('quickpick.ts', () => {
 
             expect(vscode.window.showQuickPick).not.toHaveBeenCalled();
         });
+    });
 
-        test('should call vscode.CancellationTokenSource.cancel if autopick is true and a promise that resolves to an item is passed', () => {
-            const items = [{label: "item0"}];
+    describe("pickWorkspaceDatabase", () => {
 
-            const mockCancel = jest.fn();
-            (vscode.CancellationTokenSource as any) = jest.fn().mockImplementation(() => {
-                return {
-                    cancel: mockCancel,
-                    dispose: jest.fn(),
-                    token: jest.fn()
-                };
+        test("should return a promise that resolves to a string if a valid item is choosen", (done) => {
+            const dbUriList = [{fsPath: "dbPath1"}, {fsPath: "dbPath2"}];
+            const dbPath = dbUriList[0].fsPath;
+
+            (vscode.workspace.findFiles as jest.Mock).mockResolvedValue(dbUriList);
+            (vscode.window.showQuickPick as jest.Mock).mockResolvedValue(new quickpick.QuickPick.DatabaseItem(dbPath));
+
+            quickpick.pickWorkspaceDatabase(false).then(item => {
+                expect(item).toBe(dbPath);
+
+                done();
             });
-
-            quickpick.showAutoQuickPick(true, Promise.resolve(items));
-
-            expect(vscode.window.showQuickPick).toHaveBeenCalled();
-
-            expect(vscode.CancellationTokenSource).toHaveBeenCalled();
-
-            expect(mockCancel).toHaveBeenCalled();
         });
     });
 });
