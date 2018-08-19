@@ -93,7 +93,7 @@ export class MainController implements Disposable {
 
         return new Promise( (resolve, reject) => {
             this.configuration = new Configuration(this.context.extensionPath);
-            this.queryRunner = new QueryRunner(this.configuration.sqlite3, this.configuration.outputBuffer);
+            this.queryRunner = new QueryRunner(this.configuration.sqlite3);
             this.explorer = new SQLiteExplorer(this.queryRunner);
             this.documentDatabase = new DocumentDatabase();
             this.documentDatabaseStatusBar = new DocumentDatabaseStatusBar(this.documentDatabase);
@@ -148,17 +148,15 @@ export class MainController implements Disposable {
     }
 
     private onUseDatabase(): Thenable<String> {
-        return new Promise((resolve, reject) => {
-            let hint = 'Choose which database to use for this document';
-            pickWorkspaceDatabase(this.configuration.autopick.get(), hint).then((dbPath) => {
-                let doc = getEditorSqlDocument();
-                if (doc) {
-                    this.documentDatabase.bind(doc, dbPath);
-                    this.documentDatabaseStatusBar.update();
-                    logger.info(`'${doc? doc.uri.fsPath : ''}' => '${dbPath}'`);
-                }
-                resolve(dbPath);
-            });
+        let hint = 'Choose which database to use for this document';
+        return pickWorkspaceDatabase(this.configuration.autopick.get(), hint).then((dbPath) => {
+            let doc = getEditorSqlDocument();
+            if (doc) {
+                this.documentDatabase.bind(doc, dbPath);
+                this.documentDatabaseStatusBar.update();
+                logger.info(`'${doc? doc.uri.fsPath : ''}' => '${dbPath}'`);
+            }
+            return Promise.resolve(dbPath);
         });
     }
 
@@ -167,15 +165,15 @@ export class MainController implements Disposable {
     }
 
     private onRunQuery(dbPath: string, query: string) {
-        this.queryRunner.runQuery(dbPath, query).then(
-            resultSet => { 
-                commands.executeCommand(Commands.showQueryResult, resultSet); 
-            },
-            err => {
-                logger.error(err);
-                window.showErrorMessage(err);
+        this.queryRunner.runQuery(dbPath, query, (resultSet?, err?) => {
+            if (err) {
+                logger.error(err.message);
+                window.showErrorMessage(err.message);
             }
-        );
+            if (resultSet) {
+                commands.executeCommand(Commands.showQueryResult, resultSet);
+            }
+        });
     }
 
     private onQuickQuery() {
