@@ -1,8 +1,14 @@
 export const window = {
     createStatusBarItem: jest.fn(),
+
     showQuickPick: jest.fn(),
+
     onDidChangeActiveTextEditor: jest.fn(),
     onDidChangeTextEditorViewColumn: jest.fn(),
+
+    createTreeView: jest.fn(),
+
+    createOutputChannel: jest.fn()
 };
 
 export const workspace = {
@@ -11,9 +17,13 @@ export const workspace = {
     onDidCloseTextDocument: jest.fn(),
 };
 
+export const commands = {
+    executeCommand: jest.fn()
+};
+
 export const Disposable = {
     from: jest.fn()
-}
+};
 
 export const CancellationTokenSource = jest.fn().mockImplementation(() => {
     return {
@@ -24,3 +34,12 @@ export const CancellationTokenSource = jest.fn().mockImplementation(() => {
 });
 
 export const StatusBarAlignment = jest.fn();
+
+export const TextDocument = jest.fn().mockImplementation(() => {
+    return {
+        uri: {toString: jest.fn()},
+
+    };
+});
+
+export const TreeItem = jest.fn();

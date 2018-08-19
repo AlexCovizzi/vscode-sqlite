@@ -14,6 +14,7 @@ export namespace Constants {
     export const webviewPanelTitle = 'SQLite';
     //public static htmlAssetsPath = join(__dirname, '..', '..', 'www');
 
+    export const sqliteExplorerViewId = "sqlite.sqliteExplorer";
 }
 
 export namespace Commands {
