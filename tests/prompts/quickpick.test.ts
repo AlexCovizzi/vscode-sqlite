@@ -36,7 +36,7 @@ describe('quickpick.ts', () => {
             });
         });
 
-        test('should return the only item if autopick is true and an item is passed', (done) => {
+        test('should return the only item if autopick is true and a list of one item is passed', (done) => {
             const items = [{label: "item0"}];
             
             quickpick.showAutoQuickPick(true, items).then(item => {
@@ -46,22 +46,25 @@ describe('quickpick.ts', () => {
             });
         });
 
-        test('should return the only item if autopick is true and a promise that resolves to an item is passed', (done) => {
+        test('should not call vscode.window.showQuickPick if autopick is true and a list of one item is passed', () => {
+            // there is no need to call showQuickPick if only one item is passed and autopick is true
             const items = [{label: "item0"}];
+
+            quickpick.showAutoQuickPick(true, items);
+
+            expect(vscode.window.showQuickPick).not.toHaveBeenCalled();
+        });
+
+        test('should return the only item if autopick is true, a promise that resolves to an item is passed and no item is choosen', (done) => {
+            const items = [{label: "item0"}];
+
+            // we dont use showQuickPick.mockResolvedValue, that is no element is choosen
 
             quickpick.showAutoQuickPick(true, Promise.resolve(items)).then(item => {
                 expect(item).toEqual(items[0]);
 
                 done();
             });
-        });
-
-        test('should not call vscode.window.showQuickPick if autopick is true and an item is passed', () => {
-            const items = [{label: "item0"}];
-
-            quickpick.showAutoQuickPick(true, items);
-
-            expect(vscode.window.showQuickPick).not.toHaveBeenCalled();
         });
     });
 
