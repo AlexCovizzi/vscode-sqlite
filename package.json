@@ -92,6 +92,12 @@
                 }
             }
         ],
+        "keybindings": [{
+            "command": "sqlite.runDocumentQuery",
+            "key": "ctrl+shift+q",
+            "mac": "cmd+shift+q",
+            "when": "editorLangId == sql"
+        }],
         "views": {
             "explorer": [
                 {
@@ -131,23 +137,23 @@
                 },
                 {
                     "command": "sqlite.ctxExploreDatabase",
-                    "when": "sqlite.never"
+                    "when": "false"
                 },
                 {
                     "command": "sqlite.ctxCloseExplorerDatabase",
-                    "when": "sqlite.never"
+                    "when": "false"
                 },
                 {
                     "command": "sqlite.runSqliteMasterQuery",
-                    "when": "sqlite.never"
+                    "when": "false"
                 },
                 {
                     "command": "sqlite.runTableQuery",
-                    "when": "sqlite.never"
+                    "when": "false"
                 },
                 {
                     "command": "sqlite.refreshExplorer",
-                    "when": "sqlite.never"
+                    "when": "false"
                 }
             ],
             "explorer/context": [
