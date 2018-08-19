@@ -1,6 +1,7 @@
 import { window, commands, Disposable } from "vscode";
 import { ExplorerTreeProvider } from "./explorerTreeProvider";
 import { QueryRunner } from "../database/queryRunner";
+import { Constants } from "../constants/constants";
 
 export class SQLiteExplorer implements Disposable {
     private disposable: Disposable;
@@ -9,10 +10,9 @@ export class SQLiteExplorer implements Disposable {
     constructor(queryRunner: QueryRunner) {
         let subscriptions: Disposable[] = [];
 
-        let treeDataProvider = new ExplorerTreeProvider(queryRunner);
-        this.explorerTreeProvider = treeDataProvider;
+        this.explorerTreeProvider = new ExplorerTreeProvider(queryRunner);
         
-        let treeView = window.createTreeView('sqlite.sqliteExplorer', { treeDataProvider });
+        let treeView = window.createTreeView(Constants.sqliteExplorerViewId, { treeDataProvider: this.explorerTreeProvider });
         subscriptions.push(treeView);
 
         this.disposable = Disposable.from(...subscriptions);

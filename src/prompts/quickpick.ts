@@ -1,7 +1,7 @@
 import { QuickPickItem, workspace, window, CancellationTokenSource, CancellationToken } from 'vscode';
 import { basename } from 'path';
 
-namespace QuickPick {
+export namespace QuickPick {
     export class DatabaseItem implements QuickPickItem {
         path: string;
         label: string;
@@ -17,7 +17,6 @@ namespace QuickPick {
     }
     
     export class ErrorItem implements QuickPickItem {
-        stack?: string | undefined;
         label: string;
         description?: string;
         detail?: string;
@@ -30,7 +29,7 @@ namespace QuickPick {
 }
 
 /**
- * Show a Quick Pick that lets you choose a database to open, from all the files in the workspace with extension .db or .sqlite
+ * Show a Quick Pick that lets you choose a database to open from all the files in the workspace with extension .db or .sqlite
  * @param hint What to write in the QuickPick
  */
 export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenable<string> {
@@ -61,7 +60,7 @@ export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenabl
 export function pickListDatabase(autopick: boolean, dbs: string[]): Thenable<string> {
     let items: QuickPick.DatabaseItem[] | QuickPick.ErrorItem[];
     if (dbs.length === 0) {
-        //items = [new QuickPick.ErrorItem('No database open in explorer')];
+        //items = [new QuickPick.ErrorItem('No database found.')];
         items = [];
     } else {
         items = dbs.map(dbPath => new QuickPick.DatabaseItem(dbPath));
@@ -82,46 +81,42 @@ export function pickListDatabase(autopick: boolean, dbs: string[]): Thenable<str
  * Autopick depends on the configuration sqlite.autopick
  * @param hint 
  */
-function showAutoQuickPick(autopick: boolean, items: QuickPickItem[] | Thenable<QuickPickItem[]>, hint?: string): Thenable<QuickPickItem> {
+export function showAutoQuickPick(autopick: boolean, items: QuickPickItem[] | Thenable<QuickPickItem[]>, hint?: string): Thenable<QuickPickItem> {
     
     if (autopick && items instanceof Array && items.length === 1) {
         let item = items[0];
         return new Promise(resolve => resolve(item));
-    }
-    
-    return new Promise((resolve, reject) => {
-        let cancTockenSource: CancellationTokenSource | undefined;
-        let cancToken: CancellationToken | undefined;
+    } else {
+        return new Promise((resolve, reject) => {
+            let cancTockenSource: CancellationTokenSource | undefined;
+            let cancToken: CancellationToken | undefined;
 
-        /* items is a Thenable, if there is only one item
-           i need to resolve the only item and cancel the quickpick */
-        if (autopick && !(items instanceof Array)) {
-            cancTockenSource = new CancellationTokenSource();
-            cancToken = cancTockenSource.token;
+            /* items is a Thenable, if there is only one item
+            i need to resolve the only item and cancel the quickpick */
+            if (autopick && !(items instanceof Array)) {
+                cancTockenSource = new CancellationTokenSource();
+                cancToken = cancTockenSource.token;
 
-            items.then( items => {
-                if (items.length === 1) {
-                    let item = items[0];
-                    resolve(item);
+                items.then( items => {
+                    if (items.length === 1) {
+                        let item = items[0];
+                        resolve(item);
 
-                    if (cancTockenSource) {
-                        cancTockenSource.cancel();
-                        cancTockenSource.dispose();
+                        if (cancTockenSource) {
+                            cancTockenSource.cancel();
+                            cancTockenSource.dispose();
+                        }
                     }
+                });
+            }
+
+            window.showQuickPick(items, {placeHolder: hint? hint : ''}, cancToken).then( item => {
+                resolve(item);
+                
+                if (cancTockenSource) {
+                    cancTockenSource.dispose();
                 }
             });
-        }
-
-        window.showQuickPick(items, {placeHolder: hint? hint : ''}, cancToken).then( item => {
-            if ( item ) {
-                resolve(item);
-            } else {
-                resolve(undefined);
-            }
-            
-            if (cancTockenSource) {
-                cancTockenSource.dispose();
-            }
         });
-    });
+    }
 }

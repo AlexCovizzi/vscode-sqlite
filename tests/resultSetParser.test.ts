@@ -1,8 +1,7 @@
-import * as assert from 'assert';
-import { ResultSet } from '../database/resultSet';
-import { ResultSetParser } from '../database/resultSetParser';
+import { ResultSet } from '../src/database/resultSet';
+import { ResultSetParser } from '../src/database/resultSetParser';
 
-suite("ResultSetParser Tests", function () {
+describe("ResultSetParser Tests", function () {
 
     test("should build resultset if chunks are valid", function() {
         let resultSetParser = new ResultSetParser();
@@ -15,7 +14,7 @@ suite("ResultSetParser Tests", function () {
 
         let actual = resultSetParser.done();
         
-        assert.deepStrictEqual(actual, expected);
+        expect(actual).toEqual(expected);
     });
 
     test("should build resultset on Windows if chunks are valid", function() {
@@ -29,6 +28,6 @@ suite("ResultSetParser Tests", function () {
 
         let actual = resultSetParser.done();
         
-        assert.deepStrictEqual(actual, expected);
+        expect(actual).toEqual(expected);
     });
 });

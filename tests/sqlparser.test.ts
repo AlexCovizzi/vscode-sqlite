@@ -1,8 +1,6 @@
+import * as sqlparser from '../src/database/sqlparser';
 
-import * as assert from 'assert';
-import * as sqlparser from '../database/sqlparser';
-
-suite("SQLParser Tests", function () {
+describe("SQLParser Tests", function () {
 
     test("should return statements array when query is valid and has comments", function() {
         let stmt1_with_new_line = `SELECT *\nFROM company\nWHERE name = "company\nname" LIMIT 5;`;
@@ -12,9 +10,10 @@ suite("SQLParser Tests", function () {
         let multiline_comment = `/* something that spans multiple \n lines and also that has ; another\n line yeah*/`;
         let query = `${stmt1_with_new_line} ${inline_comment}\n${stmt2}${multiline_comment}`;
 
-        let stmts = sqlparser.SQLParser.parse(query);
-        
-        assert.deepStrictEqual(stmts, [stmt1, stmt2]);
+        let actual = sqlparser.SQLParser.parse(query);
+        let expected = [stmt1, stmt2];
+
+        expect(actual).toEqual(expected);
     });
 
     test("on Windows should return statements array when query is valid and has comments", function() {
@@ -25,9 +24,10 @@ suite("SQLParser Tests", function () {
         let multiline_comment = `/* something that spans multiple \r\n lines and also that has ; another\r\n line yeah*/`;
         let query = `${stmt1_with_new_line} ${inline_comment}\n${stmt2}${multiline_comment}`;
 
-        let stmts = sqlparser.SQLParser.parse(query);
+        let actual = sqlparser.SQLParser.parse(query);
+        let expected = [stmt1, stmt2];
         
-        assert.deepStrictEqual(stmts, [stmt1, stmt2]);
+        expect(actual).toEqual(expected);
     });
 
     test("should return empty array if query has only comments", function() {
@@ -35,9 +35,10 @@ suite("SQLParser Tests", function () {
         let multiline_comment = `/* something that spans multiple and double dash -- qualcosa\n  also that has ;and /* *\\/ another\n line yeah*/`;
         let query = `${inline_comment}\n${multiline_comment}`;
 
-        let stmts = sqlparser.SQLParser.parse(query);
+        let actual = sqlparser.SQLParser.parse(query);
+        let expected = [];
         
-        assert.deepStrictEqual(stmts, []);
+        expect(actual).toEqual(expected);
     });
 
     test("query of issue #6", function() {
@@ -52,7 +53,7 @@ suite("SQLParser Tests", function () {
        let actual = sqlparser.SQLParser.parse(query);
        let expected = ['select "a" as const;'];
 
-       assert.deepStrictEqual(actual, expected);
+       expect(actual).toEqual(expected);
     });
 
     test("query of issue #11", function() {
@@ -61,7 +62,6 @@ suite("SQLParser Tests", function () {
         let actual = sqlparser.SQLParser.parse(query);
         let expected = ['SELECT * FROM sqlite_master;'];
 
-        assert.deepStrictEqual(actual, expected);
-
+        expect(actual).toEqual(expected);
     });
 });
