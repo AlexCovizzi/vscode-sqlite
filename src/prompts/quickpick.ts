@@ -15,6 +15,17 @@ export namespace QuickPick {
             this.description = path;
         }
     }
+    export class FileDialogItem implements QuickPickItem {
+        label: string;
+        description: string;
+        detail?: string;
+        picked?: boolean;
+        
+        constructor() {
+            this.label = "Choose another database";
+            this.description = "";
+        }
+    }
     
     export class ErrorItem implements QuickPickItem {
         label: string;
@@ -33,14 +44,13 @@ export namespace QuickPick {
  * @param hint What to write in the QuickPick
  */
 export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenable<string> {
-    const promise = new Promise<QuickPick.DatabaseItem[] | QuickPick.ErrorItem[]>((resolve) => {
-        workspace.findFiles('**/*.{db,sqlite,sqlite3}').then((filesUri) => {
-            if (filesUri.length === 0) {
-                //resolve([new QuickPick.ErrorItem('No database found.')]);
-                resolve([]);
-            } else {
-                resolve(filesUri.map(uri => new QuickPick.DatabaseItem(uri.fsPath)));
-            }
+    const sqlite_file_extensions = ["db", "sqlite", "sqlite3"];
+    const promise = new Promise< Array<QuickPick.DatabaseItem | QuickPick.ErrorItem | QuickPick.FileDialogItem> >((resolve) => {
+        workspace.findFiles('**/*.{'+sqlite_file_extensions.join(",")+'}').then((filesUri) => {
+            let fileDialogItem = new QuickPick.FileDialogItem();
+            let items: Array<QuickPick.DatabaseItem | QuickPick.ErrorItem | QuickPick.FileDialogItem> = filesUri.map(uri => new QuickPick.DatabaseItem(uri.fsPath));
+            items.push(fileDialogItem);
+            resolve(items);
         });
     });
     return new Promise( (resolve, reject) => {
@@ -49,6 +59,14 @@ export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenabl
             item => {
                 if (item instanceof QuickPick.DatabaseItem) {
                     resolve(item.path);
+                } else if (item instanceof QuickPick.FileDialogItem) {
+                    window.showOpenDialog({filters: {"Database": sqlite_file_extensions}}).then(fileUri => {
+                        if (fileUri) {
+                            resolve(fileUri[0].fsPath);
+                        } else {
+                            reject();
+                        }
+                    });
                 } else {
                     reject();
                 }
