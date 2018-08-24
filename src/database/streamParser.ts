@@ -5,7 +5,7 @@ export interface ChunksParser<T> {
     done: () => T;
 }
 
-export class ParsableStream<T> extends Writable {
+export class StreamParser<T> extends Writable {
     
     constructor(private parser: ChunksParser<T>) {
         super();
