@@ -7,7 +7,7 @@ interface Bindings {
 /**
  * 
  */
-export class DocumentDatabase implements Disposable {
+export class DocumentDatabaseBindings implements Disposable {
     private bindings: Bindings;
 
     constructor() {

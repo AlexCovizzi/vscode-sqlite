@@ -1,5 +1,5 @@
 'use strict';
-
+/*
 import { Uri, commands, ExtensionContext, window, Disposable, workspace, ViewColumn } from 'vscode';
 import { SQLiteExplorer } from './explorer/explorer';
 import { Commands, Constants } from './constants/constants';
@@ -8,16 +8,12 @@ import { ResultView } from './resultView/resultView';
 import { ResultSet } from './database/resultSet';
 import { pickWorkspaceDatabase, pickListDatabase } from './prompts/quickpick';
 import { showQueryInputBox } from './prompts/inputbox';
-import { getEditorSqlDocument, newSqlDocument } from './sqlDocument/sqlDocument';
-import { DocumentDatabase } from './sqlDocument/documentDatabase';
+import SqlWorkspace from './sqlWorkspace';
 import { logger } from './logging/logger';
-import { DocumentDatabaseStatusBar } from './statusBar/docDatabaseStatusBar';
 import { Configuration } from './configuration/configuration';
 import { TableInfo, DatabaseInfo } from './database/databaseInfo';
+import { getEditorSqlDocument } from './sqlWorkspace/sqlDocument';
 
-/**
- * Initialize controllers, register commands, run commands
- */
 export class MainController implements Disposable {
     private activated = false;
 
@@ -25,8 +21,6 @@ export class MainController implements Disposable {
     private queryRunner!: QueryRunner;
     private explorer!: SQLiteExplorer;
     private resultView!: ResultView;
-    private documentDatabase!: DocumentDatabase;
-    private documentDatabaseStatusBar!: DocumentDatabaseStatusBar;
 
     constructor(private context: ExtensionContext) {
         
@@ -95,16 +89,14 @@ export class MainController implements Disposable {
             this.configuration = new Configuration(this.context.extensionPath);
             this.queryRunner = new QueryRunner(this.configuration.sqlite3);
             this.explorer = new SQLiteExplorer(this.queryRunner);
-            this.documentDatabase = new DocumentDatabase();
-            this.documentDatabaseStatusBar = new DocumentDatabaseStatusBar(this.documentDatabase);
             this.resultView = new ResultView(this.context.extensionPath);
+
+            self.context.subscriptions.push(SqlWorkspace.initialize());
 
             self.context.subscriptions.push(this.configuration);
             self.context.subscriptions.push(this.explorer);
             self.context.subscriptions.push(this.queryRunner);
             self.context.subscriptions.push(this.resultView);
-            self.context.subscriptions.push(this.documentDatabase);
-            self.context.subscriptions.push(this.documentDatabaseStatusBar);
 
             logger.setLogLevel(this.configuration.logLevel);
             
@@ -123,8 +115,8 @@ export class MainController implements Disposable {
             fn();
         }
     }
+    
 
-    /* Commands events */
 
     private onExploreDatabase() {
         let hint = 'Choose a database to open in the explorer';
@@ -152,8 +144,7 @@ export class MainController implements Disposable {
         return pickWorkspaceDatabase(this.configuration.autopick.get(), hint).then((dbPath) => {
             let doc = getEditorSqlDocument();
             if (doc) {
-                this.documentDatabase.bind(doc, dbPath);
-                this.documentDatabaseStatusBar.update();
+                SqlWorkspace.bindDatabaseToDocument(dbPath, doc);
                 logger.info(`'${doc? doc.uri.fsPath : ''}' => '${dbPath}'`);
             }
             return Promise.resolve(dbPath);
@@ -197,10 +188,10 @@ export class MainController implements Disposable {
     }
 
     private onNewQuery(dbPath?: string) {
-        newSqlDocument(true).then(
+        SqlWorkspace.createSqlDocument(true).then(
             doc => {
                 if (dbPath) {
-                    this.documentDatabase.bind(doc, dbPath);
+                    SqlWorkspace.bindDatabaseToDocument(dbPath, doc);
                 }
             }
         );
@@ -238,4 +229,5 @@ export class MainController implements Disposable {
         );
     }
 }
+*/
 

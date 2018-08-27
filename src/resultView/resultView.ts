@@ -1,10 +1,11 @@
 
-import { ResultSet } from "../database/resultSet";
 import { Disposable, commands } from "vscode";
 import { Webview } from "./webview";
 import { Constants, Commands } from "../constants/constants";
 import { join } from "path";
+import { ResultSet } from "../sqlite/resultSet";
 
+export type ResultSet = Array<{stmt: string, header: string[], rows: string[][]}>;
 
 export class ResultView implements Disposable {
     private webview: Webview;

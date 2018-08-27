@@ -1,14 +1,13 @@
-import { DocumentDatabase } from "../sqlDocument/documentDatabase";
+import { DocumentDatabaseBindings } from "./documentDatabaseBindings";
 import { StatusBarItem, window, StatusBarAlignment, Disposable, workspace } from "vscode";
-import { getEditorSqlDocument } from "../sqlDocument/sqlDocument";
 import { basename } from "path";
 import { Commands } from "../constants/constants";
 
-export class DocumentDatabaseStatusBar implements Disposable {
+export class DatabaseStatusBarItem implements Disposable {
     private disposable: Disposable;
     private statusBarItem: StatusBarItem;
 
-    constructor(private documentDatabase: DocumentDatabase) {
+    constructor(private documentDatabase: DocumentDatabaseBindings) {
         let subscriptions: Disposable[] = [];
 
         this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Right, 100);
@@ -24,7 +23,8 @@ export class DocumentDatabaseStatusBar implements Disposable {
     }
 
     update() {
-        let doc = getEditorSqlDocument();
+        let doc = window.activeTextEditor && window.activeTextEditor.document.languageId === 'sql'? window.activeTextEditor.document : undefined;
+
         if (doc) {
             let db = this.documentDatabase.get(doc);
             let dbPath: string;

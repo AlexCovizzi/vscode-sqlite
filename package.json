@@ -18,8 +18,6 @@
     "activationEvents": [
         "onCommand:sqlite.exploreDatabase",
         "onCommand:sqlite.closeExplorerDatabase",
-        "onCommand:sqlite.ctxExploreDatabase",
-        "onCommand:sqlite.ctxCloseExplorerDatabase",
         "onCommand:sqlite.newQuery",
         "onCommand:sqlite.quickQuery",
         "onCommand:sqlite.useDatabase",
@@ -36,16 +34,6 @@
             {
                 "command": "sqlite.closeExplorerDatabase",
                 "title": "Close Explorer Database",
-                "category": "SQLite"
-            },
-            {
-                "command": "sqlite.ctxExploreDatabase",
-                "title": "Open in Explorer",
-                "category": "SQLite"
-            },
-            {
-                "command": "sqlite.ctxCloseExplorerDatabase",
-                "title": "Close",
                 "category": "SQLite"
             },
             {
@@ -101,9 +89,9 @@
         "views": {
             "explorer": [
                 {
-                    "id": "sqlite.sqliteExplorer",
+                    "id": "sqlite.explorer",
                     "name": "SQLite Explorer",
-                    "when": "sqlite.showExplorer"
+                    "when": "sqlite.explorer.show"
                 }
             ]
         },
@@ -136,14 +124,6 @@
                     "group": "sqlite"
                 },
                 {
-                    "command": "sqlite.ctxExploreDatabase",
-                    "when": "false"
-                },
-                {
-                    "command": "sqlite.ctxCloseExplorerDatabase",
-                    "when": "false"
-                },
-                {
                     "command": "sqlite.runSqliteMasterQuery",
                     "when": "false"
                 },
@@ -159,7 +139,7 @@
             "explorer/context": [
                 {
                     "when": "resourceLangId == sqlite",
-                    "command": "sqlite.ctxExploreDatabase",
+                    "command": "sqlite.exploreDatabase",
                     "group": "navigation"
                 }
             ],
@@ -178,34 +158,34 @@
             "view/title": [
                 {
                     "command": "sqlite.newQuery",
-                    "when": "view == sqlite.sqliteExplorer",
+                    "when": "view == sqlite.explorer",
                     "group": "navigation@1"
                 },
                 {
                     "command": "sqlite.refreshExplorer",
-                    "when": "view == sqlite.sqliteExplorer",
+                    "when": "view == sqlite.explorer",
                     "group": "navigation@2"
                 }
             ],
             "view/item/context": [
                 {
                     "command": "sqlite.newQuery",
-                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
                     "group": "sqlite@1"
                 },
                 {
                     "command": "sqlite.runSqliteMasterQuery",
-                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
                     "group": "sqlite@2"
                 },
                 {
-                    "command": "sqlite.ctxCloseExplorerDatabase",
-                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.databaseItem",
+                    "command": "sqlite.closeExplorerDatabase",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
                     "group": "sqlite@3"
                 },
                 {
                     "command": "sqlite.runTableQuery",
-                    "when": "view == sqlite.sqliteExplorer && viewItem == sqlite.tableItem"
+                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem"
                 }
             ]
         },
@@ -228,11 +208,6 @@
                     "default": "sqlite3",
                     "description": "sqlite3 command or binaries path."
                 },
-                "sqlite.autopick": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Autopick database when there is only one choice."
-                },
                 "sqlite.logLevel": {
                     "type": "string",
                     "enum": [
@@ -249,12 +224,6 @@
                     "default": 50,
                     "minimum": -1,
                     "description": "Number of records to show per page. (-1 to show all records)"
-                },
-                "sqlite.outputBuffer": {
-                    "type": "number",
-                    "default": 1048576,
-                    "minimum": 1,
-                    "description": "Query output buffer in bytes, increase only if you need to display a big number of records."
                 }
             }
         }
