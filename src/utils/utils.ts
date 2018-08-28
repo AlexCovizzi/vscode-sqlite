@@ -104,3 +104,17 @@ export function splitNotInString(char: string, str: string) {
 export function randomString(length: number) {
     return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
 }
+
+export function queryObject(obj: Object, query: string): Object | undefined {
+    let ret: Object | undefined = obj;
+    let tokens = query.split('/').filter(tkn => tkn !== "");
+    while(true) {
+        let token = tokens.shift();
+        if (token && ret) {
+            ret = (<any>ret)[token];
+        } else {
+            break;
+        }
+    }
+    return ret;
+}

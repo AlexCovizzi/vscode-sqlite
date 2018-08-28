@@ -1,88 +1,93 @@
-import { Disposable, commands, workspace, window, ViewColumn } from "vscode";
-import { Webview } from "./webview";
+import { Disposable, workspace, window, ViewColumn, commands } from "vscode";
+import { CustomView, Message } from "./customview";
+import { queryObject } from "../utils/utils";
+import * as csvStringify from 'csv-stringify';
 import { join } from "path";
-import { Constants } from "../constants/constants";
-import * as csvStringify from 'csv-stringify/lib/sync';
 
 export type ResultSet = Array<{stmt: string, header: string[], rows: string[][]}>;
 
-class ResultView implements Disposable {
-    private webview: Webview;
+class ResultView extends CustomView implements Disposable {
+
     private resultSet?: ResultSet;
-    private resourcesPath: string;
+    private recordsPerPage: number;
+    private msgQueue: Message[];
 
-    constructor(extensionPath: string) {
-        this.resourcesPath = join(extensionPath, 'resources');
-        this.webview = new Webview(this.resourcesPath, 'query-result', Constants.webviewPanelTitle);
-        this.webview.on('export.json', (data: Object) => this.exportJson(data));
-        this.webview.on('export.csv', (data: Object) => this.exportCsv(data));
+    constructor(private extensionPath: string) {
+        super('resultview', 'SQLite');
+
+        this.msgQueue = [];
+        this.recordsPerPage = 50;
     }
 
-    display(resultSet: ResultSet, recordsPerPage: number): void {
-        this.resultSet = resultSet;
-
-        let tplPath = join(this.resourcesPath, 'views', 'query_result', 'html', 'index.html.tpl');
-        try {
-            this.webview.show(tplPath, {resultSet: resultSet.map((result, index) => {(<any>result)['id'] = index; return result; }), recordsPerPage: recordsPerPage});
-        } catch(err) {
-            console.log(err);
-        }
-    }
-
-    private exportJson(data: Object) {
-        let result_id = data.hasOwnProperty('result_id')? Number.parseInt((<any>data)['result_id']) : -1;
-        let json: string = '{}';
-        if (this.resultSet) {
-            json = this.toJson(this.resultSet, result_id);
-        }
-        this.createFile('json', json);
-    }
-
-    private exportCsv(data: Object) {
-        let result_id = data.hasOwnProperty('result_id')? Number.parseInt((<any>data)['result_id']) : -1;
-        let csv: string = '';
-        if (this.resultSet) {
-            csv = this.toCsv(this.resultSet, result_id);
-        }
-        this.createFile('csv', csv);
-    }
-    
-    private toJson(resultSet: ResultSet, index?: number): string {
-        if (index !== undefined) {
-            let result = resultSet[index];
-            return JSON.stringify(result, null, 2);
+    display(resultSet: ResultSet | Promise<ResultSet|undefined>, recordsPerPage: number) {
+        this.show(join(this.extensionPath, 'out', 'resultview', 'htmlcontent', 'index.html'));
+        
+        this.recordsPerPage = recordsPerPage;
+        this.resultSet = undefined;
+        this.msgQueue = [];
+        
+        if (Array.isArray(resultSet)) {
+            this.resultSet = resultSet;
         } else {
-            return JSON.stringify(resultSet, null, 2);
+            resultSet.then(rs => {
+                this.resultSet = rs;
+                if (this.msgQueue) {
+                    this.msgQueue.forEach(msg => {
+                        this.handleMessage(msg);
+                    });
+                }
+            });
         }
     }
 
-    private toCsv(resultSet: ResultSet, index: number): string {
-        let header: string[] = [];
-        let rows: string[][] = [];
-        let result = resultSet[index];
-        if (result) {
-            header = result.header;
-            rows = result.rows;
+    handleMessage(message: Message) {
+        let cmdType = message.command.split(':')[0];
+        let cmdRest = message.command.split(':')[1];
+        if (this.resultSet) {
+            let obj: Object | undefined;
+            switch(cmdType) {
+                case 'fetch':
+                    obj = this.fetch(cmdRest);
+                    if (obj) this.send({command: message.command, data: obj, id: message.id} as Message);
+                    break;
+                case 'csv':
+                    obj = this.fetch(cmdRest);
+                    if (obj) this.exportCsv(obj);
+                    break;
+                case 'json':
+                    obj = this.fetch(cmdRest);
+                    if (obj) this.exportJson(obj);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            this.msgQueue.push(message);
         }
+    }
+
+    private fetch(resource: string) {
+        return queryObject({resultSet: this.resultSet, pageRows: this.recordsPerPage}, resource);
+    }
+
+    private exportJson(obj: Object) {
+        let content = JSON.stringify(obj);
+        this.exportFile('json', content);
+    }
+
+    private exportCsv(obj: Object) {
+        let header = (<any>obj).header;
+        let rows = (<any>obj).rows;
         let options = { columns: header, header: true };
-        let csv = csvStringify(rows, options);
-        return csv;
+        csvStringify(rows, options, (err, output) => {
+            this.exportFile('csv', output.toString());
+        });
     }
 
-    private createFile(language: string, content: string) {
-        workspace.openTextDocument({language: language, content: content}).then(
-            doc => {
-                window.showTextDocument(doc, ViewColumn.One).then(() => {
-                    commands.executeCommand('workbench.action.files.saveAs');
-                });
-            },
-            err => console.log(err)
-        );
-    }
-
-    dispose() {
-        this.webview.dispose();
-        this.webview.removeAllListeners();
+    private exportFile(language: string, content: string) {
+        workspace.openTextDocument({language: language, content: content})
+            .then(doc => window.showTextDocument(doc, ViewColumn.One))
+            .then(() => commands.executeCommand('workbench.action.files.saveAs'));
     }
 }
 

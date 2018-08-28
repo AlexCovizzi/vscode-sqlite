@@ -94,9 +94,8 @@ function runDocumentQuery() {
         if (dbPath) {
             let selection = getEditorSelection();
             let query = sqlDocument.getText(selection);
-            sqlite.query(dbPath, query).then(res => {
-                if (res.resultSet) resultView.display(res.resultSet, configuration.recordsPerPage);
-            });
+            let resultSet = sqlite.query(dbPath, query).then(res => res.resultSet);
+            resultView.display(resultSet, configuration.recordsPerPage);
         } else {
             useDatabase().then(() => {
                 runDocumentQuery();
@@ -147,9 +146,9 @@ function quickQuery() {
     pickWorkspaceDatabase(false).then(dbPath => {
         showQueryInputBox(dbPath).then(query => {
             if (query) return sqlite.query(dbPath, query);
-            else return Promise.reject();
+            else return Promise.reject('');
         }).then(res => {
-            if (res.resultSet) resultView.display(res.resultSet, 50);
+            if (res.resultSet) resultView.display(Promise.resolve(res.resultSet), configuration.recordsPerPage);
         });
     });
 }
@@ -167,14 +166,14 @@ function refreshExplorer() {
 function runTableQuery(dbPath: string, tableName: string) {
     let query = `SELECT * FROM ${tableName};`;
     sqlite.query(dbPath, query).then(res => {
-        if (res.resultSet) resultView.display(res.resultSet, 50);
+        if (res.resultSet) resultView.display(Promise.resolve(res.resultSet), configuration.recordsPerPage);
     });
 }
 
 function runSqliteMasterQuery(dbPath: string) {
     let query = `SELECT * FROM sqlite_master;`;
     sqlite.query(dbPath, query).then(res => {
-        if (res.resultSet) resultView.display(res.resultSet, 50);
+        if (res.resultSet) resultView.display(Promise.resolve(res.resultSet), configuration.recordsPerPage);
     });
 }
 

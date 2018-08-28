@@ -1,5 +1,6 @@
 export const window = {
     createStatusBarItem: jest.fn(),
+    activeTextEditor: jest.fn(),
 
     showQuickPick: jest.fn(),
 

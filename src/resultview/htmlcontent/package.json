@@ -3,13 +3,13 @@
   "name": "vscode-sqlite.htmlcontent",
   "version": "0.0.0",
   "license": "MIT",
+  "dest": "../../../out/resultview/htmlcontent",
   "scripts": {
     "start": "if-env NODE_ENV=production && npm run -s serve || npm run -s dev",
-    "build": "preact build",
+    "build": "preact build --dest ../../../out/resultview/htmlcontent",
     "serve": "preact build && preact serve",
     "dev": "preact watch",
-    "lint": "eslint src",
-    "test": "jest ./tests"
+    "test": "jest"
   },
   "eslintConfig": {
     "extends": "eslint-config-synacor"
@@ -32,8 +32,7 @@
   },
   "dependencies": {
     "preact": "^8.2.6",
-    "preact-compat": "^3.17.0",
-    "preact-router": "^2.5.7"
+    "preact-compat": "^3.17.0"
   },
   "jest": {
     "verbose": true,

@@ -1,16 +1,29 @@
-import { h } from 'preact';
-import { Link } from 'preact-router/match';
+import { h, Component } from 'preact';
 import style from './style.css';
 
-const Header = () => (
-	<header class={style.header}>
-		<h1>Preact App</h1>
-		<nav>
-			<Link activeClassName={style.active} href="/">Home</Link>
-			<Link activeClassName={style.active} href="/profile">Me</Link>
-			<Link activeClassName={style.active} href="/profile/john">John</Link>
-		</nav>
-	</header>
-);
+interface Props {
+    children: any[];
+}
 
-export default Header;
+interface State {
+
+}
+
+export class Header extends Component<Props, State> {
+
+    render(props: Props, state: State) {
+        return (
+        <div class={style.header}>
+            <ul>
+                {
+                    props.children.map(child => 
+                        <li class={child.attributes.right? style.right : style.left}>
+                            {child}
+                        </li>
+                    )
+                }
+            </ul>
+        </div>
+        );
+    }
+}

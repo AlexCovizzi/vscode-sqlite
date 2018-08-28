@@ -1,34 +1,30 @@
 import * as vscode from 'vscode';
-import * as sqlDocument from '../../src/sqlDocument/sqlDocument';
-import * as documentDatabase from '../../src/sqlDocument/documentDatabase';
-import { DocumentDatabaseStatusBar } from '../../src/statusBar/docDatabaseStatusBar';
+import * as documentDatabase from '../../src/sqlworkspace/documentDatabaseBindings';
+import { DatabaseStatusBarItem } from '../../src/sqlworkspace/databaseStatusBarItem';
 
 jest.mock("vscode");
-jest.mock("../../src/sqlDocument/sqlDocument");
-jest.mock("../../src/sqlDocument/documentDatabase");
+jest.mock("../../src/sqlworkspace/documentDatabaseBindings");
 
 describe("docDatabaseStatusBar.ts", () => {
 
     describe("DocumentDatabaseStatusBar", () => {
 
         test("update should hide the status bar item if the editor document is not sql", () => {
-            // getEditorSqlDocument returns undefined when the editor document is not sql
-            (sqlDocument.getEditorSqlDocument as jest.Mock).mockReturnValue(undefined);
+            (vscode.window.activeTextEditor.document as any) = { languageId: 'not_sql' };
             const mockHide = jest.fn();
             (vscode.window.createStatusBarItem as jest.Mock).mockReturnValue({
                 hide: mockHide
             });
 
-            let docDatabaseStatusBar = new DocumentDatabaseStatusBar(new documentDatabase.DocumentDatabase());
+            let docDatabaseStatusBar = new DatabaseStatusBarItem(new documentDatabase.DocumentDatabaseBindings());
             docDatabaseStatusBar.update();
             expect(mockHide).toHaveBeenCalled();
         });
 
         test("update should show the status bar item and change text to contain db path if the editor document is a sql document with a database", () => {
             const dbPath = "fake_dbPath";
-            // getEditorSqlDocument returns a truthy value, i dont care about the actual document
-            (sqlDocument.getEditorSqlDocument as jest.Mock).mockReturnValue(true);
-            (documentDatabase.DocumentDatabase as any) = jest.fn().mockImplementation(() => {
+            (vscode.window.activeTextEditor.document as any) = { languageId: 'sql' };
+            (documentDatabase.DocumentDatabaseBindings as any) = jest.fn().mockImplementation(() => {
                 return {
                     get: jest.fn().mockReturnValue(dbPath)
                 };
@@ -40,7 +36,7 @@ describe("docDatabaseStatusBar.ts", () => {
             };
             (vscode.window.createStatusBarItem as jest.Mock).mockReturnValue(mockStatusBarItem);
 
-            let docDatabaseStatusBar = new DocumentDatabaseStatusBar(new documentDatabase.DocumentDatabase());
+            let docDatabaseStatusBar = new DatabaseStatusBarItem(new documentDatabase.DocumentDatabaseBindings());
             docDatabaseStatusBar.update();
 
             expect(mockShow).toHaveBeenCalled();
@@ -49,9 +45,8 @@ describe("docDatabaseStatusBar.ts", () => {
 
         test("update should show the status bar item and change text to contain 'no database' if the editor document is a sql document without a database", () => {
             const noDatabaseText = "no database";
-            // getEditorSqlDocument returns a truthy value, i dont care about the actual document
-            (sqlDocument.getEditorSqlDocument as jest.Mock).mockReturnValue(true);
-            (documentDatabase.DocumentDatabase as any) = jest.fn().mockImplementation(() => {
+            (vscode.window.activeTextEditor.document as any) = { languageId: 'sql' };
+            (documentDatabase.DocumentDatabaseBindings as any) = jest.fn().mockImplementation(() => {
                 return {
                     get: jest.fn().mockReturnValue(undefined)
                 };
@@ -63,7 +58,7 @@ describe("docDatabaseStatusBar.ts", () => {
             };
             (vscode.window.createStatusBarItem as jest.Mock).mockReturnValue(mockStatusBarItem);
 
-            let docDatabaseStatusBar = new DocumentDatabaseStatusBar(new documentDatabase.DocumentDatabase());
+            let docDatabaseStatusBar = new DatabaseStatusBarItem(new documentDatabase.DocumentDatabaseBindings());
             docDatabaseStatusBar.update();
 
             expect(mockShow).toHaveBeenCalled();

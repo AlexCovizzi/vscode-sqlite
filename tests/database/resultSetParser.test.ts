@@ -1,5 +1,5 @@
-import { ResultSet } from '../../src/database/resultSet';
-import { ResultSetParser } from '../../src/database/resultSetParser';
+import { ResultSet } from '../../src/sqlite/resultSet';
+import { ResultSetParser } from '../../src/sqlite/resultSetParser';
 
 describe("ResultSetParser Tests", function () {
 

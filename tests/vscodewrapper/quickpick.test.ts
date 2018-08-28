@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as quickpick from '../../src/prompts/quickpick';
+import * as quickpick from '../../src/vscodewrapper/quickpick';
 
 jest.mock('vscode');
 

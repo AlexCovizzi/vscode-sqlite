@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+/*
 import { QueryRunner } from '../../src/database/queryRunner';
 import * as treeProvider from '../../src/explorer/explorerTreeProvider';
 import { SQLiteExplorer } from '../../src/explorer/explorer';
@@ -51,10 +52,6 @@ describe("explorer.ts", () => {
 
             expect(mockExplorerTreeProvider.removeFromTree).toBeCalledWith(dbPath);
         });
-
-        /**
-         * Show and Hide explorer based on the number of databases in the tree is a behaviour that could change in the future,
-         * so for now no tests
-         */
     });
 });
+*/
