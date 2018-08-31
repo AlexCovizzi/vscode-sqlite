@@ -1,7 +1,7 @@
 'use strict';
 
 import { ExtensionContext, commands, Uri, TextDocument, workspace, window } from 'vscode';
-import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection } from './vscodeWrapper';
+import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection } from './vscodewrapper';
 import { logger } from './logging/logger';
 import { getConfiguration, Configuration } from './configuration';
 import { Constants } from './constants/constants';
