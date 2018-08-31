@@ -80,12 +80,14 @@
                 }
             }
         ],
-        "keybindings": [{
-            "command": "sqlite.runDocumentQuery",
-            "key": "alt+q",
-            "mac": "alt+q",
-            "when": "editorLangId == sql"
-        }],
+        "keybindings": [
+            {
+                "command": "sqlite.runDocumentQuery",
+                "key": "alt+q",
+                "mac": "alt+q",
+                "when": "editorLangId == sql"
+            }
+        ],
         "views": {
             "explorer": [
                 {
