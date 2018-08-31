@@ -2,11 +2,22 @@ import { h, Component } from 'preact';
 import { Pager } from '../pager';
 import { TBody } from './tbody';
 import { THead } from './thead';
-import style from './style';
+import style from './style.css';
 
-export class Table extends Component {
+interface Props {
+    idx: number;
+    pageRows: number;
+    fromRow: number;
+    toRow: number;
+}
 
-    render(props, state) {
+interface State {
+
+}
+
+export class Table extends Component<Props, State> {
+
+    render(props: Props, state: State) {
         return (
             <table class={style.table}>
                 <THead idx={props.idx} />

@@ -7,7 +7,7 @@ export interface Configuration {
     recordsPerPage: number;
 }
 
-function getConfiguration(extensionPath: string) {
+export function getConfiguration(extensionPath: string) {
     return {
         sqlite3: _sqlite3(extensionPath),
         logLevel: _logLevel(),
@@ -37,5 +37,3 @@ function _recordsPerPage(): number {
     let recordsPerPage = Number.parseInt(recordsPerPageConf? recordsPerPageConf.toString() : '50');
     return recordsPerPage;
 }
-
-export default getConfiguration;

@@ -1,18 +1,14 @@
 import * as vscode from 'vscode';
-/*
-import { QueryRunner } from '../../src/database/queryRunner';
 import * as treeProvider from '../../src/explorer/explorerTreeProvider';
-import { SQLiteExplorer } from '../../src/explorer/explorer';
-import { Setting } from '../../src/configuration/configuration';
+import Explorer from '../../src/explorer';
 import { Constants } from '../../src/constants/constants';
 
 jest.mock("vscode");
-jest.mock("../../src/database/queryRunner");
 jest.mock("../../src/explorer/explorerTreeProvider");
 
-describe("explorer.ts", () => {
+describe("explorer", () => {
 
-    describe("SQLiteExplorer", () => {
+    describe("Explorer", () => {
 
         test("new should create the treeView with ExplorerTreeProvider as treeDataProvider", () => {
             const mockExplorerTreeProvider = {};
@@ -20,26 +16,26 @@ describe("explorer.ts", () => {
                 return mockExplorerTreeProvider;
             });
 
-            let explorer = new SQLiteExplorer(new QueryRunner(new Setting()));
+            let explorer = new Explorer();
 
             expect(vscode.window.createTreeView).toBeCalledWith(Constants.sqliteExplorerViewId, {treeDataProvider: mockExplorerTreeProvider});
         });
 
-        test("addToExplorer should add to the tree the dbPath passed as argument", () => {
-            const dbPath = "fake_dbPath";
+        test("add should add to the tree the database object passed as argument", () => {
+            const database: treeProvider.Database = {path: "fake_db", tables: []};
 
             const mockExplorerTreeProvider = {addToTree: jest.fn()};
             (treeProvider.ExplorerTreeProvider as any) = jest.fn().mockImplementation(() => {
                 return mockExplorerTreeProvider;
             });
 
-            let explorer = new SQLiteExplorer(new QueryRunner(new Setting()));
-            explorer.addToExplorer(dbPath);
+            let explorer = new Explorer();
+            explorer.add(database);
 
-            expect(mockExplorerTreeProvider.addToTree).toBeCalledWith(dbPath);
+            expect(mockExplorerTreeProvider.addToTree).toBeCalledWith(database);
         });
 
-        test("removeFromExplorer should remove from the tree the dbPath passed as argument", () => {
+        test("remove should remove from the tree the dbPath passed as argument", () => {
             const dbPath = "fake_dbPath";
 
             const mockExplorerTreeProvider = {removeFromTree: jest.fn()};
@@ -47,11 +43,10 @@ describe("explorer.ts", () => {
                 return mockExplorerTreeProvider;
             });
 
-            let explorer = new SQLiteExplorer(new QueryRunner(new Setting()));
-            explorer.removeFromExplorer(dbPath);
+            let explorer = new Explorer();
+            explorer.remove(dbPath);
 
             expect(mockExplorerTreeProvider.removeFromTree).toBeCalledWith(dbPath);
         });
     });
 });
-*/

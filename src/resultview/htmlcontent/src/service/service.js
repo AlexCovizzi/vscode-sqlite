@@ -36,9 +36,6 @@ export var Service = (function(){
             //console.log("Received message from vscode: "+JSON.stringify(event.data));
             
             let message = event.data;
-            
-            // cache the response to the request
-            cache[message.command] = message.data;
 
             let request = requests[message.id];
             if (request) {
@@ -54,12 +51,6 @@ export var Service = (function(){
                 instance = {
                     request: function(message) {
                         if (vscodeApi) {
-                            // check if the response to the message is cached
-                            // and if it is return the data
-                            if (cache[message.command]) {
-                                return Promise.resolve(cache[message.command]);
-                            }
-
                             message.id = randId();
                             vscodeApi.postMessage(message);
                             return new Promise((resolve, reject) => {

@@ -20,8 +20,11 @@ interface State {
 
 export class Fetch extends Component<Props, State> {
 
+    private cache: {[resource: string]: any};
+
     constructor(props: Props, context: any) {
         super(props, context);
+        this.cache = {};
     }
 
     componentWillMount() {
@@ -35,8 +38,6 @@ export class Fetch extends Component<Props, State> {
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
-        console.log(`[Fetch] ${this.props.resource} Current: ${JSON.stringify(this.state.data)}`);
-        console.log(`[Fetch] ${this.props.resource}  New: ${JSON.stringify(nextState.data)}`);
         if (this.props.forceUpdate) {
             return true;
         } else {
@@ -48,9 +49,18 @@ export class Fetch extends Component<Props, State> {
     _fetch(resource?: string) {
         if(!resource) return;
 
+        
+        // check if the response to the message is cached
+        // and if it is return the data
+        if (this.cache[resource] != null) {
+            this.setState({data: this.cache[resource]});
+            return;
+        }
+            
         let service = Service.getInstance();
         let command = `fetch:/${resource}`;
         service.request({command: command, data: {}}).then((data: any) => {
+            this.cache[resource] = data;
             this.setState({data: data});
         }).catch((reason: any) => {
             this.setState({error: reason});
@@ -58,7 +68,7 @@ export class Fetch extends Component<Props, State> {
     }
 
     render(props: Props, state: State) {
-        if (state.data || state.error) {
+        if (state.data != null || state.error != null) {
             return props.children? props.children[0]({loading: false, data: state.data, error: state.error} as Response) : null;
         } else {
             return props.children? props.children[0]({loading: true} as Response) : null;

@@ -1,7 +1,8 @@
 import * as child_process from 'child_process';
 import { StreamParser } from './streamParser';
 import { ResultSetParser } from './resultSetParser';
-import { ResultSet } from './resultSet';
+
+export type ResultSet = Array<{stmt: string, header: string[], rows: string[][]}>;
 
 export function execute(sqlite3: string, dbPath: string, query: string, callback: (resultSet?: ResultSet, error?: Error) => void) {
     if (!sqlite3) {

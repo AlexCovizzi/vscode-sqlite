@@ -1,7 +1,6 @@
 import { DocumentDatabaseBindings } from "./documentDatabaseBindings";
 import { StatusBarItem, window, StatusBarAlignment, Disposable, workspace } from "vscode";
 import { basename } from "path";
-import { Commands } from "../constants/constants";
 
 export class DatabaseStatusBarItem implements Disposable {
     private disposable: Disposable;
@@ -11,7 +10,7 @@ export class DatabaseStatusBarItem implements Disposable {
         let subscriptions: Disposable[] = [];
 
         this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Right, 100);
-        this.statusBarItem.command = Commands.useDatabase;
+        this.statusBarItem.command = "sqlite.useDatabase";
         subscriptions.push(this.statusBarItem);
 
         subscriptions.push(window.onDidChangeActiveTextEditor(e => this.update()));

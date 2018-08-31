@@ -16,8 +16,8 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:sqlite.exploreDatabase",
-        "onCommand:sqlite.closeExplorerDatabase",
+        "onCommand:sqlite.explorer.add",
+        "onCommand:sqlite.explorer.remove",
         "onCommand:sqlite.newQuery",
         "onCommand:sqlite.quickQuery",
         "onCommand:sqlite.useDatabase",
@@ -27,12 +27,12 @@
     "contributes": {
         "commands": [
             {
-                "command": "sqlite.exploreDatabase",
+                "command": "sqlite.explorer.add",
                 "title": "Open Database in Explorer",
                 "category": "SQLite"
             },
             {
-                "command": "sqlite.closeExplorerDatabase",
+                "command": "sqlite.explorer.remove",
                 "title": "Close Explorer Database",
                 "category": "SQLite"
             },
@@ -71,7 +71,7 @@
                 "category": "SQLite"
             },
             {
-                "command": "sqlite.refreshExplorer",
+                "command": "sqlite.explorer.refresh",
                 "title": "Refresh",
                 "category": "SQLite",
                 "icon": {
@@ -82,8 +82,8 @@
         ],
         "keybindings": [{
             "command": "sqlite.runDocumentQuery",
-            "key": "ctrl+shift+q",
-            "mac": "cmd+shift+q",
+            "key": "alt+q",
+            "mac": "alt+q",
             "when": "editorLangId == sql"
         }],
         "views": {
@@ -98,11 +98,11 @@
         "menus": {
             "commandPalette": [
                 {
-                    "command": "sqlite.exploreDatabase",
+                    "command": "sqlite.explorer.add",
                     "group": "sqlite"
                 },
                 {
-                    "command": "sqlite.closeExplorerDatabase",
+                    "command": "sqlite.explorer.remove",
                     "group": "sqlite"
                 },
                 {
@@ -132,14 +132,14 @@
                     "when": "false"
                 },
                 {
-                    "command": "sqlite.refreshExplorer",
+                    "command": "sqlite.explorer.refresh",
                     "when": "false"
                 }
             ],
             "explorer/context": [
                 {
                     "when": "resourceLangId == sqlite",
-                    "command": "sqlite.exploreDatabase",
+                    "command": "sqlite.explorer.add",
                     "group": "navigation"
                 }
             ],
@@ -162,7 +162,7 @@
                     "group": "navigation@1"
                 },
                 {
-                    "command": "sqlite.refreshExplorer",
+                    "command": "sqlite.explorer.refresh",
                     "when": "view == sqlite.explorer",
                     "group": "navigation@2"
                 }
@@ -179,7 +179,7 @@
                     "group": "sqlite@2"
                 },
                 {
-                    "command": "sqlite.closeExplorerDatabase",
+                    "command": "sqlite.explorer.remove",
                     "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
                     "group": "sqlite@3"
                 },

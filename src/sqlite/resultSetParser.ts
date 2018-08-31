@@ -1,6 +1,6 @@
-import { ResultSet } from "./resultSet";
 import { replaceEscapedOctetsWithChar } from "../utils/utils";
 import { ChunksParser } from "./streamParser";
+import { ResultSet } from "./sqlite3";
 
 export class ResultSetParser implements ChunksParser<ResultSet|undefined> {
     private resultSet?: ResultSet;
@@ -29,7 +29,7 @@ export class ResultSetParser implements ChunksParser<ResultSet|undefined> {
 
     push(chunk: string) {
         if (!this.resultSet) {
-            this.resultSet = new ResultSet();
+            this.resultSet = [];
         }
         
         let last = <T>(arr: Array<T>): T => { return arr[arr.length-1]; };
@@ -65,7 +65,7 @@ export class ResultSetParser implements ChunksParser<ResultSet|undefined> {
                     this.stmt += char;
                     this.isInStmt = false;
 
-                    this.resultSet.push({id: this.resultSet.length, stmt: this.stmt, header: [], rows: []});
+                    this.resultSet.push({stmt: this.stmt, header: [], rows: []});
 
                     this.stmt = "";
                     this.isInHeader = true; // the first thing after the statement is the header

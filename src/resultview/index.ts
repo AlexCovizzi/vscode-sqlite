@@ -1,12 +1,13 @@
 import { Disposable, workspace, window, ViewColumn, commands } from "vscode";
 import { CustomView, Message } from "./customview";
-import { queryObject } from "../utils/utils";
-import * as csvStringify from 'csv-stringify';
+import { queryObject, sanitizeStringForHtml } from "../utils/utils";
+import * as csvStringify from 'csv-stringify/lib/sync';
 import { join } from "path";
+import { EOL } from "os";
 
 export type ResultSet = Array<{stmt: string, header: string[], rows: string[][]}>;
 
-class ResultView extends CustomView implements Disposable {
+export default class ResultView extends CustomView implements Disposable {
 
     private resultSet?: ResultSet;
     private recordsPerPage: number;
@@ -19,7 +20,7 @@ class ResultView extends CustomView implements Disposable {
         this.recordsPerPage = 50;
     }
 
-    display(resultSet: ResultSet | Promise<ResultSet|undefined>, recordsPerPage: number) {
+    display(resultSet: ResultSet | Promise<ResultSet | undefined>, recordsPerPage: number) {
         this.show(join(this.extensionPath, 'out', 'resultview', 'htmlcontent', 'index.html'));
         
         this.recordsPerPage = recordsPerPage;
@@ -31,10 +32,10 @@ class ResultView extends CustomView implements Disposable {
         } else {
             resultSet.then(rs => {
                 this.resultSet = rs;
-                if (this.msgQueue) {
-                    this.msgQueue.forEach(msg => {
-                        this.handleMessage(msg);
-                    });
+                if (this.resultSet) {
+                    if (this.msgQueue) this.msgQueue.forEach(this.handleMessage.bind(this));
+                } else {
+                    this.dispose();
                 }
             });
         }
@@ -48,15 +49,19 @@ class ResultView extends CustomView implements Disposable {
             switch(cmdType) {
                 case 'fetch':
                     obj = this.fetch(cmdRest);
-                    if (obj) this.send({command: message.command, data: obj, id: message.id} as Message);
+                    if (obj != null) this.send({command: message.command, data: obj, id: message.id} as Message);
                     break;
                 case 'csv':
                     obj = this.fetch(cmdRest);
-                    if (obj) this.exportCsv(obj);
+                    if (obj != null) this.exportCsv(obj as any);
                     break;
                 case 'json':
                     obj = this.fetch(cmdRest);
-                    if (obj) this.exportJson(obj);
+                    if (obj != null) this.exportJson(obj as any);
+                    break;
+                case 'html':
+                    obj = this.fetch(cmdRest);
+                    if (obj != null) this.exportHtml(obj as any);
                     break;
                 default:
                     break;
@@ -75,13 +80,47 @@ class ResultView extends CustomView implements Disposable {
         this.exportFile('json', content);
     }
 
-    private exportCsv(obj: Object) {
-        let header = (<any>obj).header;
-        let rows = (<any>obj).rows;
-        let options = { columns: header, header: true };
-        csvStringify(rows, options, (err, output) => {
-            this.exportFile('csv', output.toString());
-        });
+    private exportCsv(obj: {header: string[], rows: string[][]} | Array<{header: string[], rows: string[][]}>) {
+        // setTimeout is just to make this async
+        setTimeout(() => {
+            let csvList = [];
+            if (Array.isArray(obj)) {
+                for(let i in obj) {
+                    let ret = csvStringify(obj[i].rows, { columns: obj[i].header, header: true });
+                    csvList.push(ret);
+                }
+            } else {
+                let ret = csvStringify(obj.rows, { columns: obj.header, header: true });
+                csvList.push(ret);
+            }
+            
+            this.exportFile('csv', csvList.join(EOL));
+        }, 0);
+    }
+
+    private exportHtml(obj: {header: string[], rows: string[][]} | Array<{header: string[], rows: string[][]}>) {
+        let toHtml = (header: string[], rows: string[][]) => {
+            let str = "<table>";
+            str += "<tr>" + header.map(val => `<th>${sanitizeStringForHtml(val)}</th>`).join("") + "<tr>";
+            str += rows.map(row => `<tr>${row.map(val => `<td>${sanitizeStringForHtml(val)}</td>`).join("")}</tr>`).join("");
+            str += "</table>";
+            return str;
+        };
+        
+        setTimeout(() => {
+            let htmlList = [];
+            if (Array.isArray(obj)) {
+                for(let i in obj) {
+                    let ret = toHtml(obj[i].header, obj[i].rows);
+                    htmlList.push(ret);
+                }
+            } else {
+                let ret = toHtml(obj.header, obj.rows);
+                htmlList.push(ret);
+            }
+            
+            this.exportFile('html', htmlList.join(""));
+        }, 0);
     }
 
     private exportFile(language: string, content: string) {
@@ -90,5 +129,3 @@ class ResultView extends CustomView implements Disposable {
             .then(() => commands.executeCommand('workbench.action.files.saveAs'));
     }
 }
-
-export default ResultView;

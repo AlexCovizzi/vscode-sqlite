@@ -9,7 +9,7 @@
 			true,
 			"always"
 		],
-		"triple-equals": true
+		"triple-equals": false
 	},
 	"defaultSeverity": "warning"
 }

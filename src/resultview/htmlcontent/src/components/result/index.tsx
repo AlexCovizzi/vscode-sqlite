@@ -9,6 +9,7 @@ import { ExportJson } from '../exportjson';
 import { Header } from '../header';
 import { Fetch, Response } from '../fetch';
 import style from './style.css';
+import { ExportHtml } from '../exporthtml';
 
 interface Props {
     idx: number;
@@ -40,7 +41,7 @@ export class Result extends Component<Props, State> {
         return (
             <Fetch resource={`pageRows`} forceUpdate={true}>
                 {(response: Response) => {
-                    if (response.data) {
+                    if (response.data != null) {
                         return (
                         <div class={style.result}>
                             <Header>
@@ -48,6 +49,7 @@ export class Result extends Component<Props, State> {
                                 <ShowHide right={true} onToggle={this.toggleHidden.bind(this)} />
                                 <ExportCsv right={true} idx={props.idx} />
                                 <ExportJson right={true} idx={props.idx} />
+                                <ExportHtml right={true} idx={props.idx} />
                             </Header>
                             <Hideable hidden={state.hidden} >
                                 <Table idx={props.idx} pageRows={response.data}

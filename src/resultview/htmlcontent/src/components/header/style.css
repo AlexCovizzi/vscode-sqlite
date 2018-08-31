@@ -7,6 +7,13 @@
     float: right;
 }
 
+.headerNoBackground {
+    padding: 4px 4px;
+    position: relative;
+    z-index: 10;
+    margin: 1px 0px;
+}
+
 .header {
     background-color: rgba(127, 127, 127, 0.25);
     padding: 4px 4px;
@@ -16,7 +23,7 @@
     margin: 1px 0px;
 }
 
-.header > ul {
+.header > ul, .headerNoBackground > ul {
     list-style-type: none;
     margin: 0;
     padding: 0;

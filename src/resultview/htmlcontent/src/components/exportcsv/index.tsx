@@ -4,7 +4,7 @@ import { Fetch, Response } from '../fetch';
 import { Service } from '../../service/service';
 
 interface Props {
-    idx: number;
+    idx?: number;
     right: boolean;
 }
 
@@ -20,12 +20,12 @@ export class ExportCsv extends Component<Props, State> {
 
     exportCsv() {
         let service = Service.getInstance();
-        service.request({command: `csv:resultSet/${this.props.idx}`});
+        service.request({command: this.props.idx != null? `csv:resultSet/${this.props.idx}` : `csv:resultSet`});
     }
     
     render(props: Props, state: State) {
         return (
-            <Fetch resource={`resultSet/${props.idx}/rows/length`}>
+            <Fetch resource={this.props.idx != null? `resultSet/${props.idx}/rows/length` : `resultSet/length`}>
             {
                 (response: Response) => (
                     <IconButton title={`Export csv`} icon={this.icon} ready={!response.loading} onclick={this.exportCsv.bind(this)}/>

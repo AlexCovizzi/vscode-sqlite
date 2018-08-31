@@ -35,6 +35,7 @@ export class Pager extends Component<Props, State> {
         newPage = newPage < 1? 1 : newPage;
         newPage = newPage > this.pages? this.pages : newPage;
         this.page = newPage;
+
         let fromRow = (this.page-1) * this.props.pageRows;
         let toRow = fromRow + this.props.pageRows - 1;
         toRow = toRow > this.totRows-1? this.totRows-1 : toRow;
@@ -46,8 +47,8 @@ export class Pager extends Component<Props, State> {
 
     onKeyPress(e: any) {
         if (!e) e = window.event;
-        var keyCode = e.keyCode || e.which;
-        if (keyCode === '13'){
+        let keyCode = e.keyCode || e.which;
+        if (keyCode.toString() === '13'){
             e.preventDefault();
             this.changePage(parseInt(e.target.value));
             return false;
@@ -62,20 +63,24 @@ export class Pager extends Component<Props, State> {
                 (response: Response) => {
                     this.totRows = response.data;
                     this.pages = Math.ceil(this.totRows/this.props.pageRows);
-                    return (
-                        <div class={style.pager}>
-                            <button onClick={() => this.changePage(this.page-1)}>
-                                &#10094;
-                            </button>
-                            <input id="pager-input" type={"number"} min={1} max={this.pages}
-                                value={this.page} onKeyPress={this.onKeyPress.bind(this)}
-                            />
-                            <small>{this.pages? `/${this.pages}` : "/..."}</small>
-                            <button onClick={() => this.changePage(this.page+1)}>
-                                &#10095;
-                            </button>
-                        </div>
-                    );
+                    if (this.totRows === 0) {
+                        return (<div>No result found</div>);
+                    } else {
+                        return (
+                            <div class={style.pager}>
+                                <button onClick={() => this.changePage(this.page-1)}>
+                                    &#10094;
+                                </button>
+                                <input id="pager-input" type={"number"} min={1} max={this.pages}
+                                    value={this.page} onKeyPress={this.onKeyPress.bind(this)}
+                                />
+                                <small>{this.pages? `/${this.pages}` : "/..."}</small>
+                                <button onClick={() => this.changePage(this.page+1)}>
+                                    &#10095;
+                                </button>
+                            </div>
+                        );
+                    }
                 }
             }
             </Fetch>

@@ -1,7 +1,6 @@
-import {execute} from "./sqlite3";
+import {execute, ResultSet} from "./sqlite3";
 import { Schema } from "./schema";
 import { Disposable } from "vscode";
-import { ResultSet } from "./resultSet";
 import { SQLParser } from "./sqlparser";
 import { logger } from "../logging/logger";
 

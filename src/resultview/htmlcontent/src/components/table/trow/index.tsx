@@ -1,21 +1,31 @@
 import { h, Component } from 'preact';
 
-export class TRow extends Component {
+interface Props {
+    row?: string[];
+    n?: number;
+}
+
+interface State {
+
+}
+
+export class TRow extends Component<Props, State> {
 
     // this component is built manually to perform some optimizations
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
+    shouldComponentUpdate(nextProps: Props, nextState: State, nextContext: any) {
         if (!this.base || !this.base.children) return true;
         
-        if (nextProps.row) {
+        if (nextProps.row && nextProps.n != null) {
             this.base.setAttribute('style', 'visibility: visible;');
 
-            while (this.base.children.length < nextProps.row.length) {
+            while (this.base.children.length < nextProps.row.length + 1) {
                 this.base.appendChild(document.createElement('td'));
             }
 
-            for (let i=0; i<nextProps.row.length; i++) {
+            for (let i=0; i<nextProps.row.length + 1; i++) {
                 let td = this.base.children[i];
-                td.innerHTML = nextProps.row[i];
+                if (i===0) td.innerHTML = (nextProps.n+1).toString();
+                else td.innerHTML = nextProps.row[i-1];
             }
         } else {
             this.base.setAttribute('style', 'visibility: hidden;');
@@ -24,7 +34,7 @@ export class TRow extends Component {
         return false;
     }
 
-    render(props, state) {
+    render(props: Props, state: State) {
         return (
             <tr>
             </tr>

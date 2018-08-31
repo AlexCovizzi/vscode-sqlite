@@ -1,7 +1,8 @@
 .table {
     border-collapse:collapse;
     display: block;
-    overflow: auto;
+    overflow-y: hidden;
+    overflow-x: auto;
     margin-bottom: 4px;
 }
 

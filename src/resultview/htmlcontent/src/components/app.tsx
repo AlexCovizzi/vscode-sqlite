@@ -2,6 +2,10 @@ import { h, Component } from 'preact';
 import { range } from '../utils/utils';
 import { Result } from './result';
 import { Fetch, Response } from './fetch';
+import { ExportCsv } from './exportcsv';
+import { ExportJson } from './exportjson';
+import { ExportHtml } from './exporthtml';
+import { Header } from './header';
 
 export default class App extends Component {
 
@@ -12,6 +16,11 @@ export default class App extends Component {
                 --light: #ccc;
                 --dark: var(--vscode-sideBarSectionHeader-background);"
             >
+                <Header noBackground={true}>
+                    <ExportCsv right={true} />
+                    <ExportJson right={true} />
+                    <ExportHtml right={true} />
+                </Header>
                 <Fetch resource={`resultSet/length`}>
                     {(response: Response) => 
                         <div>
