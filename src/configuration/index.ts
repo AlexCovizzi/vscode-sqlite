@@ -1,5 +1,6 @@
 import { validateOrFallback } from "../utils/cmdSqlite3Utils";
 import { workspace, window } from "vscode";
+import { logger } from "../logging/logger";
 
 export interface Configuration {
     sqlite3: string;
@@ -23,6 +24,9 @@ function _sqlite3(extensionPath: string): string {
         sqlite3 = "";
         window.showErrorMessage("Unable to execute sqlite3 queries, change the sqlite3.sqlite3 setting to fix this issue.");
     }
+
+    logger.debug(`Configuration: sq`);
+
     return sqlite3;
 }
 
