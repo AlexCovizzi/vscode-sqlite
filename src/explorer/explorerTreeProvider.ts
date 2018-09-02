@@ -1,76 +1,80 @@
 import { TreeDataProvider, Event, TreeItem, EventEmitter, ProviderResult } from "vscode";
 import { DBItem, TableItem, ColumnItem } from "./treeItem";
-import { QueryRunner } from "../database/queryRunner";
-import { DatabaseInfo, TableInfo, ColumnInfo } from "../database/databaseInfo";
 
-type ItemInfo = DatabaseInfo | TableInfo | ColumnInfo;
+export interface Database { path: string; tables: Table[]; }
+interface Table { name: string; columns: Column[]; }
+interface Column { name: string; type: string; notnull: boolean; pk: number; defVal: string; }
+type Item = Database | Table | Column;
 
-export class ExplorerTreeProvider implements TreeDataProvider<ItemInfo> {
 
-    private _onDidChangeTreeData: EventEmitter<ItemInfo | undefined> = new EventEmitter<ItemInfo | undefined>();
-    readonly onDidChangeTreeData: Event<ItemInfo | undefined> = this._onDidChangeTreeData.event;
+export class ExplorerTreeProvider implements TreeDataProvider<Item> {
 
-    private databaseInfoList: DatabaseInfo[] = [];
+    private _onDidChangeTreeData: EventEmitter<Item | undefined> = new EventEmitter<Item | undefined>();
+    readonly onDidChangeTreeData: Event<Item | undefined> = this._onDidChangeTreeData.event;
 
-    constructor(private queryRunner: QueryRunner) {
+    private databaseList: Database[];
+
+    constructor() {
+        this.databaseList = [];
     }
     
     refresh(): void {
-        this.databaseInfoList.forEach(dbInfo => dbInfo.reset());
         this._onDidChangeTreeData.fire();
     }
 
-    addToTree(dbPath: string) {
-        let isNew = this.databaseInfoList.findIndex(dbInfo => dbInfo.dbPath === dbPath) < 0;
-        if (isNew) {
-            let databaseInfo = new DatabaseInfo(this.queryRunner, dbPath);
-            this.databaseInfoList.push(databaseInfo);
-            this.refresh();
-            return true;
+    addToTree(database: Database) {
+        let index = this.databaseList.findIndex(db => db.path === database.path);
+        if (index < 0) {
+            this.databaseList.push(database);
+        } else {
+            this.databaseList[index] = database;
         }
-        return false;
+        this.refresh();
+        return this.databaseList.length;
     }
 
     removeFromTree(dbPath: string) {
-        let index = this.databaseInfoList.findIndex(dbInfo => dbInfo.dbPath === dbPath);
+        let index = this.databaseList.findIndex(db => db.path === dbPath);
         if (index > -1) {
-            this.databaseInfoList.splice(index, 1);
+            this.databaseList.splice(index, 1);
         }
         this.refresh();
         
-        return this.databaseInfoList.length;
+        return this.databaseList.length;
     }
     
-    getTreeItem(element: ItemInfo): TreeItem {
-        if (element instanceof DatabaseInfo) {
-            return new DBItem(element.dbPath);
+    getTreeItem(item: Item): TreeItem {
+        if ('tables' in item) {
+            // Database
+            return new DBItem(item.path);
+        } else if ('columns' in item) {
+            // Table
+            return new TableItem(item.name);
+        } else {
+            // Column
+            return new ColumnItem(item.name, item.type, item.notnull, item.pk, item.defVal);
         }
-        if (element instanceof TableInfo) {
-            return new TableItem(element.name);
-        }
-        if (element instanceof ColumnInfo) {
-            return new ColumnItem(element.name, element.type, element.notnull, element.pk, element.defVal);
-        }
-        return new TreeItem('No value');
     }
 
-    getDatabases() {
-        return this.databaseInfoList.map(dbInfo => dbInfo.dbPath);
+    getDatabaseList() {
+        return this.databaseList;
     }
 
-    getChildren(element?: ItemInfo): ProviderResult<ItemInfo[]> {
-        if (element) {
-            if (element instanceof DatabaseInfo) {
-                return element.tables();
-            }
-            if (element instanceof TableInfo) {
-                return element.columns();
-            }
-            if (element instanceof ColumnInfo) {
+    getChildren(item?: Item): ProviderResult<Item[]> {
+        if (item) {
+            if ('tables' in item) {
+                // Database
+                return item.tables;
+            } else if ('columns' in item) {
+                // Table
+                return item.columns;
+            } else {
+                // Column
                 return [];
             }
         } else {
-            return this.databaseInfoList;
+            // Root
+            return this.databaseList;
         }
     }
 

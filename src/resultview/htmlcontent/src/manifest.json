@@ -1,0 +1,16 @@
+{
+  "name": "vscode-sqlite.htmlcontent",
+  "short_name": "htmlcontent",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff",
+  "theme_color": "#673ab8",
+  "icons": [
+    {
+      "src": "",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ]
+}
