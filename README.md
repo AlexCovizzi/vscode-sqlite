@@ -17,7 +17,7 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 * Query SQLite3 databases and view results in a table.
 
-* Export query results to ```json``` and ```csv```.
+* Export query results to ```json```, ```csv``` and ```html```.
 
 * Sidebar explorer: list databases, tables and columns.
 
@@ -41,13 +41,9 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 * `"sqlite.sqlite3": <string>` &nbsp; sqlite3 command or binaries path.
 
-* `"sqlite.autopick": <boolean>` &nbsp; Autopick database when there is only one choice.
-
 * `"sqlite.logLevel": <string>` &nbsp; Set output channel log level (DEBUG, INFO, WARN, ERROR).
 
 * `"sqlite.recordsPerPage": <number>` &nbsp; Number of records to show per page. (-1 to show all records).
-
-* `"sqlite.outputBuffer": <number>` &nbsp; Query output buffer in bytes.
 
 
 ## Known Issues

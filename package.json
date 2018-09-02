@@ -83,8 +83,8 @@
         "keybindings": [
             {
                 "command": "sqlite.runDocumentQuery",
-                "key": "alt+q",
-                "mac": "alt+q",
+                "key": "ctrl+shift+q",
+                "mac": "cmd+shift+q",
                 "when": "editorLangId == sql"
             }
         ],
@@ -249,10 +249,8 @@
         "vscode": "^1.1.6"
     },
     "dependencies": {
-        "@types/csv-parse": "^1.1.11",
         "@types/csv-stringify": "^1.4.2",
         "command-exists": "^1.2.6",
-        "csv-parse": "^2.5.0",
         "csv-stringify": "^3.1.1"
     }
 }

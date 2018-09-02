@@ -1,5 +1,23 @@
 # Change Log
 
+## 0.3.0 (2 Sep 2018)
+Added
+1. Export result to ```html```.
+2. Export multiple results to ```csv```, ```html``` or ```json```.
+3. Added option to open/use a database outside your workspace.
+4. Keyboard shortcut ```ctrl+shift+q``` to execute document query
+
+Removed
+1. Setting: ```sqlite.outputBuffer```.
+2. Setting: ```sqlite.autopick```, the option to choose a database outside the workspace removed the usefulness of autopick.
+
+Fixed
+1. Fixed an issue that prevented the correct execution of a query in multiple lines and without an ending semicolon.
+
+Other
+1. Improved performance and responsiveness.
+
+
 ## 0.2.3 (12 Jul 2018)
 Added
 1. Setting: ```sqlite.outputBuffer```, query output buffer in bytes.
@@ -14,7 +32,7 @@ Removed
 
 Fixed
 1. Fixed a bug that prevented the export button from working correctely.
-1. Fixed a bug that prevented the correct execution on Windows of queries composed of multiple statements.
+2. Fixed a bug that prevented the correct execution on Windows of queries composed of multiple statements.
 
 ## 0.2.1 (11 Jul 2018)
 Fixed
