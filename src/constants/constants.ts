@@ -9,5 +9,6 @@ export namespace Constants {
     /* output channel */
     export const outputChannelName: string = `${extensionDisplayName}`;
 
+    /* explorer */
     export const sqliteExplorerViewId = pkg.contributes.views.explorer[0].id;
 }

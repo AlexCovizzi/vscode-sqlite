@@ -1,4 +1,3 @@
-import { ResultSet } from '../../src/sqlite/resultSet';
 import { ResultSetParser } from '../../src/sqlite/resultSetParser';
 
 describe("ResultSetParser Tests", function () {
@@ -9,8 +8,8 @@ describe("ResultSetParser Tests", function () {
         resultSetParser.push("2\"\n\"r1\" \"r2\"\n");
         resultSetParser.push("\"r1\" \"r2\"\n");
         
-        let expected = new ResultSet();
-        expected.push({id: 0, stmt: "SELECT * FROM company;", header: ["h1", "h2"], rows: [["r1", "r2"], ["r1", "r2"]]});
+        let expected = [];
+        expected.push({stmt: "SELECT * FROM company;", header: ["h1", "h2"], rows: [["r1", "r2"], ["r1", "r2"]]});
 
         let actual = resultSetParser.done();
         
@@ -23,8 +22,8 @@ describe("ResultSetParser Tests", function () {
         resultSetParser.push("2\"\r\n\"r1\" \"r2\"\r\n");
         resultSetParser.push("\"r1\" \"r2\"\r\n");
         
-        let expected = new ResultSet();
-        expected.push({id: 0, stmt: "SELECT * FROM company;", header: ["h1", "h2"], rows: [["r1", "r2"], ["r1", "r2"]]});
+        let expected = [];
+        expected.push({stmt: "SELECT * FROM company;", header: ["h1", "h2"], rows: [["r1", "r2"], ["r1", "r2"]]});
 
         let actual = resultSetParser.done();
         

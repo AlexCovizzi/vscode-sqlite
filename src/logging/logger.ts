@@ -1,7 +1,7 @@
 import { window, OutputChannel } from "vscode";
 import { Constants } from "../constants/constants";
 
-enum Level {
+export enum Level {
     DEBUG = "DEBUG",
     INFO = "INFO",
     WARN = "WARN",

@@ -1,6 +1,8 @@
+import { workspace } from "vscode";
 import { validateOrFallback } from "../utils/cmdSqlite3Utils";
-import { workspace, window } from "vscode";
-import { logger } from "../logging/logger";
+import { Level } from "../logging/logger";
+
+const properties = require('../../package.json').contributes.configuration.properties;
 
 export interface Configuration {
     sqlite3: string;
@@ -20,24 +22,29 @@ function _sqlite3(extensionPath: string): string {
     let sqlite3Conf = workspace.getConfiguration().get('sqlite.sqlite3');
     let sqlite3: string | undefined = sqlite3Conf? sqlite3Conf.toString() : '';
     sqlite3 = validateOrFallback(sqlite3, extensionPath);
-    if (sqlite3 === undefined) {
-        sqlite3 = "";
-        window.showErrorMessage("Unable to execute sqlite3 queries, change the sqlite3.sqlite3 setting to fix this issue.");
-    }
-
-    logger.debug(`Configuration: sq`);
+    sqlite3 = sqlite3? sqlite3 : "";
 
     return sqlite3;
 }
 
 function _logLevel(): string {
     let logLevelConf = workspace.getConfiguration().get('sqlite.logLevel');
-    let logLevel = logLevelConf? logLevelConf.toString() : "INFO";
+    let logLevel: string = properties["sqlite.logLevel"]["default"];
+
+    if (logLevelConf && (<any>Level)[`${logLevelConf}`] != null) {
+        logLevel = logLevelConf.toString();
+    }
     return logLevel;
 }
 
 function _recordsPerPage(): number {
     let recordsPerPageConf = workspace.getConfiguration().get('sqlite.recordsPerPage');
-    let recordsPerPage = Number.parseInt(recordsPerPageConf? recordsPerPageConf.toString() : '50');
+    let recordsPerPage: number = properties["sqlite.recordsPerPage"]["default"];
+    if (typeof recordsPerPageConf === "string") {
+        let n = Number.parseInt(recordsPerPageConf);
+        if (n >= -1) recordsPerPage = n;
+    } else if (typeof recordsPerPageConf === "number") {
+        if (recordsPerPageConf >= -1) recordsPerPage = recordsPerPageConf;
+    }
     return recordsPerPage;
 }

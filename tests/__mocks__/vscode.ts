@@ -3,6 +3,7 @@ export const window = {
     activeTextEditor: jest.fn(),
 
     showQuickPick: jest.fn(),
+    showErrorMessage: jest.fn(),
 
     onDidChangeActiveTextEditor: jest.fn(),
     onDidChangeTextEditorViewColumn: jest.fn(),
@@ -16,6 +17,7 @@ export const workspace = {
     findFiles: jest.fn(),
     onDidOpenTextDocument: jest.fn(),
     onDidCloseTextDocument: jest.fn(),
+    getConfiguration: jest.fn()
 };
 
 export const commands = {
