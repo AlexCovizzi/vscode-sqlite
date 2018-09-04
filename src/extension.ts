@@ -107,8 +107,8 @@ function runDocumentQuery() {
             let query = sqlDocument.getText(selection);
             runQuery(dbPath, query, true);
         } else {
-            useDatabase().then(() => {
-                runDocumentQuery();
+            useDatabase().then(dbPath => {
+                if (dbPath) runDocumentQuery();
             });
         }
     }
@@ -127,7 +127,7 @@ function quickQuery() {
 function useDatabase(): Thenable<string> {
     let sqlDocument = getEditorSqlDocument();
     return pickWorkspaceDatabase(false).then(dbPath => {
-        if (sqlDocument) sqlWorkspace.bindDatabaseToDocument(dbPath, sqlDocument);
+        if (sqlDocument && dbPath) sqlWorkspace.bindDatabaseToDocument(dbPath, sqlDocument);
         return Promise.resolve(dbPath);
     });
 }
@@ -139,7 +139,7 @@ function explorerAdd(dbPath?: string) {
         });
     } else {
         pickWorkspaceDatabase(false).then(dbPath => {
-            explorerAdd(dbPath);
+            if (dbPath) explorerAdd(dbPath);
         });
     }
 }
@@ -150,7 +150,7 @@ function explorerRemove(dbPath?: string) {
     } else {
         let dbList = explorer.list().map(db => db.path);
         pickListDatabase(true, dbList).then(dbPath => {
-            explorerRemove(dbPath);
+            if (dbPath) explorerRemove(dbPath);
         });
     }
 }
