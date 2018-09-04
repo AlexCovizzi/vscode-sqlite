@@ -42,12 +42,13 @@ export namespace Schema {
                     return {database: dbPath, name: row[0], columns: [] } as Schema.Table;
                 });
 
-                let columnsQuery = schema.tables.map(table => `PRAGMA table_info(${table.name});`).join('\n');
+                let columnsQuery = schema.tables.map(table => `PRAGMA table_info('${table.name}');`).join('');
+                
                 execute(sqlite3, dbPath, columnsQuery, (resultSet) => {
                     if (!resultSet || resultSet.length === 0) return;
 
                     resultSet.forEach(result => {
-                        let tableName = result.stmt.replace(/.+\((\w+)\).+/, '$1');
+                        let tableName = result.stmt.replace(/.+\(\'?(\w+)\'?\).+/, '$1');
                         for(let i=0; i<schema.tables.length; i++) {
                             if (schema.tables[i].name === tableName) {
                                 schema.tables[i].columns = result.rows.map(row => {
