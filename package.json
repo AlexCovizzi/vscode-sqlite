@@ -16,6 +16,7 @@
         "Other"
     ],
     "activationEvents": [
+        "onLanguage:sql",
         "onCommand:sqlite.explorer.add",
         "onCommand:sqlite.explorer.remove",
         "onCommand:sqlite.newQuery",

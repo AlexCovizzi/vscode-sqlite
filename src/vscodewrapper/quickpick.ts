@@ -64,11 +64,11 @@ export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenabl
                         if (fileUri) {
                             resolve(fileUri[0].fsPath);
                         } else {
-                            reject();
+                            resolve();
                         }
                     });
                 } else {
-                    reject();
+                    resolve();
                 }
             }
         );

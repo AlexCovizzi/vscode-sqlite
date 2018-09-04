@@ -4,8 +4,7 @@ import { queryObject, sanitizeStringForHtml } from "../utils/utils";
 import * as csvStringify from 'csv-stringify/lib/sync';
 import { join } from "path";
 import { EOL } from "os";
-
-export type ResultSet = Array<{stmt: string, header: string[], rows: string[][]}>;
+import { ResultSet } from "../interfaces";
 
 export default class ResultView extends CustomView implements Disposable {
 
