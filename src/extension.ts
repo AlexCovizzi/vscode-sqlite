@@ -9,6 +9,7 @@ import SqlWorkspace from './sqlworkspace';
 import SQLite from './sqlite';
 import Explorer from './explorer';
 import ResultView from './resultview';
+import LanguageServer from './languageserver';
 
 export namespace Commands {
     export const runDocumentQuery = "sqlite.runDocumentQuery";
@@ -23,6 +24,7 @@ export namespace Commands {
 }
 
 let configuration: Configuration;
+let languageserver: LanguageServer;
 let sqlWorkspace: SqlWorkspace;
 let sqlite: SQLite;
 let explorer: Explorer;
@@ -39,12 +41,19 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     }));
 
     // initialize modules
+    languageserver = new LanguageServer();
     sqlWorkspace = new SqlWorkspace();
     sqlite = new SQLite(configuration.sqlite3);
     explorer = new Explorer();
     resultView = new ResultView(context.extensionPath);
 
-    context.subscriptions.push(sqlWorkspace, sqlite, explorer, resultView);
+    languageserver.setSchemaHandler(doc => {
+        let dbPath = sqlWorkspace.getDocumentDatabase(doc);
+        if (dbPath) return sqlite.schema(dbPath);
+        else return Promise.resolve();
+    });
+
+    context.subscriptions.push(languageserver, sqlWorkspace, sqlite, explorer, resultView);
     
     // register commands
     context.subscriptions.push(commands.registerCommand(Commands.runDocumentQuery, () => {
@@ -98,8 +107,8 @@ function runDocumentQuery() {
             let query = sqlDocument.getText(selection);
             runQuery(dbPath, query, true);
         } else {
-            useDatabase().then(() => {
-                runDocumentQuery();
+            useDatabase().then(dbPath => {
+                if (dbPath) runDocumentQuery();
             });
         }
     }
@@ -107,19 +116,18 @@ function runDocumentQuery() {
 
 function quickQuery() {
     pickWorkspaceDatabase(false).then(dbPath => {
-        showQueryInputBox(dbPath).then(query => {
-            if (query) return sqlite.query(dbPath, query);
-            else return Promise.reject('');
-        }).then(res => {
-            if (res.resultSet) resultView.display(res.resultSet, configuration.recordsPerPage);
-        });
+        if (dbPath) {
+            showQueryInputBox(dbPath).then(query => {
+                if (query) runQuery(dbPath, query, true);
+            });
+        }
     });
 }
 
 function useDatabase(): Thenable<string> {
     let sqlDocument = getEditorSqlDocument();
     return pickWorkspaceDatabase(false).then(dbPath => {
-        if (sqlDocument) sqlWorkspace.bindDatabaseToDocument(dbPath, sqlDocument);
+        if (sqlDocument && dbPath) sqlWorkspace.bindDatabaseToDocument(dbPath, sqlDocument);
         return Promise.resolve(dbPath);
     });
 }
@@ -131,7 +139,7 @@ function explorerAdd(dbPath?: string) {
         });
     } else {
         pickWorkspaceDatabase(false).then(dbPath => {
-            explorerAdd(dbPath);
+            if (dbPath) explorerAdd(dbPath);
         });
     }
 }
@@ -142,7 +150,7 @@ function explorerRemove(dbPath?: string) {
     } else {
         let dbList = explorer.list().map(db => db.path);
         pickListDatabase(true, dbList).then(dbPath => {
-            explorerRemove(dbPath);
+            if (dbPath) explorerRemove(dbPath);
         });
     }
 }
@@ -165,17 +173,13 @@ function newQuery(dbPath?: string): Thenable<TextDocument> {
 }
 
 function runTableQuery(dbPath: string, tableName: string) {
-    let query = `SELECT * FROM ${tableName};`;
-    sqlite.query(dbPath, query).then(res => {
-        if (res.resultSet) resultView.display(res.resultSet, configuration.recordsPerPage);
-    });
+    let query = `SELECT * FROM \`${tableName}\`;`;
+    runQuery(dbPath, query, true);
 }
 
 function runSqliteMasterQuery(dbPath: string) {
     let query = `SELECT * FROM sqlite_master;`;
-    sqlite.query(dbPath, query).then(res => {
-        if (res.resultSet) resultView.display(res.resultSet, configuration.recordsPerPage);
-    });
+    runQuery(dbPath, query, true);
 }
 
 function runQuery(dbPath: string, query: string, display: boolean) {

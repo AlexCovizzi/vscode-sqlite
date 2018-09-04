@@ -1,18 +1,14 @@
 import { TreeDataProvider, Event, TreeItem, EventEmitter, ProviderResult } from "vscode";
 import { DBItem, TableItem, ColumnItem } from "./treeItem";
-
-export interface Database { path: string; tables: Table[]; }
-interface Table { name: string; columns: Column[]; }
-interface Column { name: string; type: string; notnull: boolean; pk: number; defVal: string; }
-type Item = Database | Table | Column;
+import { Schema } from "../interfaces";
 
 
-export class ExplorerTreeProvider implements TreeDataProvider<Item> {
+export class ExplorerTreeProvider implements TreeDataProvider<Schema.Item> {
 
-    private _onDidChangeTreeData: EventEmitter<Item | undefined> = new EventEmitter<Item | undefined>();
-    readonly onDidChangeTreeData: Event<Item | undefined> = this._onDidChangeTreeData.event;
+    private _onDidChangeTreeData: EventEmitter<Schema.Item | undefined> = new EventEmitter<Schema.Item | undefined>();
+    readonly onDidChangeTreeData: Event<Schema.Item | undefined> = this._onDidChangeTreeData.event;
 
-    private databaseList: Database[];
+    private databaseList: Schema.Database[];
 
     constructor() {
         this.databaseList = [];
@@ -22,7 +18,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<Item> {
         this._onDidChangeTreeData.fire();
     }
 
-    addToTree(database: Database) {
+    addToTree(database: Schema.Database) {
         let index = this.databaseList.findIndex(db => db.path === database.path);
         if (index < 0) {
             this.databaseList.push(database);
@@ -43,7 +39,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<Item> {
         return this.databaseList.length;
     }
     
-    getTreeItem(item: Item): TreeItem {
+    getTreeItem(item: Schema.Item): TreeItem {
         if ('tables' in item) {
             // Database
             return new DBItem(item.path);
@@ -60,7 +56,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<Item> {
         return this.databaseList;
     }
 
-    getChildren(item?: Item): ProviderResult<Item[]> {
+    getChildren(item?: Schema.Item): ProviderResult<Schema.Item[]> {
         if (item) {
             if ('tables' in item) {
                 // Database
