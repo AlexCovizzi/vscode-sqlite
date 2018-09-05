@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.3.1 (5 Sep 2018)
+Added
+1. Autocompletion for sqlite keywords, table names, column names.
+2. Added ```.db3```, ```.sdb```, ```.s3db``` as recognized extensions for an sqlite3 database (thanks to [LokiSharp](https://github.com/LokiSharp))
+3. Added support for binary data, now displayed as hex string
+
+Fixed
+1. Fixed issue that prevented the correct execution of queries on tables with the same name as sqlite keywords (e.g Order, Select, Table...)
+
 ## 0.3.0 (2 Sep 2018)
 Added
 1. Export result to ```html```.

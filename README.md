@@ -15,11 +15,13 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 ## Features
 
-* Query SQLite3 databases and view results in a table.
+* **Query** SQLite3 databases and view results in a table.
 
-* Export query results to ```json```, ```csv``` and ```html```.
+* **Export** query results to ```json```, ```csv``` and ```html```.
 
-* Sidebar explorer: list databases, tables and columns.
+* **Sidebar explorer**: list databases, tables and columns.
+
+* **Autocompletion** for sqlite keywords, table names, column names (autocompletion is available for an sql document once its bound to a database, to bind an sql document to a database use the command ```SQLite: Use Database```)
 
 ## Commands
 
