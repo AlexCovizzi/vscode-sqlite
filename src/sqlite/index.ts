@@ -1,8 +1,9 @@
-import {execute, ResultSet} from "./sqlite3";
+import {execute} from "./sqlite3";
 import { Schema } from "./schema";
 import { Disposable, window } from "vscode";
 import { SQLParser } from "./sqlparser";
 import { logger } from "../logging/logger";
+import { ResultSet } from "../interfaces";
 
 const sqlite3ErrorMessage = "Unable to execute sqlite3 queries, change the sqlite.sqlite3 setting to fix this issue.";
 
