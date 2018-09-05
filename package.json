@@ -197,8 +197,11 @@
                 "id": "sqlite",
                 "extensions": [
                     ".db",
+                    ".db3",
                     ".sqlite",
-                    ".sqlite3"
+                    ".sqlite3",
+                    ".sdb",
+                    ".s3db"
                 ]
             }
         ],

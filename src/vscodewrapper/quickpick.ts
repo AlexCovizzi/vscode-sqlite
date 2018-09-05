@@ -44,7 +44,7 @@ export namespace QuickPick {
  * @param hint What to write in the QuickPick
  */
 export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenable<string> {
-    const sqlite_file_extensions = ["db", "sqlite", "sqlite3"];
+    const sqlite_file_extensions = ["db", "db3", "sqlite", "sqlite3", "sdb", "s3db"];
     const promise = new Promise< Array<QuickPick.DatabaseItem | QuickPick.ErrorItem | QuickPick.FileDialogItem> >((resolve) => {
         workspace.findFiles('**/*.{'+sqlite_file_extensions.join(",")+'}').then((filesUri) => {
             let fileDialogItem = new QuickPick.FileDialogItem();
