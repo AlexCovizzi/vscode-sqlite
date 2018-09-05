@@ -32,7 +32,14 @@ export function replaceEscapedOctetsWithChar(s: string) {
 
 export function octalToChars(octal: Array<string>) {
     let hex: string = octal.map(octet => convertFromBaseToBase(octet, 8, 16)).join('');
-    return new Buffer(hex, 'hex').toString('utf8');
+    let s = new Buffer(hex, 'hex').toString('utf8');
+    for(let i=0; i<s.length; i++) {
+        if(s.charCodeAt(i) === 65533) {
+            // the character is an uncknown character, this is probably binary data
+            return hex;
+        }
+    }
+    return s;
 }
 
 export function convertFromBaseToBase(str: string | number, fromBase: number, toBase: number) {
