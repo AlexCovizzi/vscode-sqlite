@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.3.2 (24 Nov 2018)
+
+Fixed
+1. Fixed bug that prevented the extension from recognizing executable paths set in the setting ```sqlite.sqlite3```.
+
 ## 0.3.1 (5 Sep 2018)
 Added
 1. Autocompletion for sqlite keywords, table names, column names.
