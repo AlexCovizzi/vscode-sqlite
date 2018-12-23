@@ -1,4 +1,4 @@
-import { execute } from "./sqlite3";
+import { execute } from "./sqlite";
 
 export type Schema = Schema.Database;
 

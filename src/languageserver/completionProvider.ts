@@ -1,5 +1,5 @@
 import { CompletionItemProvider, Position, TextDocument, CancellationToken, CompletionContext, CompletionItem, CompletionItemKind } from "vscode";
-import { Schema } from "../interfaces";
+import { Schema } from "../common";
 import { keywords } from './keywords';
 
 interface SchemaProvider {

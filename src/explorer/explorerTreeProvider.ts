@@ -1,6 +1,6 @@
 import { TreeDataProvider, Event, TreeItem, EventEmitter, ProviderResult } from "vscode";
 import { DBItem, TableItem, ColumnItem } from "./treeItem";
-import { Schema } from "../interfaces";
+import { Schema } from "../common";
 
 
 export class ExplorerTreeProvider implements TreeDataProvider<Schema.Item> {

@@ -4,7 +4,7 @@ import { queryObject, sanitizeStringForHtml } from "../utils/utils";
 import * as csvStringify from 'csv-stringify/lib/sync';
 import { join } from "path";
 import { EOL } from "os";
-import { ResultSet } from "../interfaces";
+import { ResultSet } from "../common";
 
 export default class ResultView extends CustomView implements Disposable {
 

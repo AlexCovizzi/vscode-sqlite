@@ -1,16 +1,11 @@
 import * as child_process from 'child_process';
 import { StreamParser } from './streamParser';
 import { ResultSetParser } from './resultSetParser';
-import { ResultSet } from '../interfaces';
+import { ResultSet } from '../common';
 
-export function execute(sqlite3: string, dbPath: string, query: string, callback: (resultSet?: ResultSet, error?: Error) => void) {
-    if (!sqlite3) {
-        const err = `sqlite3 command/path not found or invalid.`;
-        return callback(undefined, new Error(err));
-    }
-    
+export function execute(sqliteCommand: string, dbPath: string, query: string, callback: (resultSet?: ResultSet, error?: Error) => void) {
     let resultSet: ResultSet;
-    let error: Error;
+    let errorMessage = "";
     let streamParser = new StreamParser(new ResultSetParser());
 
     let args = [
@@ -21,21 +16,22 @@ export function execute(sqlite3: string, dbPath: string, query: string, callback
         `-cmd`, `.mode tcl`
         ];
 
-    let proc = child_process.spawn(sqlite3, args, {stdio: ['ignore', "pipe", "pipe" ]});
+    let proc = child_process.spawn(sqliteCommand, args, {stdio: ['ignore', "pipe", "pipe" ]});
 
     proc.stdout.pipe(streamParser).once('done', (data: ResultSet) => {
         resultSet = data;
     });
     
-    proc.stderr.once('data', (data) => {
-        error = new Error(data.toString().trim());
+    proc.stderr.on('data', (data) => {
+        errorMessage += data.toString().trim();
     });
 
     proc.once('error', (data) => {
-        error = data;
+        errorMessage += data;
     });
 
     proc.once('close', () => {
+        let error = errorMessage? Error(errorMessage) : undefined;
         callback(resultSet, error);
     });
 }
