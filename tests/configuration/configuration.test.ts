@@ -1,10 +1,9 @@
 import * as vscode from 'vscode';
-import * as sqlite3Utils from '../../src/utils/cmdSqlite3Utils';
 import { getConfiguration } from "../../src/configuration";
 import { Level } from "../../src/logging/logger";
 
 jest.mock("vscode");
-jest.mock("../../src/utils/cmdSqlite3Utils");
+//jest.mock("../../src/utils/cmdSqlite3Utils");
 
 describe("configuration", () => {
 
@@ -19,7 +18,7 @@ describe("configuration", () => {
                 };
             });
             
-            let configuration = getConfiguration("");
+            let configuration = getConfiguration();
 
             expect(configuration.recordsPerPage).toBe(recordsPerPage);
         });
@@ -33,7 +32,7 @@ describe("configuration", () => {
                 };
             });
             
-            let configuration = getConfiguration("");
+            let configuration = getConfiguration();
             let expected = require('../../package.json').contributes.configuration.properties["sqlite.recordsPerPage"]["default"];
 
             expect(configuration.recordsPerPage).toBe(expected);
@@ -49,7 +48,7 @@ describe("configuration", () => {
                 };
             });
             
-            let configuration = getConfiguration("");
+            let configuration = getConfiguration();
 
             expect(configuration.logLevel).toBe(logLevel);
         });
@@ -64,11 +63,12 @@ describe("configuration", () => {
                 };
             });
             
-            let configuration = getConfiguration("");
+            let configuration = getConfiguration();
 
             expect(configuration.logLevel).toBe(expected);
         });
 
+        /*
         test("sqlite3 should return the value supplied if it's valid", () => {
             let sqlite3 = "sqlite3";
 
@@ -96,5 +96,6 @@ describe("configuration", () => {
 
             expect(configuration.sqlite3).toBe("");
         });
+        */
     });
 });
