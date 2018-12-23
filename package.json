@@ -17,6 +17,7 @@
     ],
     "activationEvents": [
         "onLanguage:sql",
+        "onCommand:sqlite.showOutputChannel",
         "onCommand:sqlite.explorer.add",
         "onCommand:sqlite.explorer.remove",
         "onCommand:sqlite.newQuery",
@@ -27,6 +28,11 @@
     "main": "./out/extension",
     "contributes": {
         "commands": [
+            {
+                "command": "sqlite.showOutputChannel",
+                "title": "Show output",
+                "category": "SQLite"
+            },
             {
                 "command": "sqlite.explorer.add",
                 "title": "Open Database in Explorer",
@@ -100,6 +106,10 @@
         },
         "menus": {
             "commandPalette": [
+                {
+                    "command": "sqlite.showOutputChannel",
+                    "group": "sqlite"
+                },
                 {
                     "command": "sqlite.explorer.add",
                     "group": "sqlite"
