@@ -1,7 +1,7 @@
 'use strict';
 
-import { ExtensionContext, commands, Uri, TextDocument, workspace, window } from 'vscode';
-import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection } from './vscodewrapper';
+import { ExtensionContext, commands, Uri, TextDocument, workspace } from 'vscode';
+import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection, showErrorMessage } from './vscodewrapper';
 import { logger } from './logging/logger';
 import { getConfiguration, Configuration } from './configuration';
 import { Constants } from './constants/constants';
@@ -10,7 +10,6 @@ import SQLite from './sqlite';
 import Explorer from './explorer';
 import ResultView from './resultview';
 import LanguageServer from './languageserver';
-import { showErrorMessage } from './vscodewrapper/errorMessage';
 
 export namespace Commands {
     export const showOutputChannel = "sqlite.showOutputChannel";
