@@ -14,13 +14,13 @@ export function validateSqliteCommand(sqliteCommand: string, extensionPath: stri
     } else {
         sqliteCommand = getSqliteBinariesPath(extensionPath);
         if (!sqliteCommand) {
-            throw new Error(`Unable to find a valid SQLite command. Check the output for more info.`);
+            throw new Error(`Unable to find a valid SQLite command. Fallback binary not found.`);
         }
         isValid = isSqliteCommandValid(sqliteCommand);
         if (isValid) {
             return sqliteCommand;
         } else {
-            throw new Error(`Unable to find a valid SQLite command. Check the output for more info.`);
+            throw new Error(`Unable to find a valid SQLite command. Fallback binary is not valid.`);
         }
     }
 }

@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as sqliteCommandValidation from '../../src/sqlite/sqliteCommandValidation';
 import { platform } from 'os';
 import { join } from 'path';
+import { execSync } from 'child_process';
 
 describe("sqliteCommandValidation Tests", function () {
 
@@ -35,7 +36,7 @@ describe("sqliteCommandValidation Tests", function () {
         let scriptPath = createFakeSqliteCommand(false);
         
         expect(() => {
-            sqliteCommandValidation.validateSqliteCommand(scriptPath, "");
+            sqliteCommandValidation.validateSqliteCommand(scriptPath, "no");
         }).toThrow();
     });
 
@@ -49,10 +50,14 @@ function createFakeSqliteCommand(valid: boolean): string {
     if (valid) {
         text = `echo 3.26.0 2018-12-01 12:34:55`;
     }
-    if (platform() == 'win32') {
+    if (platform() === 'win32') {
         fileName += " space.bat";
     }
     fs.writeFileSync(fileName, text, 'utf8');
+
+    if (platform() !== 'win32') {
+        execSync(`chmod +x ${fileName}`);
+    }
 
     return fileName;
 }
