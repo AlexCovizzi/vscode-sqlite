@@ -37,6 +37,8 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 * **SQLite: Close Explorer Database** &nbsp; Remove the selected database from the explorer.
 
+* **SQLite: Show output** &nbsp; Show the extension's output channel.
+
 
 
 ## Settings
@@ -50,4 +52,4 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 ## Known Issues
 
-No known issues for now.
+1. On Windows, unicode characters are not interpreted correctely (they are substituted with the question mark "?" character).

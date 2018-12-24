@@ -1,6 +1,6 @@
 import { Disposable, languages, TextDocument } from 'vscode';
 import { CompletionProvider } from './completionProvider';
-import { Schema } from '../interfaces';
+import { Schema } from '../common';
 
 export default class LanguageServer implements Disposable {
     private subscriptions: Disposable[];

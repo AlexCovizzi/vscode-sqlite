@@ -2,7 +2,7 @@ import { Disposable, commands, window } from "vscode";
 import { ExplorerTreeProvider } from "./explorerTreeProvider";
 import * as treeItem from "./treeItem";
 import { Constants } from "../constants/constants";
-import { Schema } from "../interfaces";
+import { Schema } from "../common";
 
 class Explorer implements Disposable {
 
