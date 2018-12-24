@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.3.3 ()
+## 0.3.3 (24 Dec 2018)
 
 Fixed
 1. Fixed bug that prevented custom sqlite paths from being recognized as a command on Windows.
