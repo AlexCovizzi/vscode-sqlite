@@ -1,48 +1,49 @@
-import {execute} from "./sqlite3";
+import {execute} from "./sqlite";
 import { Schema } from "./schema";
-import { Disposable, window } from "vscode";
+import { Disposable } from "vscode";
 import { SQLParser } from "./sqlparser";
 import { logger } from "../logging/logger";
-import { ResultSet } from "../interfaces";
-
-const sqlite3ErrorMessage = "Unable to execute sqlite3 queries, change the sqlite.sqlite3 setting to fix this issue.";
+import { ResultSet } from "../common";
+import { validateSqliteCommand } from "./sqliteCommandValidation";
 
 class SQLite implements Disposable {
-    private activated = false;
-    
-    constructor(private sqlite3: string) {
-        if (sqlite3) this.activated = true;
-        else window.showErrorMessage(sqlite3ErrorMessage);
+
+    constructor(private extensionPath: string) {
     }
 
-    query(dbPath: string, query: string): Promise<QueryResult> {
-        if (!this.activated) {
-            window.showErrorMessage(sqlite3ErrorMessage);
-            return Promise.reject(sqlite3ErrorMessage);
-        }
+    query(sqliteCommand: string, dbPath: string, query: string): Promise<QueryResult> {
+        return new Promise((resolve, reject) => {
+            try {
+                sqliteCommand = validateSqliteCommand(sqliteCommand, this.extensionPath);
+            } catch(e) {
+                return resolve({error: e});
+            }
+            
+            logger.info(`SQLite: '${sqliteCommand}'`);
 
-        query = SQLParser.parse(query).join('');
-        
-        logger.info(`[QUERY] ${query}`);
+            query = SQLParser.parse(query).join(' ');
+            logger.info(`[QUERY] ${query}`);
 
-        return new Promise( resolve => {
-            execute(this.sqlite3, dbPath, query, (resultSet, error) => {
-                resolve({resultSet: resultSet, error: error} as QueryResult);
+            execute(sqliteCommand, dbPath, query, (resultSet, error) => {
+                return resolve({resultSet: resultSet, error: error});
             });
         });
     }
     
-    schema(dbPath: string) {
-        if (!this.activated) {
-            window.showErrorMessage(sqlite3ErrorMessage);
-            return Promise.reject(sqlite3ErrorMessage);
-        }
+    schema(sqliteCommand: string, dbPath: string): Promise<Schema.Database> {
+        return new Promise((resolve, reject) => {
+            try {
+                sqliteCommand = validateSqliteCommand(sqliteCommand, this.extensionPath); }
+            catch(e) {
+                return reject(e);
+            }
 
-        return Schema.build(dbPath, this.sqlite3);
+            return resolve(Schema.build(dbPath, sqliteCommand));
+        });
     }
     
     dispose() {
-        // Nothing for now
+        // Nothing to dispose
     }
 }
 

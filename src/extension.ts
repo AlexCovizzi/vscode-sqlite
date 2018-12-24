@@ -1,7 +1,7 @@
 'use strict';
 
-import { ExtensionContext, commands, Uri, TextDocument, workspace, window } from 'vscode';
-import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection } from './vscodewrapper';
+import { ExtensionContext, commands, Uri, TextDocument, workspace } from 'vscode';
+import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection, showErrorMessage } from './vscodewrapper';
 import { logger } from './logging/logger';
 import { getConfiguration, Configuration } from './configuration';
 import { Constants } from './constants/constants';
@@ -12,6 +12,7 @@ import ResultView from './resultview';
 import LanguageServer from './languageserver';
 
 export namespace Commands {
+    export const showOutputChannel = "sqlite.showOutputChannel";
     export const runDocumentQuery = "sqlite.runDocumentQuery";
     export const useDatabase: string = 'sqlite.useDatabase';
     export const explorerAdd: string = 'sqlite.explorer.add';
@@ -35,27 +36,32 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     logger.info(`Activating extension ${Constants.extensionName} v${Constants.extensionVersion}...`);
 
     // load configuration and reload every time it's changed
-    configuration = getConfiguration(context.extensionPath);
+    configuration = getConfiguration();
+    
     context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
-        configuration = getConfiguration(context.extensionPath);
+        configuration = getConfiguration();
     }));
 
     // initialize modules
     languageserver = new LanguageServer();
     sqlWorkspace = new SqlWorkspace();
-    sqlite = new SQLite(configuration.sqlite3);
+    sqlite = new SQLite(context.extensionPath);
     explorer = new Explorer();
     resultView = new ResultView(context.extensionPath);
 
     languageserver.setSchemaHandler(doc => {
         let dbPath = sqlWorkspace.getDocumentDatabase(doc);
-        if (dbPath) return sqlite.schema(dbPath);
+        if (dbPath) return sqlite.schema(configuration.sqlite3, dbPath);
         else return Promise.resolve();
     });
 
     context.subscriptions.push(languageserver, sqlWorkspace, sqlite, explorer, resultView);
     
     // register commands
+    context.subscriptions.push(commands.registerCommand(Commands.showOutputChannel, () => {
+        logger.showOutput();
+    }));
+
     context.subscriptions.push(commands.registerCommand(Commands.runDocumentQuery, () => {
         return runDocumentQuery();
     }));
@@ -95,8 +101,10 @@ export function activate(context: ExtensionContext): Promise<boolean> {
         return runSqliteMasterQuery(db.path);
     }));
 
+    logger.info(`Extension activated.`);
     return Promise.resolve(true);
 }
+
 
 function runDocumentQuery() {
     let sqlDocument = getEditorSqlDocument();
@@ -134,7 +142,7 @@ function useDatabase(): Thenable<string> {
 
 function explorerAdd(dbPath?: string) {
     if (dbPath) {
-        sqlite.schema(dbPath).then(schema => {
+        sqlite.schema(configuration.sqlite3, dbPath).then(schema => {
             explorer.add(schema);
         });
     } else {
@@ -159,7 +167,7 @@ function explorerRefresh() {
     let dbList = explorer.list();
     dbList.forEach(db => {
         let dbPath = db.path;
-        sqlite.schema(dbPath).then(schema => {
+        sqlite.schema(configuration.sqlite3, dbPath).then(schema => {
             explorer.add(schema);
         });
     });
@@ -183,16 +191,19 @@ function runSqliteMasterQuery(dbPath: string) {
 }
 
 function runQuery(dbPath: string, query: string, display: boolean) {
-    let resultSet = sqlite.query(dbPath, query).then(queryResult => {
-        if (queryResult.error) {
-            logger.error(queryResult.error);
-            window.showErrorMessage(queryResult.error.message);
+    let resultSet = sqlite.query(configuration.sqlite3, dbPath, query).then(({resultSet, error}) => {
+        // log and show if there is any error
+        if (error) {
+            logger.error(error.message);
+            showErrorMessage(error.message, {title: "Show output", command: Commands.showOutputChannel});
         }
-        if (queryResult.resultSet) {
-            return queryResult.resultSet;
-        }
+
+        return resultSet;
     });
-    if (display) resultView.display(resultSet, configuration.recordsPerPage);
+
+    if (display) {
+        resultView.display(resultSet, configuration.recordsPerPage);
+    }
 }
 
 // this method is called when your extension is deactivated

@@ -1,6 +1,6 @@
 import { replaceEscapedOctetsWithChar } from "../utils/utils";
 import { ChunksParser } from "./streamParser";
-import { ResultSet } from "../interfaces";
+import { ResultSet } from "../common";
 
 export class ResultSetParser implements ChunksParser<ResultSet|undefined> {
     private resultSet?: ResultSet;
