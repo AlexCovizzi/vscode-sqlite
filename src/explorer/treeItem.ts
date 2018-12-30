@@ -40,19 +40,28 @@ export class DBItem extends SQLItem {
 
 export class TableItem extends SQLItem {
 
-    constructor(name: string, command?: Command) {
+    constructor(private name: string, private type: string, command?: Command) {
         super(
             name,
             TreeItemCollapsibleState.Collapsed,
             command
         );
         this.contextValue = 'sqlite.tableItem';
+        
+        let icon_name = "table.svg";
+        if (this.type === "view") {
+            icon_name = "table_view.svg";
+        }
+        this.iconPath = {
+            light: join(__filename, '..', '..', '..', 'resources', 'light', icon_name),
+            dark: join(__filename, '..', '..', '..', 'resources', 'dark', icon_name)
+        };
     }
 
     get tooltip(): string {
         //var dbName = basename(dirname(this.id));
         //var dbNameNoExtension = dbName.substr(0, dbName.lastIndexOf('.')) || dbName;
-        return `${this.label}`;
+        return `${this.name}\n${this.type === "view"? "VIEW" : "TABLE"}`;
     }
 }
 

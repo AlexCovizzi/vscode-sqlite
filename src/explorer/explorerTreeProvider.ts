@@ -45,7 +45,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<Schema.Item> {
             return new DBItem(item.path);
         } else if ('columns' in item) {
             // Table
-            return new TableItem(item.name);
+            return new TableItem(item.name, item.type);
         } else {
             // Column
             return new ColumnItem(item.name, item.type, item.notnull, item.pk, item.defVal);
