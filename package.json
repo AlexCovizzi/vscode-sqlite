@@ -3,7 +3,7 @@
     "icon": "resources/icon/icon_128x128.png",
     "displayName": "SQLite",
     "description": "Explore and query SQLite databases.",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "publisher": "alexcvzz",
     "repository": {
         "url": "https://github.com/AlexCovizzi/vscode-sqlite",
