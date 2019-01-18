@@ -12,6 +12,7 @@ export namespace Schema {
     export interface Table {
         database: string;
         name: string;
+        type: string;
         columns: Schema.Column[];
     }
 

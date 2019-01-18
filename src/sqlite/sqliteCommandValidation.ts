@@ -28,11 +28,16 @@ export function validateSqliteCommand(sqliteCommand: string, extensionPath: stri
 // verifies that the command/path passed as argument is an sqlite command
 export function isSqliteCommandValid(sqliteCommand: string) {
     let proc = spawnSync(`"${sqliteCommand}"`, [`-version`], {shell: true});
+    
     let output = proc.stdout.toString();
 
     // out must be: {version at least 3} {date} {time}}
     // this is a naive way to check that the command is for sqlite3 after version 3.9
     let match = output.match(/3\.[0-9]{1,2}\.[0-9]{1,2} [0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}\:[0-9]{2}\:[0-9]{2}/);
+    
+    if(!match) {
+        logger.debug(`'${sqliteCommand}' is not a valid SQLite command.`);
+    }
     
     return match? true : false;
 }
@@ -69,7 +74,7 @@ export function getSqliteBinariesPath(extensionPath: string): string {
             logger.debug(`Fallback SQLite binary found: '${path}'.`);
             return path;
         } else {
-            logger.info(`Fallback SQLite binary not found: '${path}' does not exist.`);
+            logger.debug(`Fallback SQLite binary not found: '${path}' does not exist.`);
             return '';
         }
     } else {

@@ -14,6 +14,7 @@ export namespace Schema {
     export interface Table extends Schema.Item {
         database: string;
         name: string;
+        type: string;
         columns: Schema.Column[];
     }
 
@@ -28,18 +29,18 @@ export namespace Schema {
     }
 
     export function build(dbPath: string, sqlite3: string): Thenable<Schema.Database> {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             let schema = {
                 path: dbPath,
                 tables: []
             } as Schema.Database;
 
-            const tablesQuery = `SELECT name FROM sqlite_master WHERE type="table" ORDER BY name ASC;`;
-            execute(sqlite3, dbPath, tablesQuery, (resultSet) => {
+            const tablesQuery = `SELECT name, type FROM sqlite_master WHERE type="table" OR type="view" ORDER BY type ASC, name ASC;`;
+            execute(sqlite3, dbPath, tablesQuery, (resultSet, error) => {
                 if (!resultSet || resultSet.length === 0) return;
                 
                 schema.tables = resultSet[0].rows.map(row => {
-                    return {database: dbPath, name: row[0], columns: [] } as Schema.Table;
+                    return {database: dbPath, name: row[0], type: row[1], columns: [] } as Schema.Table;
                 });
 
                 let columnsQuery = schema.tables.map(table => `PRAGMA table_info('${table.name}');`).join('');

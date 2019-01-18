@@ -9,10 +9,10 @@ export namespace QuickPick {
         detail?: string;
         picked?: boolean;
         
-        constructor(path: string) {
+        constructor(path: string, description?: string) {
             this.path = path;
             this.label = basename(path);
-            this.description = path;
+            this.description = description? description : path;
         }
     }
     export class FileDialogItem implements QuickPickItem {
@@ -49,6 +49,7 @@ export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenabl
         workspace.findFiles('**/*.{'+sqlite_file_extensions.join(",")+'}').then((filesUri) => {
             let fileDialogItem = new QuickPick.FileDialogItem();
             let items: Array<QuickPick.DatabaseItem | QuickPick.ErrorItem | QuickPick.FileDialogItem> = filesUri.map(uri => new QuickPick.DatabaseItem(uri.fsPath));
+            items.push(new QuickPick.DatabaseItem(":memory:", "sqlite in-memory database"));
             items.push(fileDialogItem);
             resolve(items);
         });

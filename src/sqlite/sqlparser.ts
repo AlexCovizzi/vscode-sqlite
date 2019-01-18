@@ -75,9 +75,9 @@ export namespace SQLParser {
         }
 
         return statements
-                .map(stmt => stmt.trim())
-                .filter(stmt => stmt !== "")
-                .map(stmt => stmt.endsWith(';')? stmt : stmt += ';');
+                .map(stmt => stmt.trim()) // trim spaces on the sides
+                .filter(stmt => stmt !== "") // filter out empty statements
+                .map(stmt => stmt.endsWith(';')? stmt : stmt += ';'); // make sure each statement ends with ';'
     }
 
 }
