@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.4.0 (18 Jan 2019)
+
+Added
+1. The sqlite explorer now supports views.
+2. Added icons to distinguish between tables and views in the explorer.
+3. Added support for :memory: database.
+
 ## 0.3.3 (24 Dec 2018)
 
 Fixed
