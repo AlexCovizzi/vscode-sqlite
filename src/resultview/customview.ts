@@ -62,7 +62,7 @@ export class CustomView extends EventEmitter implements Disposable {
         let options = {
             enableScripts: true,
             retainContextWhenHidden: false, // we dont need to keep the state
-            localResourceRoots: [Uri.file(this.resourcesPath).with({scheme: 'vscode-resource'})]
+            localResourceRoots: [Uri.parse(this.resourcesPath).with({scheme: 'vscode-resource'})]
         };
 
         this.panel = window.createWebviewPanel(this.type, this.title, ViewColumn.Two,
@@ -96,7 +96,7 @@ export class CustomView extends EventEmitter implements Disposable {
     }
 
     private replaceUris(html: string, htmlPath: string) {
-        let basePath = Uri.file(dirname(htmlPath)).with({scheme: this.resourceScheme}).toString();
+        let basePath = Uri.parse(dirname(htmlPath)).with({scheme: this.resourceScheme}).toString();
         let regex = /(href|src)\=\"(.+?)\"/g;
         html = html.replace(regex, `$1="${basePath+'$2'}"`);
         return html;
