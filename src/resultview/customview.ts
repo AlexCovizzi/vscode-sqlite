@@ -61,8 +61,8 @@ export class CustomView extends EventEmitter implements Disposable {
 
         let options = {
             enableScripts: true,
-            retainContextWhenHidden: false, // we dont need to keep the state
-            localResourceRoots: [Uri.parse(this.resourcesPath).with({scheme: 'vscode-resource'})]
+            retainContextWhenHidden: true,
+            localResourceRoots: [Uri.parse(this.resourcesPath).with({scheme: this.resourceScheme})]
         };
 
         this.panel = window.createWebviewPanel(this.type, this.title, ViewColumn.Two,
