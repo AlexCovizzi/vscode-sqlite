@@ -9,15 +9,17 @@ export function execute(sqliteCommand: string, dbPath: string, query: string, ca
     let streamParser = new StreamParser(new ResultSetParser());
 
     let args = [
-        `${dbPath}`, `${query}`,
+        `${dbPath}`,
         `-header`, // print the headers before the result rows
         `-nullvalue`, `NULL`, // print NULL for null values
         `-echo`, // print the statement before the result
         `-cmd`, `.mode tcl`
         ];
 
-    let proc = child_process.spawn(sqliteCommand, args, {stdio: ['ignore', "pipe", "pipe" ]});
+    let proc = child_process.spawn(sqliteCommand, args, {stdio: ['pipe', "pipe", "pipe" ]});
 
+    proc.stdin.end(query);
+    
     proc.stdout.pipe(streamParser).once('done', (data: ResultSet) => {
         resultSet = data;
     });
