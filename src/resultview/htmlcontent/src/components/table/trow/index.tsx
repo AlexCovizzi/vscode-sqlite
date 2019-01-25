@@ -36,7 +36,7 @@ export class TRow extends Component<Props, State> {
 
     render(props: Props, state: State) {
         return (
-            <tr>
+            <tr style="display: none;">
             </tr>
         );
     }
