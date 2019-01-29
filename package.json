@@ -212,7 +212,8 @@
                     ".sqlite3",
                     ".sdb",
                     ".s3db"
-                ]
+                ],
+                "configuration": "./language-configuration.json"
             }
         ],
         "grammars": [
