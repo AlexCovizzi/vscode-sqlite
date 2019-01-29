@@ -3,6 +3,8 @@
     "patterns": [{
         "include": "#cli-instruction"
     }, {
+        "include": "#comment"
+    }, {
         "include": "#sql-stmt-explain"
     }, {
         "include": "#sql-stmt"
@@ -196,6 +198,8 @@
         },
         "expr": {
             "patterns": [{
+                "include": "#comment"
+            }, {
                 "include": "#keyword"
             }, {
                 "include": "#expr-parens"
@@ -325,6 +329,16 @@
                     "name": "keyword.other.cli-instruction.sql.sqlite"
                 }
             }
+        },
+        "comment": {
+            "patterns": [{
+                "match": "--.*",
+                "name": "comment.line.double-dash.sql.sqlite"
+            }, {
+                "begin": "/\\*",
+                "end": "\\*/",
+                "name": "comment.block.sql.sqlite"
+            }]
         },
         "other-stmt": {
             "begin": "(?i)\\b(alter|analyze|attach|begin|commit|create|delete|detach|drop|end|insert|pragma|reindex|release|replace|rollback|savepoint|update|vacuum)\\b\\s*",
