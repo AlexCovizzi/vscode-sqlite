@@ -1,0 +1,343 @@
+{
+    "scopeName": "source.sql.sqlite",
+    "patterns": [{
+        "include": "#cli-instruction"
+    }, {
+        "include": "#sql-stmt-explain"
+    }, {
+        "include": "#sql-stmt"
+    }, {
+        "include": "#other-stmt"
+    }],
+    "repository": {
+        "sql-stmt-explain": {
+            "begin": "(?i)\\b(explain)(?:\\s+(query\\s+plan))?\\b\\s*",
+            "end": "(?=;)",
+            "name": "meta.statement.explain",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.sql.sqlite"
+                },
+                "2": {
+                    "name": "keyword.other.sql.sqlite"
+                }
+            },
+            "patterns": [{
+                "include": "#sql-stmt"
+            }]
+        },
+        "sql-stmt": {
+            "patterns": [{
+                "include": "#sql-stmt-with"
+            }, {
+                "include": "#select-stmt"
+            }]
+        },
+        "select-stmt": {
+            "patterns": [{
+                "include": "#select-stmt-select"
+            }, {
+                "include": "#select-stmt-values"
+            }]
+        },
+        "select-stmt-subquery": {
+            "patterns": [{
+                "include": "#select-stmt-with-subquery"
+            }, {
+                "include": "#select-stmt-select-subquery"
+            }, {
+                "include": "#select-stmt-values-subquery"
+            }]
+        },
+        "sql-stmt-with": {
+            "begin": "(?i)\\b(with)(\\s+recursive)?\\b\\s*",
+            "end": "(?=;)",
+            "name": "meta.statement.with.sql.sqlite",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.DML.sql.sqlite"
+                },
+                "2": {
+                    "name": "keyword.other.DML.sql.sqlite"
+                }
+            },
+            "patterns": [{
+                "include": "#common-table-expression"
+            }, {
+                "include": "#select-stmt"
+            }]
+        },
+        "select-stmt-with-subquery": {
+            "begin": "(?i)\\b(with)(\\s+recursive)?\\b\\s*",
+            "end": "(?=\\))",
+            "name": "meta.statement.with.sql.sqlite",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.DML.sql.sqlite"
+                },
+                "2": {
+                    "name": "keyword.other.DML.sql.sqlite"
+                }
+            },
+            "patterns": [{
+                "include": "#select-stmt-subquery"
+            }, {
+                "include": "#common-table-expression"
+            }]
+        },
+        "with-clause-as": {
+            "begin": "(?i)\\b(as)\\b\\s*",
+            "end": "(?<=\\))",
+            "name": "meta.other.cte-as.sql.sqlite",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.sql.sqlite"
+                }
+            },
+            "endCaptures": {},
+            "patterns": [{
+                "begin": "\\(",
+                "end": "\\)",
+                "name": "meta.cte-select-stmt.sql.sqlite",
+                "beginCaptures": {},
+                "endCaptures": {},
+                "patterns": [{
+                    "include": "#select-stmt-subquery"
+                }]
+            }]
+        },
+        "common-table-expression": {
+            "patterns": [{
+                "include": "#with-clause-as"
+            }, {
+                "include": "#name"
+            }, {
+                "begin": "\\(",
+                "end": "\\)",
+                "beginCaptures": {},
+                "endCaptures": {},
+                "patterns": [{
+                    "include": "#name"
+                }]
+            }]
+        },
+        "select-stmt-select": {
+            "begin": "(?i)\\b(select)\\b\\s*",
+            "end": "(?=;)",
+            "name": "meta.statement.select.sql.sqlite",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.DML.sql.sqlite"
+                }
+            },
+            "patterns": [{
+                "include": "#expr"
+            }]
+        },
+        "select-stmt-select-subquery": {
+            "begin": "(?i)\\b(select)\\b\\s*",
+            "end": "(?=\\))",
+            "name": "meta.statement.select.subquery.sql.sqlite",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.DML.sql.sqlite"
+                }
+            },
+            "patterns": [{
+                "include": "#expr"
+            }]
+        },
+        "select-stmt-values": {
+            "begin": "(?i)\\b(values)\\s*",
+            "end": "(?=;)",
+            "name": "meta.statement.values.sql.sqlite",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.DML.sql.sqlite"
+                }
+            },
+            "patterns": [{
+                "include": "#rowvalue"
+            }]
+        },
+        "select-stmt-values-subquery": {
+            "begin": "(?i)\\b(values)\\s*",
+            "end": "(?=\\))",
+            "name": "meta.statement.values.subquery.sql.sqlite",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.DML.sql.sqlite"
+                }
+            },
+            "patterns": [{
+                "include": "#rowvalue"
+            }]
+        },
+        "rowvalue": {
+            "begin": "\\(",
+            "end": "\\)",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.section.rowvalue.values.begin"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.rowvalue.values.end"
+                }
+            },
+            "name": "meta.rowvalue.sql.sqlite",
+            "patterns": [{
+                "include": "#expr"
+            }, {
+                "match": ",",
+                "name": "punctuation.separator.rowvalue"
+            }]
+        },
+        "expr": {
+            "patterns": [{
+                "include": "#keyword"
+            }, {
+                "include": "#expr-parens"
+            }, {
+                "include": "#function"
+            }, {
+                "include": "#literal-value"
+            }, {
+                "include": "#name"
+            }]
+        },
+        "expr-parens": {
+            "begin": "\\(",
+            "end": "\\)",
+            "name": "meta.parens",
+            "patterns": [{
+                "include": "#select-stmt-subquery"
+            }, {
+                "include": "#keyword"
+            }, {
+                "include": "#expr-parens"
+            }, {
+                "include": "#function"
+            }, {
+                "include": "#literal-value"
+            }, {
+                "include": "#name"
+            }]
+        },
+        "literal-value": {
+            "patterns": [{
+                "match": "(?i)\\b(null|true|false|current_time|current_date|current_timestamp)\\b",
+                "name": "constant.language.sql.sqlite"
+            }, {
+                "include": "#numeric-literal"
+            }, {
+                "include": "#blob-literal"
+            }, {
+                "include": "#string-literal"
+            }]
+        },
+        "function": {
+            "begin": "\\b([A-Za-z]\\w+)\\b\\s*(\\()",
+            "end": "\\)",
+            "name": "meta.function-call.sql.sqlite",
+            "beginCaptures": {
+                "1": {
+                    "name": "entity.name.function.sql.sqlite"
+                }
+            },
+            "patterns": [{
+                "include": "#expr"
+            }]
+        },
+        "keyword": {
+            "match": "(?i)\\b(abort|action|add|after|all|alter|analyze|and|as|asc|attach|autoincrement|before|begin|between|by|cascade|case|cast|check|collate|column|commit|conflict|constraint|create|cross|current|current_date|current_time|current_timestamp|database|default|deferrable|deferred|delete|desc|detach|distinct|do|drop|each|else|end|escape|except|exclusive|exists|explain|fail|filter|following|for|foreign|from|full|glob|group|having|if|ignore|immediate|in|index|indexed|initially|inner|insert|instead|intersect|into|is|isnull|join|key|left|like|limit|match|natural|no|not|nothing|notnull|null|of|offset|on|or|order|outer|over|partition|plan|pragma|preceding|primary|query|raise|range|recursive|references|regexp|reindex|release|rename|replace|restrict|right|rollback|row|rows|savepoint|select|set|table|temp|temporary|then|to|transaction|trigger|unbounded|union|unique|update|using|vacuum|values|view|virtual|when|where|window|with|without)\\b",
+            "name": "keyword.other.sql.sqlite"
+        },
+        "name": {
+            "patterns": [{
+                "include": "#doublequoted-name"
+            }, {
+                "include": "#backquoted-name"
+            }, {
+                "include": "#bare-name"
+            }]
+        },
+        "bare-name": {
+            "match": "\\b(?i)(?!abort|action|add|after|all|alter|analyze|and|as|asc|attach|autoincrement|before|begin|between|by|cascade|case|cast|check|collate|column|commit|conflict|constraint|create|cross|current|current_date|current_time|current_timestamp|database|default|deferrable|deferred|delete|desc|detach|distinct|do|drop|each|else|end|escape|except|exclusive|exists|explain|fail|filter|following|for|foreign|from|full|glob|group|having|if|ignore|immediate|in|index|indexed|initially|inner|insert|instead|intersect|into|is|isnull|join|key|left|like|limit|match|natural|no|not|nothing|notnull|null|of|offset|on|or|order|outer|over|partition|plan|pragma|preceding|primary|query|raise|range|recursive|references|regexp|reindex|release|rename|replace|restrict|right|rollback|row|rows|savepoint|select|set|table|temp|temporary|then|to|transaction|trigger|unbounded|union|unique|update|using|vacuum|values|view|virtual|when|where|window|with|without)\\w+\\b",
+            "name": "variable.other.bare"
+        },
+        "doublequoted-name": {
+            "begin": "\"",
+            "end": "\"(?!\")",
+            "name": "variable.other.quoted.double",
+            "patterns": [{
+                "match": "\"\"",
+                "name": "constant.character.escape.doublequote.sql.sqlite"
+            }]
+        },
+        "backquoted-name": {
+            "begin": "`",
+            "end": "`(?!`)",
+            "name": "variable.other.quoted.other",
+            "patterns": [{
+                "match": "``",
+                "name": "constant.character.escape.backquote.sql.sqlite"
+            }]
+        },
+        "bracketed-name": {
+            "begin": "[",
+            "end": "]",
+            "name": "variable.other.bracketed"
+        },
+        "numeric-literal": {
+            "match": "(?i)(?<![\\w\\.])((\\d+(\\.\\d*)?|\\.\\d+)(e[-+]?\\d+)?|0x[\\da-f]+)\\b",
+            "name": "constant.numeric.sql.sqlite"
+        },
+        "string-literal": {
+            "begin": "'",
+            "end": "'(?!')",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.begin.sql.sqlite"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.end.sql.sqlite"
+                }
+            },
+            "name": "string.quoted.single.sql.sqlite",
+            "patterns": [{
+                "match": "''",
+                "name": "constant.character.escape.singlequote.sql.sqlite"
+            }]
+        },
+        "blob-literal": {
+            "begin": "\\b(?i)x'",
+            "end": "'",
+            "name": "string.quoted.other.blob.sql.sqlite"
+        },
+        "cli-instruction": {
+            "match": "^\\.(?:(auth|backup|bail|binary|cd|changes|check|clone|databases|dbconfig|dbinfo|dump|echo|eqp|excel|exit|expert|fullschema|headers|help|import|imposter|indexes|limit|lint|load|log|mode|nullvalue|once|open|output|print|prompt|quit|read|restore|save|scanstats|schema|selftest|separator|sha3sum|shell|show|stats|system|tables|testcase|timeout|timer|trace|vfsinfo|vfslist|vfsname|width)|\\w+)\\b.*$",
+            "captures": {
+                "1": {
+                    "name": "keyword.other.cli-instruction.sql.sqlite"
+                }
+            }
+        },
+        "other-stmt": {
+            "begin": "(?i)\\b(alter|analyze|attach|begin|commit|create|delete|detach|drop|end|insert|pragma|reindex|release|replace|rollback|savepoint|update|vacuum)\\b\\s*",
+            "end": "(?=;)",
+            "name": "meta.statement.with.sql.sqlite",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.other.sql.sqlite"
+                }
+            },
+            "patterns": [{
+                "include": "#expr"
+            }]
+        }
+    }
+}

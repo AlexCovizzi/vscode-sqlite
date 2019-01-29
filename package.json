@@ -215,6 +215,13 @@
                 ]
             }
         ],
+        "grammars": [
+            {
+                "language": "sqlite",
+                "scopeName": "source.sql.sqlite",
+                "path": "./syntaxes/sqlite.tmLanguage.json"
+            }
+        ],
         "configuration": {
             "type": "object",
             "title": "SQLite Configuration",
