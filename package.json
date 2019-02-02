@@ -212,7 +212,15 @@
                     ".sqlite3",
                     ".sdb",
                     ".s3db"
-                ]
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "sqlite",
+                "scopeName": "source.sql.sqlite",
+                "path": "./syntaxes/sqlite.tmLanguage.json"
             }
         ],
         "configuration": {
