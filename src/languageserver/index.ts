@@ -1,4 +1,4 @@
-import { Disposable, languages, TextDocument } from 'vscode';
+import { Disposable, languages, TextDocument, DocumentSelector } from 'vscode';
 import { CompletionProvider } from './completionProvider';
 import { Schema } from '../common';
 
@@ -17,7 +17,7 @@ export default class LanguageServer implements Disposable {
             }
         });
 
-        let documentSelector = { scheme: 'file', language: 'sql' };
+        let documentSelector: DocumentSelector = [{ scheme: 'file', language: 'sql' }, { scheme: 'file', language: 'sqlite' }];
         this.subscriptions.push(languages.registerCompletionItemProvider(documentSelector, this.completionProvider, '.'));
     }
 
