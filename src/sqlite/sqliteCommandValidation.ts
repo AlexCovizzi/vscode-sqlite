@@ -1,6 +1,6 @@
 import { spawnSync } from 'child_process';
 import { logger } from '../logging/logger';
-import { platform } from 'os';
+import { platform, arch } from 'os';
 import { join } from 'path';
 import { existsSync } from 'fs';
 
@@ -50,6 +50,7 @@ export function isSqliteCommandValid(sqliteCommand: string) {
  */
 export function getSqliteBinariesPath(extensionPath: string): string {
     let plat = platform();
+    let os_arch = arch();
     let sqliteBin: string;
 
     // TODO: move sqlite version number to package.json and import it from there
@@ -58,7 +59,11 @@ export function getSqliteBinariesPath(extensionPath: string): string {
             sqliteBin = 'sqlite-v3.26.0-win32-x86.exe';
             break;
         case 'linux':
-            sqliteBin = 'sqlite-v3.26.0-linux-x86';
+            if (os_arch === 'x64') {
+                sqliteBin = 'sqlite-v3.26.0-linux-x64';
+            } else {
+                sqliteBin = 'sqlite-v3.26.0-linux-x86';
+            }
             break;
         case 'darwin':
             sqliteBin = 'sqlite-v3.26.0-osx-x86';
