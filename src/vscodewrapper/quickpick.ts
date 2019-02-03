@@ -43,13 +43,13 @@ export namespace QuickPick {
  * Show a Quick Pick that lets you choose a database to open from all the files in the workspace with extension .db or .sqlite
  * @param hint What to write in the QuickPick
  */
-export function pickWorkspaceDatabase(autopick: boolean, hint?: string): Thenable<string> {
+export function pickWorkspaceDatabase(autopick: boolean, includeMemory: boolean = true, hint?: string): Thenable<string> {
     const sqlite_file_extensions = ["db", "db3", "sqlite", "sqlite3", "sdb", "s3db"];
     const promise = new Promise< Array<QuickPick.DatabaseItem | QuickPick.ErrorItem | QuickPick.FileDialogItem> >((resolve) => {
         workspace.findFiles('**/*.{'+sqlite_file_extensions.join(",")+'}').then((filesUri) => {
             let fileDialogItem = new QuickPick.FileDialogItem();
             let items: Array<QuickPick.DatabaseItem | QuickPick.ErrorItem | QuickPick.FileDialogItem> = filesUri.map(uri => new QuickPick.DatabaseItem(uri.fsPath));
-            items.push(new QuickPick.DatabaseItem(":memory:", "sqlite in-memory database"));
+            if (includeMemory) items.push(new QuickPick.DatabaseItem(":memory:", "sqlite in-memory database"));
             items.push(fileDialogItem);
             resolve(items);
         });

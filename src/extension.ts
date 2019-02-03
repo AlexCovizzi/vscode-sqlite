@@ -123,7 +123,7 @@ function runDocumentQuery() {
 }
 
 function quickQuery() {
-    pickWorkspaceDatabase(false).then(dbPath => {
+    pickWorkspaceDatabase(false, true).then(dbPath => {
         if (dbPath) {
             showQueryInputBox(dbPath).then(query => {
                 if (query) runQuery(dbPath, query, true);
@@ -134,7 +134,7 @@ function quickQuery() {
 
 function useDatabase(): Thenable<string> {
     let sqlDocument = getEditorSqlDocument();
-    return pickWorkspaceDatabase(false).then(dbPath => {
+    return pickWorkspaceDatabase(false, true).then(dbPath => {
         if (sqlDocument && dbPath) sqlWorkspace.bindDatabaseToDocument(dbPath, sqlDocument);
         return Promise.resolve(dbPath);
     });
@@ -146,7 +146,7 @@ function explorerAdd(dbPath?: string) {
             explorer.add(schema);
         });
     } else {
-        pickWorkspaceDatabase(false).then(dbPath => {
+        pickWorkspaceDatabase(false, false).then(dbPath => {
             if (dbPath) explorerAdd(dbPath);
         });
     }
