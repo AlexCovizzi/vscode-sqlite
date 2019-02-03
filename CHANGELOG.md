@@ -1,5 +1,18 @@
 # Change Log
 
+## 0.5.0 (3 Feb 2019)
+
+Added
+1. Added language ```sqlite``` (thanks to [mandel59](https://github.com/mandel59)).
+
+Fixed
+1. Fixed bug on Windows that prevented the result view from being show when the extension was not on the same disk as Visual Studio Code (thanks to [mandel59](https://github.com/mandel59))
+2. Fixed bug on Windows that replaced unicode characters in the database path and in the query with question marks (thanks to [mandel59](https://github.com/mandel59))
+3. Fixed bug that sometimes prevented the the last line of the table in the result view from being shown.
+4. The result view is now kept open when there is an error in the query.
+5. Removed system tables (```sqlite_sequence``` and ```sqlite_stat1```) from the sqlite explorer.
+6. Removed ```:memory:``` from the databases you can choose when adding a database to the explorer.
+
 ## 0.4.0 (18 Jan 2019)
 
 Added
@@ -14,7 +27,7 @@ Fixed
 2. Fixed bug that sometimes truncated the error message.
 
 Added
-1. Command: ```SQLite: Show output```, to show the extension's output channel.
+1. Added command: ```SQLite: Show output```, to show the extension's output channel.
 
 Other
 1. Updated SQLite3 binaries to the version 3.26.0
@@ -27,12 +40,12 @@ Fixed
 ## 0.3.1 (5 Sep 2018)
 
 Added
-1. Autocompletion for sqlite keywords, table names, column names.
+1. Added autocompletion for sqlite keywords, table names, column names.
 2. Added ```.db3```, ```.sdb```, ```.s3db``` as recognized extensions for an sqlite3 database (thanks to [LokiSharp](https://github.com/LokiSharp))
 3. Added support for binary data, now displayed as hex string
 
 Fixed
-1. Fixed issue that prevented the correct execution of queries on tables with the same name as sqlite keywords (e.g Order, Select, Table...)
+1. Fixed bug that prevented the correct execution of queries on tables with the same name as sqlite keywords (e.g Order, Select, Table...)
 
 ## 0.3.0 (2 Sep 2018)
 

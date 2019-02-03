@@ -5,13 +5,9 @@ VSCode extension to explore and query SQLite databases.
 ![static/sqlite_workflow_1](https://raw.githubusercontent.com/AlexCovizzi/vscode-sqlite/master/static/sqlite_workflow_1.gif "SQLite Workflow")
 
 ## Requirements
-#### Windows, OS X
 No requirements
 
-#### Linux
-**sqlite3** installed in the system or **sqlite3 binaries** (at least version 3.9) that include the command line interface.
-
-The extension will first look for the sqlite3 command (or the command/path specified in the `sqlite.sqlite3` setting), if not found it will fallback to the binaries in this extension's bin folder.
+**Note**: The extension includes binaries for the sqlite cli (used to execute queries), in case the included binaries do not work you need to provide your own path/command for the sqlite cli in the setting `sqlite.sqlite3`
 
 ## Features
 
