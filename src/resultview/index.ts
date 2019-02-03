@@ -30,12 +30,13 @@ export default class ResultView extends CustomView implements Disposable {
             this.resultSet = resultSet;
         } else {
             resultSet.then(rs => {
-                this.resultSet = rs;
-                if (this.resultSet) {
+                this.resultSet = rs? rs : [];
+                
+                //if (this.resultSet) {
                     if (this.msgQueue) this.msgQueue.forEach(this.handleMessage.bind(this));
-                } else {
-                    this.dispose();
-                }
+                //} else {
+                    //this.dispose();
+                //}
             });
         }
     }

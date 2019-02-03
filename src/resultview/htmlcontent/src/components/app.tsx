@@ -21,10 +21,10 @@ export default class App extends Component {
                                                     <ExportCsv right={true} />
                                                     <ExportJson right={true} />
                                                     <ExportHtml right={true} />
-                                                </Header>)
+                                                  </Header>)
                         }
                         {response.loading && <div class={style.loader_line}></div>}
-                        {response.data && range(0,response.data-1).map(idx => <Result idx={idx}/>)}
+                        {response.data > 0 && range(0,response.data-1).map(idx => <Result idx={idx}/>)}
                         </div>
                     }
                 </Fetch>
