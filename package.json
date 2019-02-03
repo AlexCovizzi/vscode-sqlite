@@ -92,7 +92,7 @@
                 "command": "sqlite.runDocumentQuery",
                 "key": "ctrl+shift+q",
                 "mac": "cmd+shift+q",
-                "when": "editorLangId == sql"
+                "when": "editorLangId =~ /(sql|sqlite)/"
             }
         ],
         "views": {
@@ -116,7 +116,8 @@
                 },
                 {
                     "command": "sqlite.explorer.remove",
-                    "group": "sqlite"
+                    "group": "sqlite",
+                    "when": "sqlite.explorer.show"
                 },
                 {
                     "command": "sqlite.newQuery",
@@ -128,12 +129,12 @@
                 },
                 {
                     "command": "sqlite.runDocumentQuery",
-                    "when": "editorLangId == sql",
+                    "when": "editorLangId =~ /(sql|sqlite)/",
                     "group": "sqlite"
                 },
                 {
                     "command": "sqlite.useDatabase",
-                    "when": "editorLangId == sql",
+                    "when": "editorLangId =~ /(sql|sqlite)/",
                     "group": "sqlite"
                 },
                 {
@@ -151,19 +152,19 @@
             ],
             "explorer/context": [
                 {
-                    "when": "resourceLangId == sqlite",
+                    "when": "resourceExtname =~ /\\.(db|db3|sdb|s3db|sqlite|sqlite3)/",
                     "command": "sqlite.explorer.add",
                     "group": "navigation"
                 }
             ],
             "editor/context": [
                 {
-                    "when": "editorTextFocus && editorLangId == sql",
+                    "when": "editorTextFocus && editorLangId =~ /(sql|sqlite)/",
                     "command": "sqlite.runDocumentQuery",
                     "group": "sqlite@2"
                 },
                 {
-                    "when": "editorTextFocus && editorLangId == sql",
+                    "when": "editorTextFocus && editorLangId =~ /(sql|sqlite)/",
                     "command": "sqlite.useDatabase",
                     "group": "sqlite@1"
                 }
@@ -205,13 +206,11 @@
         "languages": [
             {
                 "id": "sqlite",
+                "aliases": ["SQLite", "SQLite3"],
+                "firstLine": "\\s*--\\s*(sql|SQL)ite",
                 "extensions": [
-                    ".db",
-                    ".db3",
-                    ".sqlite",
-                    ".sqlite3",
-                    ".sdb",
-                    ".s3db"
+                    ".sql",
+                    "sql3"
                 ],
                 "configuration": "./language-configuration.json"
             }
@@ -241,7 +240,7 @@
                         "ERROR"
                     ],
                     "default": "INFO",
-                    "description": "Logging level in the output channel."
+                    "description": "Logging level in the output channel (DEBUG, INFO, WARN, ERROR)"
                 },
                 "sqlite.recordsPerPage": {
                     "type": "number",

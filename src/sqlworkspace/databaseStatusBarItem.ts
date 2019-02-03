@@ -22,7 +22,7 @@ export class DatabaseStatusBarItem implements Disposable {
     }
 
     update() {
-        let doc = window.activeTextEditor && window.activeTextEditor.document.languageId === 'sql'? window.activeTextEditor.document : undefined;
+        let doc = window.activeTextEditor && (window.activeTextEditor.document.languageId === 'sql' || window.activeTextEditor.document.languageId === 'sqlite')? window.activeTextEditor.document : undefined;
 
         if (doc) {
             let db = this.documentDatabase.get(doc);
