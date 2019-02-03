@@ -15,7 +15,7 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 ## Features
 
-* **Query** SQLite3 databases and view results in a table.
+* **Query** sqlite databases and view results in a table.
 
 * **Export** query results to ```json```, ```csv``` and ```html```.
 
@@ -23,15 +23,17 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 * **Autocompletion** for sqlite keywords, table and views names, column names (autocompletion is available for an sql document once its bound to a database, to bind an sql document to a database use the command ```SQLite: Use Database```)
 
+* **Grammar** support for sqlite keywords. This is available for documents with language ```sqlite```. You can mark a document as an ```sqlite``` document adding ```-- sqlite``` in the first line.
+
 ## Commands
 
-* **SQLite: New Query** &nbsp; Create new untitled ```sql``` file.
+* **SQLite: New Query** &nbsp; Create a new untitled ```sqlite``` file.
 
 * **SQLite: Run Query** &nbsp; Execute query script in the editor.
 
-* **SQLite: Quick Query** &nbsp; Choose a database and execute a query without creating a new ```sql``` document.
+* **SQLite: Quick Query** &nbsp; Choose a database and execute a query without creating a new document.
 
-* **SQLite: Use Database** &nbsp; Bind current ```sql``` document to the selected database.
+* **SQLite: Use Database** &nbsp; Bind current document to the selected database.
 
 * **SQLite: Open Database in Explorer** &nbsp; Open the selected database in the sidebar explorer.
 
@@ -52,4 +54,8 @@ The extension will first look for the sqlite3 command (or the command/path speci
 
 ## Known Issues
 
-1. On Windows, unicode characters are not interpreted correctely (they are substituted with the question mark "?" character).
+No known issues.
+
+## Thanks to the [Contributors](https://github.com/AlexCovizzi/vscode-sqlite/graphs/contributors)!
+* [mandel59 (Ryusei YAMAGUCHI)](https://github.com/mandel59)
+* [LokiSharp (LokiSharp)](https://github.com/LokiSharp)
