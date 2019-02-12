@@ -17,7 +17,7 @@ export default class LanguageServer implements Disposable {
             }
         });
 
-        let documentSelector: DocumentSelector = [{ scheme: 'file', language: 'sql' }, { scheme: 'file', language: 'sqlite' }];
+        let documentSelector: DocumentSelector = [{ language: 'sql' }, { language: 'sqlite' }];
         this.subscriptions.push(languages.registerCompletionItemProvider(documentSelector, this.completionProvider, '.'));
     }
 
