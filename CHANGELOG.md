@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.5.1 (20 Feb 2019)
+
+Fixed
+1. Fixed bug that caused intellisense to not work on ```New Query``` document ([#55](https://github.com/AlexCovizzi/vscode-sqlite/issues/55))
+
 ## 0.5.0 (3 Feb 2019)
 
 Added
@@ -8,7 +13,7 @@ Added
 Fixed
 1. Fixed bug on Windows that prevented the result view from being show when the extension was not on the same disk as Visual Studio Code (thanks to [mandel59](https://github.com/mandel59))
 2. Fixed bug on Windows that replaced unicode characters in the database path and in the query with question marks (thanks to [mandel59](https://github.com/mandel59))
-3. Fixed bug that sometimes prevented the the last line of the table in the result view from being shown.
+3. Fixed bug that sometimes prevented the last line of the table in the result view from being shown.
 4. The result view is now kept open when there is an error in the query.
 5. Removed system tables (```sqlite_sequence``` and ```sqlite_stat1```) from the sqlite explorer.
 6. Removed ```:memory:``` from the databases you can choose when adding a database to the explorer.
