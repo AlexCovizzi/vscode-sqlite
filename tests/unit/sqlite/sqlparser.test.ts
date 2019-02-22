@@ -1,4 +1,4 @@
-import * as sqlparser from '../../src/sqlite/sqlparser';
+import * as sqlparser from '../../../src/sqlite/sqlparser';
 
 describe("SQLParser Tests", function () {
 

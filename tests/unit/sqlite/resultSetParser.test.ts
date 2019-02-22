@@ -1,4 +1,4 @@
-import { ResultSetParser } from '../../src/sqlite/resultSetParser';
+import { ResultSetParser } from '../../../src/sqlite/resultSetParser';
 
 describe("ResultSetParser Tests", function () {
 

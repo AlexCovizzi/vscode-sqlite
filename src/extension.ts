@@ -140,26 +140,36 @@ function useDatabase(): Thenable<string> {
     });
 }
 
-function explorerAdd(dbPath?: string) {
+function explorerAdd(dbPath?: string): Thenable<void> {
     if (dbPath) {
-        sqlite.schema(configuration.sqlite3, dbPath).then(schema => {
-            explorer.add(schema);
+        return sqlite.schema(configuration.sqlite3, dbPath).then(schema => {
+            return explorer.add(schema);
         });
     } else {
-        pickWorkspaceDatabase(false, false).then(dbPath => {
-            if (dbPath) explorerAdd(dbPath);
-        });
+        return pickWorkspaceDatabase(false, false).then(
+            dbPath => {
+                if (dbPath) return explorerAdd(dbPath);
+            },
+            onrejected => {
+                // fail silently
+            }
+        );
     }
 }
 
-function explorerRemove(dbPath?: string) {
+function explorerRemove(dbPath?: string): Thenable<void> {
     if (dbPath) {
-        explorer.remove(dbPath);
+        return Promise.resolve(explorer.remove(dbPath));
     } else {
         let dbList = explorer.list().map(db => db.path);
-        pickListDatabase(true, dbList).then(dbPath => {
-            if (dbPath) explorerRemove(dbPath);
-        });
+        return pickListDatabase(false, dbList).then(
+            dbPath => {
+                if (dbPath) return explorerRemove(dbPath);
+            },
+            onrejected => {
+                // fail silently
+            }
+        );
     }
 }
 

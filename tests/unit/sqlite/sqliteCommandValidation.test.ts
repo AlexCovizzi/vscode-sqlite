@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import * as sqliteCommandValidation from '../../src/sqlite/sqliteCommandValidation';
+import * as sqliteCommandValidation from '../../../src/sqlite/sqliteCommandValidation';
 import { platform } from 'os';
 import { join } from 'path';
 import { execSync } from 'child_process';

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { getConfiguration } from "../../src/configuration";
-import { Level } from "../../src/logging/logger";
+import { getConfiguration } from "../../../src/configuration";
+import { Level } from "../../../src/logging/logger";
 
 jest.mock("vscode");
 //jest.mock("../../src/utils/cmdSqlite3Utils");
@@ -33,7 +33,7 @@ describe("configuration", () => {
             });
             
             let configuration = getConfiguration();
-            let expected = require('../../package.json').contributes.configuration.properties["sqlite.recordsPerPage"]["default"];
+            let expected = require('../../../package.json').contributes.configuration.properties["sqlite.recordsPerPage"]["default"];
 
             expect(configuration.recordsPerPage).toBe(expected);
 
@@ -55,7 +55,7 @@ describe("configuration", () => {
 
 
         test("logLevel should return the default value if the value supplied is not valid", () => {
-            let expected = require('../../package.json').contributes.configuration.properties["sqlite.logLevel"]["default"];
+            let expected = require('../../../package.json').contributes.configuration.properties["sqlite.logLevel"]["default"];
 
             (vscode.workspace.getConfiguration as any) = jest.fn(() => {
                 return {

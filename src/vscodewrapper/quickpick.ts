@@ -22,7 +22,7 @@ export namespace QuickPick {
         picked?: boolean;
         
         constructor() {
-            this.label = "Choose another database";
+            this.label = "Choose database from file";
             this.description = "";
         }
     }

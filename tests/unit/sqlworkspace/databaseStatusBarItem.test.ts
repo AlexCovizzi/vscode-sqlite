@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import * as documentDatabase from '../../src/sqlworkspace/documentDatabaseBindings';
-import { DatabaseStatusBarItem } from '../../src/sqlworkspace/databaseStatusBarItem';
+import * as documentDatabase from '../../../src/sqlworkspace/documentDatabaseBindings';
+import { DatabaseStatusBarItem } from '../../../src/sqlworkspace/databaseStatusBarItem';
 
 jest.mock("vscode");
-jest.mock("../../src/sqlworkspace/documentDatabaseBindings");
+jest.mock("../../../src/sqlworkspace/documentDatabaseBindings");
 
 describe("docDatabaseStatusBar.ts", () => {
 

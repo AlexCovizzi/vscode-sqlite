@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import * as treeProvider from '../../src/explorer/explorerTreeProvider';
-import Explorer from '../../src/explorer';
-import { Constants } from '../../src/constants/constants';
+import * as treeProvider from '../../../src/explorer/explorerTreeProvider';
+import Explorer from '../../../src/explorer';
+import { Constants } from '../../../src/constants/constants';
 
 jest.mock("vscode");
-jest.mock("../../src/explorer/explorerTreeProvider");
+jest.mock("../../../src/explorer/explorerTreeProvider");
 
 describe("explorer", () => {
 
@@ -22,7 +22,7 @@ describe("explorer", () => {
         });
 
         test("add should add to the tree the database object passed as argument", () => {
-            const database: treeProvider.Database = {path: "fake_db", tables: []};
+            const database = {path: "fake_db", tables: []};
 
             const mockExplorerTreeProvider = {addToTree: jest.fn()};
             (treeProvider.ExplorerTreeProvider as any) = jest.fn().mockImplementation(() => {

@@ -1,4 +1,4 @@
-import * as utils from '../../src/utils/utils';
+import * as utils from '../../../src/utils/utils';
 
 describe("utils.ts", () => {
 
