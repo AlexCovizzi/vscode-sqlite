@@ -261,7 +261,7 @@
         "build-html": "cd ./src/resultview/htmlcontent && npm run build",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "jest --config jest.json"
+        "test": "jest --silent --config jest.json"
     },
     "devDependencies": {
         "@types/csv-stringify": "^1.4.3",
