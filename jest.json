@@ -2,7 +2,7 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
-    "testRegex": "(tests/(?!__mocks__).*|(\\.|/)(test|spec))\\.(tsx?)$",
+    "testRegex": "(tests\/.*(\\.|/)(test|spec))\\.(tsx?)$",
     "moduleFileExtensions": [
       "ts",
       "tsx",
@@ -10,5 +10,10 @@
       "jsx",
       "json",
       "node"
-    ]
+    ],
+    "globals": {
+        "ts-jest": {
+          "diagnostics": false
+        }
+      }
 }
