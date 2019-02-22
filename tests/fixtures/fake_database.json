@@ -1,0 +1,68 @@
+{
+    "tables": [
+        {
+            "name": "company",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "TEXT",
+                    "notnull": true,
+                    "pk": 1
+                },
+                {
+                    "name": "name",
+                    "type": "TEXT",
+                    "notnull": false,
+                    "pk": 0
+                },
+                {
+                    "name": "email",
+                    "type": "TEXT",
+                    "notnull": false,
+                    "pk": 0
+                },
+                {
+                    "name": "city",
+                    "type": "TEXT",
+                    "notnull": false,
+                    "pk": 0
+                }
+            ],
+            "records": [
+
+            ]
+        },
+        {
+            "name": "customer",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "TEXT",
+                    "notnull": true,
+                    "pk": 1
+                },
+                {
+                    "name": "name",
+                    "type": "TEXT",
+                    "notnull": false,
+                    "pk": 0
+                },
+                {
+                    "name": "lastname",
+                    "type": "TEXT",
+                    "notnull": false,
+                    "pk": 0
+                },
+                {
+                    "name": "address",
+                    "type": "TEXT",
+                    "notnull": false,
+                    "pk": 0
+                }
+            ],
+            "records": [
+                
+            ]
+        }
+    ]
+}
