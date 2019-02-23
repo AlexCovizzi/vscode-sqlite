@@ -1,6 +1,6 @@
 import { join, normalize } from "path";
 import sqlite3 = require('sqlite3');
-import { unlink, closeSync, openSync } from "fs";
+import { unlink } from "fs";
 import { randomString } from "../../src/utils/utils";
 
 export interface DatabaseFixture {name: string; path: string; tables: [{name: string; columns: [{name: string; type: string; notnull: boolean; pk: Number}]}];}

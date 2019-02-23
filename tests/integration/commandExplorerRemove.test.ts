@@ -14,6 +14,9 @@ describe(`Command: ${Commands.explorerRemove}`, () => {
     const DATABASE_FIXTURE_NAME = "fake_database";
 
     let databaseFixture: DatabaseFixture;
+    let treeDataProvider: vscode.TreeDataProvider<any>;
+    let explorerAddCallback: any;
+    let explorerRemoveCallback: any;
 
     beforeAll(async () => {
         databaseFixture = await setupDatabaseFixture(DATABASE_FIXTURE_NAME);
@@ -26,6 +29,13 @@ describe(`Command: ${Commands.explorerRemove}`, () => {
     beforeEach(async () => {
         let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", "..")};
         await extension.activate(context);
+
+        // retrieve the tree data provider created in activate() with name Constants.sqliteExplorerViewId
+        let createTreeViewCall = getMockCallWhereParamEquals((vscode.window.createTreeView as jest.Mock).mock, 0, Constants.sqliteExplorerViewId);
+        treeDataProvider = createTreeViewCall[1].treeDataProvider;
+        // retrieve callback for the registered commands
+        explorerAddCallback = getRegisteredCommandCallback(Commands.explorerAdd);
+        explorerRemoveCallback = getRegisteredCommandCallback(Commands.explorerRemove);
     });
 
     afterEach(() => {
@@ -33,15 +43,10 @@ describe(`Command: ${Commands.explorerRemove}`, () => {
     });
 
     test(`command ${Commands.explorerRemove} should remove the selected database from the explorer when executed from the tree item context menu`, async () => {
-        // we retrieve the tree data provider created in activate() with name Constants.sqliteExplorerViewId
-        let createTreeViewCall = getMockCallWhereParamEquals((vscode.window.createTreeView as jest.Mock).mock, 0, Constants.sqliteExplorerViewId);
-        let treeDataProvider: vscode.TreeDataProvider<any> = createTreeViewCall[1].treeDataProvider;
+        expect.assertions(2);
         
         // this is the uri of the database we are opening
         let uri = {scheme: "file", fsPath: databaseFixture.path};
-        let explorerAddCallback = getRegisteredCommandCallback(Commands.explorerAdd);
-
-        let explorerRemoveCallback = getRegisteredCommandCallback(Commands.explorerRemove);
 
         await explorerAddCallback(uri);
 
@@ -60,9 +65,7 @@ describe(`Command: ${Commands.explorerRemove}`, () => {
     });
     
     test(`command ${Commands.explorerRemove} should remove the database selected from quickpick when executed from the command palette`, async () => {
-        // we retrieve the tree data provider created in activate() with name Constants.sqliteExplorerViewId
-        let createTreeViewCall = getMockCallWhereParamEquals((vscode.window.createTreeView as jest.Mock).mock, 0, Constants.sqliteExplorerViewId);
-        let treeDataProvider: vscode.TreeDataProvider<any> = createTreeViewCall[1].treeDataProvider;
+        expect.assertions(5);
 
         // the quickpick returns the fake database item, that is the first item
         (vscode.window.showQuickPick as any) = jest.fn().mockImplementation(async (quickPickItems, options, token) => {
@@ -72,15 +75,13 @@ describe(`Command: ${Commands.explorerRemove}`, () => {
 
         // this is the uri of the database we are opening
         let uri = {scheme: "file", fsPath: databaseFixture.path};
-        let explorerAddCallback = getRegisteredCommandCallback(Commands.explorerAdd);
-
-        let explorerRemoveCallback = getRegisteredCommandCallback(Commands.explorerRemove);
 
         // add the fake database to the explorer
         await explorerAddCallback(uri);
 
         await explorerRemoveCallback();
 
+        expect(vscode.window.showQuickPick).toHaveBeenCalledTimes(1);
         let quickPickItems: vscode.QuickPickItem[] = await (vscode.window.showQuickPick as jest.Mock).mock.calls[0][0];
         // the first and only item should be the fake database
         expect(quickPickItems.length).toBe(1);
@@ -96,21 +97,19 @@ describe(`Command: ${Commands.explorerRemove}`, () => {
 
     
     test(`command ${Commands.explorerRemove} should do nothing if no database is selected from the quickpick when executed from the command palette`, async () => {
-        // we retrieve the tree data provider created in activate() with name Constants.sqliteExplorerViewId
-        let createTreeViewCall = getMockCallWhereParamEquals((vscode.window.createTreeView as jest.Mock).mock, 0, Constants.sqliteExplorerViewId);
-        let treeDataProvider: vscode.TreeDataProvider<any> = createTreeViewCall[1].treeDataProvider;
+        expect.assertions(4);
 
         // no database is selected from the quickpick
         (vscode.window.showQuickPick as any) = jest.fn().mockResolvedValue(undefined);
 
         // this is the uri of the database we are opening
         let uri = {scheme: "file", fsPath: databaseFixture.path};
-        let explorerAddCallback = getRegisteredCommandCallback(Commands.explorerAdd);
-
-        let explorerRemoveCallback = getRegisteredCommandCallback(Commands.explorerRemove);
 
         // add the fake database to the explorer
         await explorerAddCallback(uri);
+
+        // make sure the treeDataProvider was updated one time
+        expect(treeDataProvider.onDidChangeTreeData).toHaveBeenCalledTimes(1);
 
         await explorerRemoveCallback();
 
@@ -120,7 +119,7 @@ describe(`Command: ${Commands.explorerRemove}`, () => {
         let databaseTreeChild = await treeDataProvider.getTreeItem(databaseTreeChildren[0]);
         expect(databaseTreeChild.label).toBe(databaseFixture.name);
 
-        // make sure the treeDataProvider was updated just one time (when we added the database)
+        // make sure the treeDataProvider was updated still just one time (when we added the database to the tree)
         expect(treeDataProvider.onDidChangeTreeData).toHaveBeenCalledTimes(1);
     });
 

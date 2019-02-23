@@ -63,6 +63,38 @@
             "records": [
                 
             ]
+        },
+        {
+            "name": "user_agent",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "TEXT",
+                    "notnull": true,
+                    "pk": 1
+                },
+                {
+                    "name": "ip",
+                    "type": "TEXT",
+                    "notnull": false,
+                    "pk": 0
+                },
+                {
+                    "name": "countrycode",
+                    "type": "TEXT",
+                    "notnull": false,
+                    "pk": 0
+                },
+                {
+                    "name": "useragent",
+                    "type": "TEXT",
+                    "notnull": false,
+                    "pk": 0
+                }
+            ],
+            "records": [
+                
+            ]
         }
     ]
 }

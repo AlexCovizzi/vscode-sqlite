@@ -18,6 +18,8 @@ describe(`Command: ${extension.Commands.showOutputChannel}`, () => {
     });
 
     test(`command ${extension.Commands.showOutputChannel} should show the output channel`, () => {
+        expect.assertions(2);
+        
         // the output channel should have been created with name Constants.outputChannelName
         expect(vscode.window.createOutputChannel).toHaveBeenCalledWith(Constants.outputChannelName);
         // retrieve the callback registered for the showOutputChannel command
@@ -29,6 +31,6 @@ describe(`Command: ${extension.Commands.showOutputChannel}`, () => {
         // retrieve the created output channel
         let mockOutputChannel = (vscode.window.createOutputChannel as jest.Mock).mock.results[0].value;
         // make sure show has been called
-        expect(mockOutputChannel.show).toHaveBeenCalled();
+        expect(mockOutputChannel.show).toHaveBeenCalledTimes(1);
     });
 });

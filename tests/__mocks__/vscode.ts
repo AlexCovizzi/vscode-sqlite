@@ -18,7 +18,9 @@ export const window = {
     createOutputChannel: jest.fn().mockReturnValue({
         show: jest.fn(),
         appendLine: jest.fn()
-    })
+    }),
+
+    showOpenDialog: jest.fn()
 };
 
 export const workspace = {

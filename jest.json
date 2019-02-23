@@ -11,9 +11,10 @@
       "json",
       "node"
     ],
+    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
     "globals": {
         "ts-jest": {
           "diagnostics": false
         }
-      }
+    }
 }
