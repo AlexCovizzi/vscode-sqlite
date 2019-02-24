@@ -14,7 +14,8 @@
     "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
     "globals": {
         "ts-jest": {
-          "diagnostics": false
+            "diagnostics": false,
+            "tsConfig": "<rootDir>/tests/tsconfig.json"
         }
     }
 }

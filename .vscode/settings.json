@@ -1,9 +1,18 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "files.exclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true,
         "out": false // set this to true to hide the "out" folder with the compiled JS files
     },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true
+    },
     "search.exclude": {
+        "**/node_modules/*/**": true,
         "out": true // set this to false to include "out" folder in search results
     },
     "jest.autoEnable": false
