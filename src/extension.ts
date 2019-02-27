@@ -67,12 +67,12 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     }));
     
     context.subscriptions.push(commands.registerCommand(Commands.explorerAdd, (dbUri?: Uri) => {
-        let dbPath = dbUri? dbUri.fsPath : dbUri;
+        let dbPath = dbUri? dbUri.fsPath : undefined;
         return explorerAdd(dbPath);
     }));
     
     context.subscriptions.push(commands.registerCommand(Commands.explorerRemove, (db?: {path: string}) => {
-        let dbPath = db? db.path : db;
+        let dbPath = db? db.path : undefined;
         return explorerRemove(dbPath);
     }));
     
@@ -85,7 +85,7 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     }));
     
     context.subscriptions.push(commands.registerCommand(Commands.newQuery, (db?: {path: string}) => {
-        let dbPath = db? db.path : db;
+        let dbPath = db? db.path : undefined;
         return newQuery(dbPath);
     }));
     
@@ -142,16 +142,20 @@ function useDatabase(): Thenable<string> {
 
 function explorerAdd(dbPath?: string): Thenable<void> {
     if (dbPath) {
-        return sqlite.schema(configuration.sqlite3, dbPath).then(schema => {
-            return explorer.add(schema);
-        });
+        return sqlite.schema(configuration.sqlite3, dbPath).then(
+            schema => {
+                return explorer.add(schema);
+            },
+            onrejected => {
+                //showErrorMessage("Failed to add the database to the explorer");
+            });
     } else {
         return pickWorkspaceDatabase(false, false).then(
             dbPath => {
                 if (dbPath) return explorerAdd(dbPath);
             },
             onrejected => {
-                // fail silently
+                // No database selected
             }
         );
     }
