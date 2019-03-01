@@ -1,4 +1,5 @@
 import { h, Component } from 'preact';
+import { sanitizeStringForHtml } from '../../../utils/utils';
 
 interface Props {
     row?: string[];
@@ -25,7 +26,7 @@ export class TRow extends Component<Props, State> {
             for (let i=0; i<nextProps.row.length + 1; i++) {
                 let td = this.base.children[i];
                 if (i===0) td.innerHTML = (nextProps.n+1).toString();
-                else td.innerHTML = nextProps.row[i-1];
+                else td.innerHTML = sanitizeStringForHtml(nextProps.row[i-1]);
             }
         } else {
             this.base.setAttribute('style', 'visibility: hidden;');
