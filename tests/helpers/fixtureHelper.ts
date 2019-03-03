@@ -1,4 +1,4 @@
-import { join, normalize } from "path";
+import { join } from "path";
 import sqlite3 = require('sqlite3');
 import { unlink } from "fs";
 import { randomString } from "../../src/utils/utils";

@@ -20,7 +20,9 @@ export const window = {
         appendLine: jest.fn()
     }),
 
-    showOpenDialog: jest.fn()
+    showOpenDialog: jest.fn(),
+
+    setStatusBarMessage: jest.fn()
 };
 
 export const workspace = {

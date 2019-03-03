@@ -1,15 +1,16 @@
 'use strict';
 
-import { ExtensionContext, commands, Uri, TextDocument, workspace } from 'vscode';
+import { ExtensionContext, commands, Uri, TextDocument, workspace, window } from 'vscode';
 import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection, showErrorMessage } from './vscodewrapper';
 import { logger } from './logging/logger';
 import { getConfiguration, Configuration } from './configuration';
 import { Constants } from './constants/constants';
 import SqlWorkspace from './sqlworkspace';
 import SQLite from './sqlite';
-import Explorer from './explorer';
 import ResultView from './resultview';
 import LanguageServer from './languageserver';
+import * as clipboardy from 'clipboardy';
+import Explorer from './explorer';
 
 export namespace Commands {
     export const showOutputChannel = "sqlite.showOutputChannel";
@@ -17,6 +18,9 @@ export namespace Commands {
     export const useDatabase: string = 'sqlite.useDatabase';
     export const explorerAdd: string = 'sqlite.explorer.add';
     export const explorerRemove: string = 'sqlite.explorer.remove';
+    export const explorerCopyName: string = 'sqlite.explorer.copyName';
+    export const explorerCopyPath: string = 'sqlite.explorer.copyPath';
+    export const explorerCopyRelativePath: string = 'sqlite.explorer.copyRelativePath';
     export const explorerRefresh: string = 'sqlite.explorer.refresh';
     export const newQuery: string = 'sqlite.newQuery';
     export const quickQuery: string = 'sqlite.quickQuery';
@@ -71,8 +75,8 @@ export function activate(context: ExtensionContext): Promise<boolean> {
         return explorerAdd(dbPath);
     }));
     
-    context.subscriptions.push(commands.registerCommand(Commands.explorerRemove, (db?: {path: string}) => {
-        let dbPath = db? db.path : undefined;
+    context.subscriptions.push(commands.registerCommand(Commands.explorerRemove, (item?: {path: string}) => {
+        let dbPath = item? item.path : undefined;
         return explorerRemove(dbPath);
     }));
     
@@ -80,7 +84,22 @@ export function activate(context: ExtensionContext): Promise<boolean> {
         return explorerRefresh();
     }));
     
-    context.subscriptions.push(commands.registerCommand(Commands.useDatabase, (dbPath: string) => {
+    context.subscriptions.push(commands.registerCommand(Commands.explorerCopyName, (item: {name: string}) => {
+        let name = item.name;
+        return copyToClipboard(name);
+    }));
+
+    context.subscriptions.push(commands.registerCommand(Commands.explorerCopyPath, (item: {path: string}) => {
+        let path = item.path;
+        return copyToClipboard(path);
+    }));
+
+    context.subscriptions.push(commands.registerCommand(Commands.explorerCopyRelativePath, (item: {path: string}) => {
+        let path = workspace.asRelativePath(item.path);
+        return copyToClipboard(path);
+    }));
+    
+    context.subscriptions.push(commands.registerCommand(Commands.useDatabase, () => {
         return useDatabase();
     }));
     
@@ -218,6 +237,12 @@ function runQuery(dbPath: string, query: string, display: boolean) {
     if (display) {
         resultView.display(resultSet, configuration.recordsPerPage);
     }
+}
+
+function copyToClipboard(text: string) {
+    return clipboardy.write(text).then(() => {
+        return window.setStatusBarMessage(`Copied '${text}' to clipboard.`, 2000);
+    });
 }
 
 // this method is called when your extension is deactivated
