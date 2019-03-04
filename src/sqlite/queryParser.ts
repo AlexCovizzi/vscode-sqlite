@@ -1,4 +1,4 @@
-import { Statement, StatementType } from "./statement";
+import { Statement, StatementType } from "./interfaces/statement";
 
 export function extractStatements(query: string): Statement[] {
     let statements: Statement[] = [];
