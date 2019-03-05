@@ -25,8 +25,7 @@ describe('CliDatabase Tests', () => {
             expect(isRunning(database.pid)).toBeFalsy();
         });
 
-        database.select("select 'row';", fail);
-        database.info(".print 'row'", fail);
+        database.execute("select 'row';", fail);
         database.close(fail);
 
         wait(100).then(done);
@@ -40,8 +39,7 @@ describe('CliDatabase Tests', () => {
             expect(isRunning(database.pid)).toBeFalsy();
         });
 
-        database.select("select 'row';", fail);
-        database.info(".print 'row'", fail);
+        database.execute("select 'row';", fail);
         database.close(fail);
 
         wait(100).then(done);
@@ -57,8 +55,7 @@ describe('CliDatabase Tests', () => {
             expect(isRunning(database.pid)).toBeFalsy();
         });
 
-        database.select("select 'row';", fail);
-        database.info(".print 'row'", fail);
+        database.execute("select 'row';", fail);
         database.close(fail);
 
         wait(100).then(done);
@@ -74,8 +71,7 @@ describe('CliDatabase Tests', () => {
             expect(isRunning(database.pid)).toBeFalsy();
         });
 
-        database.select("select 'row';", fail);
-        database.info(".print 'row'", fail);
+        database.execute("select 'row';", fail);
         database.close(fail);
 
         wait(100).then(done);
@@ -88,7 +84,7 @@ describe('CliDatabase Tests', () => {
 
         let val = "this is the value in the first field of the second row";
 
-        database.select(`select '${val}';`, (rows, err) => {
+        database.execute(`select '${val}';`, (rows, err) => {
             if (err) {
                 fail(err);
             } else {
@@ -113,9 +109,9 @@ describe('CliDatabase Tests', () => {
         let callback_2 = jest.fn().mockImplementation(() => callbackOrder.push(2));
         let callback_3 = jest.fn().mockImplementation(() => callbackOrder.push(3));
         
-        database.select(`select 'ciao';`, callback_1);
-        database.select(`select 'ciao';`, callback_2);
-        database.select(`select 'ciao';`, callback_3);
+        database.execute(`select 'ciao';`, callback_1);
+        database.execute(`select 'ciao';`, callback_2);
+        database.execute(`select 'ciao';`, callback_3);
 
         database.close(() => {
             expect(callbackOrder).toEqual([1, 2, 3]);
@@ -128,79 +124,15 @@ describe('CliDatabase Tests', () => {
 
         let database = new CliDatabase("sqlite3", ":memory:");
 
-        database.info(`.print 'hello'`, (_rows, err) => {
+        database.execute(`select 'hello';`, (_rows, err) => {
             expect(err).toBeFalsy();
         });
 
-        database.select(`invalid_query;`, (_rows, err) => {
+        database.execute(`invalid_query;`, (_rows, err) => {
             expect(err).toBeTruthy();
         });
 
-        database.select(`select 'row2';`, fail);
-
-        database.close((err) => {
-            expect(err).toBeFalsy();
-            done();
-        });
-    });
-
-    test('info should callback with the text', (done) => {
-        expect.assertions(2);
-        
-        let database = new CliDatabase("sqlite3", ":memory:", fail);
-
-        let val = "this is the text";
-
-        database.exec(`select 'row2';`);
-
-        database.info(`.print '${val}'`, (text, err) => {
-            if (err) {
-                fail(err);
-            } else {
-                expect(text).toBe(val);
-            }
-        });
-
-        database.close((err) => {
-            expect(err).toBeFalsy();
-            done();
-        });
-    });
-
-    test("info should callback in the same order they are called", (done) => {
-        expect.assertions(1);
-
-        let database = new CliDatabase("sqlite3", ":memory:");
-
-        let callbackOrder: number[] = [];
-        let callback_1 = jest.fn().mockImplementation(() => callbackOrder.push(1));
-        let callback_2 = jest.fn().mockImplementation(() => callbackOrder.push(2));
-        let callback_3 = jest.fn().mockImplementation(() => callbackOrder.push(3));
-        
-        database.info(`.print 'hello'`, callback_1);
-        database.info(`.print 'hello'`, callback_2);
-        database.info(`.print 'hello'`, callback_3);
-
-        database.close(() => {
-            expect(callbackOrder).toEqual([1, 2, 3]);
-            done();
-        });
-    });
-    
-    test('info should callback with an error and close the database without errors if there is an error in the query', (done) => {
-        expect.assertions(3);
-
-        let database = new CliDatabase("sqlite3", ":memory:");
-
-        database.select(`select 'row';`, (rows, err) => {
-            expect(err).toBeFalsy();
-        });
-
-        database.info(`invalid_query;`, (_rows, err) => {
-            expect(err).toBeTruthy();
-        });
-
-        database.select(`select 'row2';`, fail);
+        database.execute(`select 'row2';`, fail);
 
         database.close((err) => {
             expect(err).toBeFalsy();
@@ -209,7 +141,7 @@ describe('CliDatabase Tests', () => {
     });
     
     test('close should callback after every query is finished, subsequent calls should callback with an error', (done) => {
-        expect.assertions(6);
+        expect.assertions(5);
 
         let database = new CliDatabase("sqlite3", ":memory:");
 
@@ -218,11 +150,11 @@ describe('CliDatabase Tests', () => {
         let callback_2 = jest.fn().mockImplementation(() => callbackOrder.push(2));
         let callback_3 = jest.fn().mockImplementation(() => callbackOrder.push(3));
 
-        database.select(`select 'row';`, callback_1);
+        database.execute(`select 'row1';`, callback_1);
 
-        database.info(`.print 'hello'`, callback_2);
+        database.execute(`select 'row2';`, callback_2);
 
-        database.select(`select 'row2';`, callback_3);
+        database.execute(`select 'row3';`, callback_3);
 
         database.close((err) => {
             expect(isRunning(database.pid)).toBeFalsy();
@@ -230,8 +162,7 @@ describe('CliDatabase Tests', () => {
             expect(callbackOrder).toEqual([1,2,3]);
         });
 
-        database.select(`select 'row2';`, (_rows, err) => expect(err).toBeTruthy());
-        database.info(`.print row2`, (_rows, err) => expect(err).toBeTruthy());
+        database.execute(`select 'row2';`, (_rows, err) => expect(err).toBeTruthy());
         database.close((err) => expect(err).toBeTruthy());
 
         wait(100).then(done);
@@ -247,11 +178,11 @@ describe('CliDatabase Tests', () => {
         let callback_2 = jest.fn().mockImplementation(() => callbackOrder.push(2));
         let callback_3 = jest.fn().mockImplementation(() => callbackOrder.push(3));
 
-        database.select(`select 'row';`, callback_1);
+        database.execute(`select 'row';`, callback_1);
 
-        database.info(`.print 'hello'`, callback_2);
+        database.execute(`select 'hello';`, callback_2);
 
-        database.select(`select hello row2;`, (_rows, err) => {
+        database.execute(`select hello row2;`, (_rows, err) => {
             expect(err).toBeTruthy();
             callback_3();
         });

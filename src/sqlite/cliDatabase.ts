@@ -5,8 +5,6 @@ import { EOL } from "os";
 import { randomString } from "../utils/utils";
 import { Database } from "./interfaces/database";
 
-type ResType = "rows"|"text"|"none";
-
 const RESULT_SEPARATOR = randomString(8); // just a random separator to recognize when there are no more rows
 
 export class CliDatabase implements Database {
@@ -17,12 +15,10 @@ export class CliDatabase implements Database {
     private csvParser: Transform;
     private startCallback?: (err: Error) => void;
     private endCallback?: (err?: Error) => void;
-    private writeCallback?: (rows: string[][], text: string, err?: Error) => void;
-    private execQueue: {stmt: string, resType: ResType, callback?: (rows: string[][], text: string, err?: Error) => void}[];
+    private writeCallback?: (rows: string[][], err?: Error) => void;
+    private execQueue: {stmt: string, callback?: (rows: string[][], err?: Error) => void}[];
     private errStr: string;
     private rows: string[][];
-    private text: string;
-    private resType: ResType;
     private busy: boolean;
 
     constructor(command: string, dbPath: string, callback?: (err: Error) => void) {
@@ -32,8 +28,6 @@ export class CliDatabase implements Database {
         this._ended = false;
         this.errStr = "";
         this.rows = [];
-        this.text = "";
-        this.resType = "none";
         this.execQueue = [];
         this.busy = false;
         
@@ -73,13 +67,14 @@ export class CliDatabase implements Database {
             this.onError(data);
         });
         
-        this.sqliteProcess.stdout.setEncoding("utf8").on("data", (data: string|Buffer) => {
+        this.sqliteProcess.stdout.pipe(this.csvParser).on("data", (data: Object) => {
             this.onData(data);
         });
-
+        /*
         this.csvParser.on("data", (data) => {
             this.onRow(data);
         });
+        */
     }
 
     close(callback?: (err?: Error) => void): void {
@@ -88,46 +83,49 @@ export class CliDatabase implements Database {
             return;
         }
         try {
-            this.run(".exit");
             this._ended = true;
             this.endCallback = callback;
+            this.execQueue.push({stmt: ".exit"});
+            if (!this.busy) {
+                this.next();
+            }
         } catch(err) {
-            //if (callback) callback(err);
+            //
         }
     }
-
-    select(statement: string, callback?: (rows: string[][], err?: Error) => void) {
-        this.run(statement, "rows", (rows, _text, err) => {
-            if (callback) callback(rows, err);
-        });
-    }
-
-    info(statement: string, callback?: (text: string, err?: Error) => void) {
-        this.run(statement, "text", (_rows, text, err) => {
-            if (callback) callback(text, err);
-        });
-    }
-
-    exec(statement: string, callback?: (err?: Error) => void) {
-        this.run(statement, "none", (_rows, _text, err) => {
-            if (callback) callback(err);
-        });
-    }
-
-    run(statement: string, resType: ResType = "none", callback?: (rows: string[][], text: string, err?: Error) => void) {
+    
+    execute(statement: string, callback?: (rows: string[][], err?: Error) => void) {
         if (this._ended) {
-            if (callback) callback([], "", new Error("SQLite process already ended."));
+            if (callback) callback([], new Error("SQLite process already ended."));
             return;
         }
-        this.execQueue.push({stmt: statement, resType: resType, callback: callback});
-        if (!this.busy) {
-            this.next();
+        // trim the statement
+        statement = statement.trim();
+
+        // ignore if it's a dot command
+        if (statement.startsWith(".")) {
+            return;
+        }
+        // add a space after EXPLAIN so that the result is a table (see: https://www.sqlite.org/eqp.html)
+        if (statement.startsWith("EXPLAIN")) {
+            let pos = "EXPLAIN".length;
+            statement = statement.slice(0, pos) + " " + statement.slice(pos);
+        }
+
+        try {
+            this.execQueue.push({stmt: statement, callback: callback});
+            if (!this.busy) {
+                this.next();
+            }
+        }catch(err) {
+            //
         }
     }
 
     private _write(text: string) {
         if (!this.sqliteProcess) return;
         
+        // add EOL at the end
         if (!text.endsWith("\n")) text += "\n";
 
         try {
@@ -154,7 +152,7 @@ export class CliDatabase implements Database {
         if (code === 0) {
             //
         } else if (code === 1 || signal) {
-            if (this.writeCallback) this.writeCallback([], "", new Error(this.errStr));
+            if (this.writeCallback) this.writeCallback([], new Error(this.errStr));
         }
         if (this._started) {
             if (this.endCallback) this.endCallback();
@@ -162,55 +160,50 @@ export class CliDatabase implements Database {
             if (this.startCallback) this.startCallback(new Error("Failed to open database"));
         }
     }
-
-    private onData(data: string|Buffer) {
+    
+    private onData(data: Object) {
         if (this.errStr) return;
-        
-        data = data.toString();
-        let lines = data.split(/\r?\n/);
-        for(let i=0, len = lines.length; i<len; i++) {
-            let line = lines[i];
-            if (line === RESULT_SEPARATOR) {
-                if (!this._started) {
-                    this._started = true;
-                }
 
-                if (this.writeCallback) this.writeCallback(this.rows, this.text.trim());
-                this.next();
-                continue;
-            }
-            if (this.resType === "rows") {
-                if (i < lines.length-1) line += "\n";
-                this.csvParser.write(Buffer.from(line, "utf8"));
-            } else if (this.resType === "text") {
-                this.text += line;
-                if (i < lines.length-1) this.text += "\n";
-            }
-        }
-    }
-
-    private onRow(data: Object) {
-        if (this.errStr) return;
         //@ts-ignore
         let row: string[] = Object.values(data);
+
+        if (row.length === 1 && row[0] === RESULT_SEPARATOR) {
+            if (!this._started) {
+                this._started = true;
+            }
+
+            if (this.writeCallback) this.writeCallback(this.rows);
+            this.next();
+            return;
+        }
+        
         this.rows.push(row);
     }
 
     private onError(data: string|Buffer) {
         this.errStr += data.toString();
-        if (this.sqliteProcess) this.sqliteProcess.kill();
+        // last part of the error output
+        if (this.errStr.endsWith("\n")) {
+            // reformat the error message
+            let match = this.errStr.match(/Error: near line [0-9]+:(?: near "(.+)":)? (.+)/);
+            if (match) {
+                let token = match[1];
+                let rest = match[2];
+                this.errStr = `${token? `near "${token}": `: ``}${rest}`;
+            }
+
+            if (this.sqliteProcess) this.sqliteProcess.kill();
+        }
+        
     }
 
     private next() {
         this.rows = [];
-        this.text = "";
-        this.resType = "none";
         let execObj = this.execQueue.shift();
         if (execObj) {
             this._write(execObj.stmt);
             this._write(`.print ${RESULT_SEPARATOR}${EOL}`);
             this.busy = true;
-            this.resType = execObj.resType;
             this.writeCallback = execObj.callback;
         } else {
             this.busy = false;
