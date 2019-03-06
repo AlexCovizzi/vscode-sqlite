@@ -1,9 +1,9 @@
 import { ChildProcess, spawn } from "child_process";
 import { Transform } from "stream";
-import * as csvparser from "csv-parser";
 import { EOL } from "os";
 import { randomString } from "../utils/utils";
 import { Database } from "./interfaces/database";
+const csvparser = require("csv-parser");
 
 const RESULT_SEPARATOR = randomString(8); // just a random separator to recognize when there are no more rows
 
@@ -16,12 +16,12 @@ export class CliDatabase implements Database {
     private startCallback?: (err: Error) => void;
     private endCallback?: (err?: Error) => void;
     private writeCallback?: (rows: string[][], err?: Error) => void;
-    private execQueue: {stmt: string, callback?: (rows: string[][], err?: Error) => void}[];
+    private execQueue: {sql: string, callback?: (rows: string[][], err?: Error) => void}[];
     private errStr: string;
     private rows: string[][];
     private busy: boolean;
 
-    constructor(command: string, dbPath: string, callback?: (err: Error) => void) {
+    constructor(private command: string, private path: string, callback?: (err: Error) => void) {
         let args = ["-csv", "-header"];
 
         this._started = false;
@@ -36,25 +36,25 @@ export class CliDatabase implements Database {
         this.csvParser = csvparser({separator: ',', strict: false, headers: false});
         
         try {
-            this.sqliteProcess = spawn(command, args, {stdio: ['pipe', "pipe", "pipe" ]});
+            this.sqliteProcess = spawn(this.command, args, {stdio: ['pipe', "pipe", "pipe" ]});
         } catch(err) {
-            let startError = new Error("SQLite process failed to start: "+err.message);
+            let startError = new Error("Database failed to open: SQLite process failed to start: "+err.message);
             setTimeout(() => this.onStartError(startError), 0);
             return;
         }
 
         this.sqliteProcess.once('error', (err: Error) => {
-            let startError = new Error("SQLite process failed to start: "+err.message);
+            let startError = new Error("Database failed to open: SQLite process failed to start: "+err.message);
             this.onStartError(startError);
         });
 
         try {
-            this._write(`.open '${dbPath}'${EOL}`);
+            this._write(`.open '${this.path}'${EOL}`);
             this._write(`select 1 from sqlite_master;${EOL}`);
             this._write(`.print ${RESULT_SEPARATOR}${EOL}`);
             this.busy = true;
         } catch(err) {
-            let startError = new Error(`Failed to open database: '${dbPath}'`);
+            let startError = new Error(`Database failed to open: '${this.path}'`);
             setTimeout(() => this.onStartError(startError), 0);
             return;
         }
@@ -70,22 +70,17 @@ export class CliDatabase implements Database {
         this.sqliteProcess.stdout.pipe(this.csvParser).on("data", (data: Object) => {
             this.onData(data);
         });
-        /*
-        this.csvParser.on("data", (data) => {
-            this.onRow(data);
-        });
-        */
     }
 
     close(callback?: (err?: Error) => void): void {
         if (this._ended) {
-            if (callback) callback(new Error("SQLite process already ended."));
+            if (callback) callback(new Error("Database is closed: SQLite process already ended."));
             return;
         }
         try {
             this._ended = true;
             this.endCallback = callback;
-            this.execQueue.push({stmt: ".exit"});
+            this.execQueue.push({sql: ".exit"});
             if (!this.busy) {
                 this.next();
             }
@@ -94,26 +89,27 @@ export class CliDatabase implements Database {
         }
     }
     
-    execute(statement: string, callback?: (rows: string[][], err?: Error) => void) {
+    execute(sql: string, callback?: (rows: string[][], err?: Error) => void) {
         if (this._ended) {
-            if (callback) callback([], new Error("SQLite process already ended."));
+            if (callback) callback([], new Error("Database is closed: SQLite process already ended."));
             return;
         }
-        // trim the statement
-        statement = statement.trim();
+
+        // trim the sql
+        sql= sql.trim();
 
         // ignore if it's a dot command
-        if (statement.startsWith(".")) {
+        if (sql.startsWith(".")) {
             return;
         }
         // add a space after EXPLAIN so that the result is a table (see: https://www.sqlite.org/eqp.html)
-        if (statement.startsWith("EXPLAIN")) {
-            let pos = "EXPLAIN".length;
-            statement = statement.slice(0, pos) + " " + statement.slice(pos);
+        if (sql.toLowerCase().startsWith("explain")) {
+            let pos = "explain".length;
+            sql = sql.slice(0, pos) + " " + sql.slice(pos);
         }
 
         try {
-            this.execQueue.push({stmt: statement, callback: callback});
+            this.execQueue.push({sql: sql, callback: callback});
             if (!this.busy) {
                 this.next();
             }
@@ -157,7 +153,7 @@ export class CliDatabase implements Database {
         if (this._started) {
             if (this.endCallback) this.endCallback();
         } else {
-            if (this.startCallback) this.startCallback(new Error("Failed to open database"));
+            if (this.startCallback) this.startCallback(new Error(`Database failed to open: '${this.path}'`));
         }
     }
     
@@ -194,14 +190,13 @@ export class CliDatabase implements Database {
 
             if (this.sqliteProcess) this.sqliteProcess.kill();
         }
-        
     }
 
     private next() {
         this.rows = [];
         let execObj = this.execQueue.shift();
         if (execObj) {
-            this._write(execObj.stmt);
+            this._write(execObj.sql);
             this._write(`.print ${RESULT_SEPARATOR}${EOL}`);
             this.busy = true;
             this.writeCallback = execObj.callback;
