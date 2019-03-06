@@ -37,9 +37,11 @@ export function activate(context: ExtensionContext): Promise<boolean> {
 
     // load configuration and reload every time it's changed
     configuration = getConfiguration();
+    logger.setLogLevel(configuration.logLevel);
     
     context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
         configuration = getConfiguration();
+        logger.setLogLevel(configuration.logLevel);
     }));
 
     // initialize modules
@@ -144,6 +146,9 @@ function explorerAdd(dbPath?: string): Thenable<void> {
     if (dbPath) {
         return sqlite.schema(configuration.sqlite3, dbPath).then(schema => {
             return explorer.add(schema);
+        }).catch((err: Error) => {
+            let message = `Failed to add to explorer database ${dbPath}: ${err.message}`;
+            showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
         });
     } else {
         return pickWorkspaceDatabase(false, false).then(
@@ -151,7 +156,7 @@ function explorerAdd(dbPath?: string): Thenable<void> {
                 if (dbPath) return explorerAdd(dbPath);
             },
             onrejected => {
-                // fail silently
+                // no database selected
             }
         );
     }
