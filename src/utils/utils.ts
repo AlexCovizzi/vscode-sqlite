@@ -110,8 +110,16 @@ export function splitNotInString(char: string, str: string) {
     return substrs;
 }
 
-export function randomString(length: number) {
-    return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
+export function randomString(length: number, extended: boolean = false) {
+    let text = "";
+    let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    if (extended) possible += "èé+*][ò@à#°ù§-_!£$%&/()=<>^ì?";
+
+    for (var i = 0; i < length; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+
+    return text;
 }
 
 export function queryObject(obj: Object, query: string): Object | undefined {

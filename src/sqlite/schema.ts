@@ -1,4 +1,4 @@
-import { execute } from "./sqlite";
+import { CliDatabase } from "./cliDatabase";
 
 export type Schema = Schema.Database;
 
@@ -40,41 +40,45 @@ export namespace Schema {
                                  AND name <> 'sqlite_sequence'
                                  AND name <> 'sqlite_stat1'
                                  ORDER BY type ASC, name ASC;`;
-            execute(sqlite3, dbPath, tablesQuery, (resultSet, error) => {
-                if (!resultSet || resultSet.length === 0) return;
-                
-                schema.tables = resultSet[0].rows.map(row => {
+
+            let database = new CliDatabase(sqlite3, dbPath, (err) => {
+                reject(err);
+            });
+
+            database.execute(tablesQuery, (rows, err) => {
+                if (err) return reject(err);
+
+                rows.shift(); // remove header from rows
+                schema.tables = rows.map(row => {
                     return {database: dbPath, name: row[0], type: row[1], columns: [] } as Schema.Table;
                 });
 
-                let columnsQuery = schema.tables.map(table => `PRAGMA table_info('${table.name}');`).join('');
-                
-                execute(sqlite3, dbPath, columnsQuery, (resultSet) => {
-                    if (!resultSet || resultSet.length === 0) return;
+                for(let table of schema.tables) {
+                    let columnQuery = `PRAGMA table_info('${table.name}');`;
+                    database.execute(columnQuery, (rows, err) => {
+                        if (err) return reject(err);
 
-                    resultSet.forEach(result => {
-                        let tableName = result.stmt.replace(/.+\(\'?(\w+)\'?\).+/, '$1');
-                        for(let i=0; i<schema.tables.length; i++) {
-                            if (schema.tables[i].name === tableName) {
-                                schema.tables[i].columns = result.rows.map(row => {
-                                    return {
-                                        database: dbPath,
-                                        table: tableName,
-                                        name: row[result.header.indexOf('name')],
-                                        type: row[result.header.indexOf('type')].toUpperCase(),
-                                        notnull: row[result.header.indexOf('notnull')] === '1' ? true : false,
-                                        pk: Number(row[result.header.indexOf('pk')]) || 0,
-                                        defVal: row[result.header.indexOf('dflt_value')]
-                                    } as Schema.Column;
-                                });
-                                break;
-                            }
-                        }
+                        if (rows.length < 2) return;
+
+                        //let tableName = result.stmt.replace(/.+\(\'?(\w+)\'?\).+/, '$1');
+                        let header: string[] = rows.shift() || [];
+                        table.columns = rows.map(row => {
+                            return {
+                                database: dbPath,
+                                table: table.name,
+                                name: row[header.indexOf('name')],
+                                type: row[header.indexOf('type')].toUpperCase(),
+                                notnull: row[header.indexOf('notnull')] === '1' ? true : false,
+                                pk: Number(row[header.indexOf('pk')]) || 0,
+                                defVal: row[header.indexOf('dflt_value')]
+                            } as Schema.Column;
+                        });
                     });
+                }
 
+                database.close(() => {
                     resolve(schema);
                 });
-
             });
         });
     }
