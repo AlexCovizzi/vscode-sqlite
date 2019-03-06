@@ -1,10 +1,8 @@
-import {execute} from "./sqlite";
 import { Schema } from "./schema";
 import { Disposable } from "vscode";
-import { SQLParser } from "./sqlparser";
-import { logger } from "../logging/logger";
 import { ResultSet } from "../common";
 import { validateSqliteCommand } from "./sqliteCommandValidation";
+import { executeQuery } from "./queryExecutor";
 
 class SQLite implements Disposable {
 
@@ -12,34 +10,32 @@ class SQLite implements Disposable {
     }
 
     query(sqliteCommand: string, dbPath: string, query: string): Promise<QueryResult> {
-        return new Promise((resolve, reject) => {
-            try {
-                sqliteCommand = validateSqliteCommand(sqliteCommand, this.extensionPath);
-            } catch(e) {
-                return resolve({error: e});
-            }
-            
-            logger.info(`SQLite: '${sqliteCommand}'`);
+        try {
+            sqliteCommand = validateSqliteCommand(sqliteCommand, this.extensionPath);
+        } catch(e) {
+            return Promise.resolve({error: e});
+        }
+        /*
+        logger.info(`SQLite: '${sqliteCommand}'`);
 
-            query = SQLParser.parse(query).join(' ');
-            logger.info(`[QUERY] ${query}`);
+        query = SQLParser.parse(query).join(' ');
+        logger.info(`[QUERY] ${query}`);
 
-            execute(sqliteCommand, dbPath, query, (resultSet, error) => {
-                return resolve({resultSet: resultSet, error: error});
-            });
+        execute(sqliteCommand, dbPath, query, (resultSet, error) => {
+            return resolve({resultSet: resultSet, error: error});
         });
+        */
+        return executeQuery(sqliteCommand, dbPath, query);
     }
     
     schema(sqliteCommand: string, dbPath: string): Promise<Schema.Database> {
-        return new Promise((resolve, reject) => {
-            try {
-                sqliteCommand = validateSqliteCommand(sqliteCommand, this.extensionPath); }
-            catch(e) {
-                return reject(e);
-            }
+        try {
+            sqliteCommand = validateSqliteCommand(sqliteCommand, this.extensionPath); }
+        catch(e) {
+            return Promise.reject(e);
+        }
 
-            return resolve(Schema.build(dbPath, sqliteCommand));
-        });
+        return Promise.resolve(Schema.build(dbPath, sqliteCommand));
     }
     
     dispose() {

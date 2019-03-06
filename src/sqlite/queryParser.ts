@@ -20,7 +20,7 @@ export function extractStatements(query: string): Statement[] {
             let nextChar = charIndex<line.length-1? line[charIndex+1] : undefined;
 
             if (isStmt) {
-                if (statement) statement.value += char;
+                if (statement) statement.sql += char;
 
                 if (!isString && char === ';') {
                     isStmt = false;
@@ -47,7 +47,7 @@ export function extractStatements(query: string): Statement[] {
                     commentChar = '';
                 }
             } else if (isCommand) {
-                if (statement) statement.value += char;
+                if (statement) statement.sql += char;
             } else if (char === ' ' || char === '\t') {
                 // skip this char
             } else if (char === '-' && nextChar === '-') {
@@ -58,10 +58,10 @@ export function extractStatements(query: string): Statement[] {
                 commentChar = '/';
             } else if (char === '.') {
                 isCommand = true;
-                statement = {value: char, position: {start: [lineIndex, charIndex], end: [lineIndex, charIndex]}, type: StatementType.COMMAND};
+                statement = {sql: char, position: {start: [lineIndex, charIndex], end: [lineIndex, charIndex]}, type: StatementType.COMMAND};
             } else if (char.match(/\w/)) {
                 isStmt = true;
-                statement = {value: char, position: {start: [lineIndex, charIndex], end: [lineIndex, charIndex]}, type: StatementType.OTHER};
+                statement = {sql: char, position: {start: [lineIndex, charIndex], end: [lineIndex, charIndex]}, type: StatementType.OTHER};
             } else {
                 throw Error("Not a valid query");
             }
@@ -80,29 +80,42 @@ export function extractStatements(query: string): Statement[] {
             commentChar = '';
         }
         if (isStmt) {
-            if (statement) statement.value += "\n";
+            if (statement) statement.sql += "\n";
         }
     }
 
-    statements = statements.map(statement => {
-        let val = statement.value.toLowerCase();
-        if (val.startsWith(StatementType.SELECT.toLowerCase())) {
-            statement.type = StatementType.SELECT;
-        } else if (val.startsWith(StatementType.INSERT.toLowerCase())) {
-            statement.type = StatementType.INSERT;
-        } else if (val.startsWith(StatementType.UPDATE.toLowerCase())) {
-            statement.type = StatementType.UPDATE;
-        } else if (val.startsWith(StatementType.EXPLAIN.toLowerCase())) {
-            statement.type = StatementType.EXPLAIN;
-        } else if (val.startsWith(StatementType.PRAGMA.toLowerCase())) {
-            statement.type = StatementType.PRAGMA;
-        } else if (val.startsWith('.')) {
-            statement.type = StatementType.COMMAND;
-        } else {
-            statement.type = StatementType.OTHER;
-        }
-        return statement;
-    });
+    // if there is only one statement that does not end with ';'
+    // we trim() and add ';' at the end
+    // Note: this behaviour is mainly for the extension command sqlite.quickQuery
+    if (statement && statements.length === 0) {
+        statement.sql = statement.sql.trim() + ';';
+        statements.push(statement);
+    }
+
+    statements.forEach(statement => statement.type = categorizeStatement(statement.sql) );
 
     return statements;
+}
+
+function categorizeStatement(sql: string): StatementType {
+    let type: StatementType;
+
+    sql = sql.toLowerCase();
+    if (sql.startsWith(StatementType.SELECT.toLowerCase())) {
+        type = StatementType.SELECT;
+    } else if (sql.startsWith(StatementType.INSERT.toLowerCase())) {
+        type = StatementType.INSERT;
+    } else if (sql.startsWith(StatementType.UPDATE.toLowerCase())) {
+        type = StatementType.UPDATE;
+    } else if (sql.startsWith(StatementType.EXPLAIN.toLowerCase())) {
+        type = StatementType.EXPLAIN;
+    } else if (sql.startsWith(StatementType.PRAGMA.toLowerCase())) {
+        type = StatementType.PRAGMA;
+    } else if (sql.startsWith('.')) {
+        type = StatementType.COMMAND;
+    } else {
+        type = StatementType.OTHER;
+    }
+
+    return type;
 }

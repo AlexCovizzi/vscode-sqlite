@@ -1,5 +1,5 @@
 export interface Statement {
-    value: string;
+    sql: string;
     type: StatementType;
     position: StatementPosition;
 }
