@@ -1,16 +1,18 @@
 
 /**
- * Sanitizes a string for html, that is:
- * '&' is replaced by '&amp'
- * '/' is replaced by '&#x2F;'
- * '<' and '>' are replaced by '&lt;' and '&gt;'
- * @param s string to sanitize
+ * Sanitizes a string for html
  */
-export function sanitizeStringForHtml(s: string): string {
-    s = s.replace(/&/g, '&amp;');
-    s = s.replace('/', '&#x2F;');
-    s = s.replace(/<(\w+)>/g, '&lt;$1&gt;');
-    return s;
+export function sanitizeStringForHtml(str: string): string {
+    let map: {[char: string]: string} = {
+        '&': "&amp;",
+        '<': "&lt;",
+        '>': "&gt;",
+        '/': "&#x2F;",
+        '"': "&quot;",
+        '\'': "&#039;"
+    };
+    
+    return str.replace(/[&<>\/"']/g, m => map[m]);
 }
 
 export function replaceEscapedOctetsWithChar(s: string) {

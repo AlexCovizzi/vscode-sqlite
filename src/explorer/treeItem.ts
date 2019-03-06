@@ -8,6 +8,7 @@ export interface SQLTree {
 export class SQLItem extends TreeItem {
 
     constructor(
+        public readonly name: string,
         public readonly label: string,
         public readonly collapsibleState: TreeItemCollapsibleState,
         public readonly command?: Command
@@ -20,6 +21,7 @@ export class DBItem extends SQLItem {
     
     constructor(public dbPath: string, command?: Command) {
         super(
+            dbPath,
             basename(dbPath),
             TreeItemCollapsibleState.Collapsed,
             command
@@ -40,8 +42,9 @@ export class DBItem extends SQLItem {
 
 export class TableItem extends SQLItem {
 
-    constructor(private name: string, private type: string, command?: Command) {
+    constructor(name: string, private type: string, command?: Command) {
         super(
+            name,
             name,
             TreeItemCollapsibleState.Collapsed,
             command
@@ -67,9 +70,10 @@ export class TableItem extends SQLItem {
 
 export class ColumnItem extends SQLItem {
 
-    constructor(private name:string, private type: string,
+    constructor(name:string, private type: string,
             private notnull: boolean, private pk: number, private defVal: string, command?: Command) {
         super(
+            name,
             name+` : ${type.toLowerCase()}`,
             TreeItemCollapsibleState.None,
             command

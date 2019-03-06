@@ -3,7 +3,7 @@
     "icon": "resources/icon/icon_128x128.png",
     "displayName": "SQLite",
     "description": "Explore and query SQLite databases.",
-    "version": "0.5.1",
+    "version": "0.5.3",
     "publisher": "alexcvzz",
     "repository": {
         "url": "https://github.com/AlexCovizzi/vscode-sqlite",
@@ -17,6 +17,7 @@
     ],
     "activationEvents": [
         "onLanguage:sql",
+        "onLanguage:sqlite",
         "onCommand:sqlite.showOutputChannel",
         "onCommand:sqlite.explorer.add",
         "onCommand:sqlite.explorer.remove",
@@ -41,6 +42,21 @@
             {
                 "command": "sqlite.explorer.remove",
                 "title": "Close Explorer Database",
+                "category": "SQLite"
+            },
+            {
+                "command": "sqlite.explorer.copyName",
+                "title": "Copy Name",
+                "category": "SQLite"
+            },
+            {
+                "command": "sqlite.explorer.copyPath",
+                "title": "Copy Path",
+                "category": "SQLite"
+            },
+            {
+                "command": "sqlite.explorer.copyRelativePath",
+                "title": "Copy Relative Path",
                 "category": "SQLite"
             },
             {
@@ -148,6 +164,21 @@
                 {
                     "command": "sqlite.explorer.refresh",
                     "when": "false"
+                },
+                {
+                    "command": "sqlite.explorer.copyName",
+                    "group": "sqlite",
+                    "when": "false"
+                },
+                {
+                    "command": "sqlite.explorer.copyPath",
+                    "group": "sqlite",
+                    "when": "false"
+                },
+                {
+                    "command": "sqlite.explorer.copyRelativePath",
+                    "group": "sqlite",
+                    "when": "false"
                 }
             ],
             "explorer/context": [
@@ -185,21 +216,42 @@
                 {
                     "command": "sqlite.newQuery",
                     "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
-                    "group": "sqlite@1"
+                    "group": "1_sql@1"
                 },
                 {
                     "command": "sqlite.runSqliteMasterQuery",
                     "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
-                    "group": "sqlite@2"
+                    "group": "2_query@1"
+                },
+                {
+                    "command": "sqlite.explorer.copyPath",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
+                    "group": "3_copy@1"
+                },
+                {
+                    "command": "sqlite.explorer.copyRelativePath",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
+                    "group": "3_copy@2"
                 },
                 {
                     "command": "sqlite.explorer.remove",
                     "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
-                    "group": "sqlite@3"
+                    "group": "4_utils@1"
                 },
                 {
                     "command": "sqlite.runTableQuery",
-                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem"
+                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
+                    "group": "2_query@1"
+                },
+                {
+                    "command": "sqlite.explorer.copyName",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
+                    "group": "3_copy@1"
+                },
+                {
+                    "command": "sqlite.explorer.copyName",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.columnItem",
+                    "group": "3_copy@1"
                 }
             ]
         },
@@ -264,6 +316,7 @@
         "test": "jest --silent --config jest.json"
     },
     "devDependencies": {
+        "@types/clipboardy": "^1.1.0",
         "@types/csv-stringify": "^1.4.3",
         "@types/jest": "^24.0.6",
         "@types/node": "^7.0.43",
@@ -277,6 +330,7 @@
     },
     "dependencies": {
         "csv-parser": "^2.2.0",
+        "clipboardy": "^1.2.3",
         "csv-stringify": "^3.1.1"
     }
 }

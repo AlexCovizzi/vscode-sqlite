@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.5.3 (1 Mar 2019)
+
+Fixed
+1. Fixed bug that caused table field with HTML code to be rendered. ([#59](https://github.com/AlexCovizzi/vscode-sqlite/issues/59))
+
 ## 0.5.1 (20 Feb 2019)
 
 Fixed

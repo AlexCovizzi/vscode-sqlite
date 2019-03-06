@@ -121,7 +121,7 @@ describe(`Command: ${Commands.explorerAdd}`, () => {
         await expect(treeDataProvider).not.toInclude(databaseFixture);
     });
 
-    test(`command ${Commands.explorerAdd} should show an error if it failed to retrieve the database info`, async () => {
+    test(`command ${Commands.explorerAdd} should show an error if it fails to retrieve the database info`, async () => {
         expect.assertions(3);
 
         // we populate the quickpick with a non existing database and return it when using showQuickPick
