@@ -61,16 +61,13 @@ export function pickWorkspaceDatabase(autopick: boolean, includeMemory: boolean 
                 if (item instanceof QuickPick.DatabaseItem) {
                     resolve(item.path);
                 } else if (item instanceof QuickPick.FileDialogItem) {
-                    // setTimeout(..., 200) is a workaround for https://github.com/AlexCovizzi/vscode-sqlite/issues/31
-                    setTimeout(() => {
-                        window.showOpenDialog({filters: {"Database": sqlite_file_extensions}}).then(fileUri => {
-                            if (fileUri) {
-                                resolve(fileUri[0].fsPath);
-                            } else {
-                                resolve();
-                            }
-                        });
-                    }, 200);
+                    window.showOpenDialog({filters: {"Database": sqlite_file_extensions}}).then(fileUri => {
+                        if (fileUri) {
+                            resolve(fileUri[0].fsPath);
+                        } else {
+                            resolve();
+                        }
+                    });
                 } else {
                     resolve();
                 }
