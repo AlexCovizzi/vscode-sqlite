@@ -11,6 +11,7 @@ import ResultView from './resultview';
 import LanguageServer from './languageserver';
 import * as clipboardy from 'clipboardy';
 import Explorer from './explorer';
+import { validateSqliteCommand } from './sqlite/sqliteCommandValidation';
 
 export namespace Commands {
     export const showOutputChannel = "sqlite.showOutputChannel";
@@ -28,6 +29,7 @@ export namespace Commands {
     export const runSqliteMasterQuery: string = 'sqlite.runSqliteMasterQuery';
 }
 
+let sqliteCommand: string;
 let configuration: Configuration;
 let languageserver: LanguageServer;
 let sqlWorkspace: SqlWorkspace;
@@ -42,10 +44,12 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     // load configuration and reload every time it's changed
     configuration = getConfiguration();
     logger.setLogLevel(configuration.logLevel);
+    setSqliteCommand(configuration.sqlite3, context.extensionPath);
     
     context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
         configuration = getConfiguration();
         logger.setLogLevel(configuration.logLevel);
+        setSqliteCommand(configuration.sqlite3, context.extensionPath);
     }));
 
     // initialize modules
@@ -57,7 +61,7 @@ export function activate(context: ExtensionContext): Promise<boolean> {
 
     languageserver.setSchemaHandler(doc => {
         let dbPath = sqlWorkspace.getDocumentDatabase(doc);
-        if (dbPath) return sqlite.schema(configuration.sqlite3, dbPath);
+        if (dbPath) return sqlite.schema(sqliteCommand, dbPath);
         else return Promise.resolve();
     });
 
@@ -163,12 +167,15 @@ function useDatabase(): Thenable<string> {
 
 function explorerAdd(dbPath?: string): Thenable<void> {
     if (dbPath) {
-        return sqlite.schema(configuration.sqlite3, dbPath).then(schema => {
-            return explorer.add(schema);
-        }).catch((err: Error) => {
-            let message = `Failed to add to explorer database ${dbPath}: ${err.message}`;
-            showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
-        });
+        return sqlite.schema(sqliteCommand, dbPath).then(
+            schema => {
+                return explorer.add(schema);
+            },
+            err => {
+                let message = `Failed to add to explorer database ${dbPath}: ${err.message}`;
+                showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
+            }
+        );
     } else {
         return pickWorkspaceDatabase(false, false).then(
             dbPath => {
@@ -201,9 +208,15 @@ function explorerRefresh() {
     let dbList = explorer.list();
     dbList.forEach(db => {
         let dbPath = db.path;
-        sqlite.schema(configuration.sqlite3, dbPath).then(schema => {
-            explorer.add(schema);
-        });
+        sqlite.schema(sqliteCommand, dbPath).then(
+            schema => {
+                explorer.add(schema);
+            },
+            err => {
+                let message = `Failed to refresh database ${dbPath}: ${err.message}`;
+                showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
+            }
+        );
     });
 }
 
@@ -225,7 +238,7 @@ function runSqliteMasterQuery(dbPath: string) {
 }
 
 function runQuery(dbPath: string, query: string, display: boolean) {
-    let resultSet = sqlite.query(configuration.sqlite3, dbPath, query).then(({resultSet, error}) => {
+    let resultSet = sqlite.query(sqliteCommand, dbPath, query).then(({resultSet, error}) => {
         // log and show if there is any error
         if (error) {
             logger.error(error.message);
@@ -237,6 +250,16 @@ function runQuery(dbPath: string, query: string, display: boolean) {
 
     if (display) {
         resultView.display(resultSet, configuration.recordsPerPage);
+    }
+}
+
+function setSqliteCommand(command: string, extensionPath: string) {
+    try {
+        sqliteCommand = validateSqliteCommand(command, extensionPath);
+    } catch(e) {
+        logger.error(e.message);
+        showErrorMessage(e.message, {title: "Show output", command: Commands.showOutputChannel});
+        sqliteCommand = "";
     }
 }
 
