@@ -5,7 +5,7 @@ import { executeQuery } from "./queryExecutor";
 
 class SQLite implements Disposable {
 
-    constructor(private extensionPath: string) {
+    constructor(_extensionPath: string) {
     }
 
     query(sqliteCommand: string, dbPath: string, query: string): Promise<QueryResult> {

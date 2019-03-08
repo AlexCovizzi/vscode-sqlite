@@ -17,7 +17,7 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
 
     logger.debug(`SQLite3 command: '${sqlite3}'`);
     logger.debug(`Database path: '${dbPath}'`);
-    logger.debug(`Query: ${query}`);
+    logger.debug(`Query:\n${query}`);
 
     // extract the statements from the query
     let statements: Statement[];
@@ -26,6 +26,8 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
     } catch(err) {
         return Promise.reject(`Unable to execute query: ${err.message}`);
     }
+
+    logger.debug(`Statements:\n${JSON.stringify(statements, null, 2)}`);
 
     let resultSet: ResultSet = [];
     let error: Error|undefined;
