@@ -1,7 +1,6 @@
 import { Schema } from "./schema";
 import { Disposable } from "vscode";
 import { ResultSet } from "../common";
-import { validateSqliteCommand } from "./sqliteCommandValidation";
 import { executeQuery } from "./queryExecutor";
 
 class SQLite implements Disposable {
@@ -10,30 +9,13 @@ class SQLite implements Disposable {
     }
 
     query(sqliteCommand: string, dbPath: string, query: string): Promise<QueryResult> {
-        try {
-            sqliteCommand = validateSqliteCommand(sqliteCommand, this.extensionPath);
-        } catch(e) {
-            return Promise.resolve({error: e});
-        }
-        /*
-        logger.info(`SQLite: '${sqliteCommand}'`);
+        if (!sqliteCommand) Promise.resolve({error: "Unable to execute query: provide a valid sqlite3 executable in the setting sqlite.sqlite3."});
 
-        query = SQLParser.parse(query).join(' ');
-        logger.info(`[QUERY] ${query}`);
-
-        execute(sqliteCommand, dbPath, query, (resultSet, error) => {
-            return resolve({resultSet: resultSet, error: error});
-        });
-        */
         return executeQuery(sqliteCommand, dbPath, query);
     }
     
     schema(sqliteCommand: string, dbPath: string): Promise<Schema.Database> {
-        try {
-            sqliteCommand = validateSqliteCommand(sqliteCommand, this.extensionPath); }
-        catch(e) {
-            return Promise.reject(e);
-        }
+        if (!sqliteCommand) Promise.resolve({error: "Unable to execute query: provide a valid sqlite3 executable in the setting sqlite.sqlite3."});
 
         return Promise.resolve(Schema.build(dbPath, sqliteCommand));
     }

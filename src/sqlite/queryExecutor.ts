@@ -15,7 +15,7 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
         return Promise.reject(new Error(`Unable to execute query: SQLite command is not valid: '${sqlite3}'`));
     }
 
-    logger.debug(`SQLite: '${sqlite3}'`);
+    logger.debug(`SQLite3 command: '${sqlite3}'`);
     logger.debug(`Database path: '${dbPath}'`);
     logger.debug(`Query: ${query}`);
 
