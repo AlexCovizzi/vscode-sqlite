@@ -1,6 +1,6 @@
 'use strict';
 
-import { ExtensionContext, commands, Uri, TextDocument, workspace, window } from 'vscode';
+import { ExtensionContext, commands, Uri, TextDocument, workspace, window, Position } from 'vscode';
 import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection, showErrorMessage } from './vscodewrapper';
 import { logger } from './logging/logger';
 import { getConfiguration, Configuration } from './configuration';
@@ -24,6 +24,8 @@ export namespace Commands {
     export const explorerCopyRelativePath: string = 'sqlite.explorer.copyRelativePath';
     export const explorerRefresh: string = 'sqlite.explorer.refresh';
     export const newQuery: string = 'sqlite.newQuery';
+    export const newQuerySelect: string = 'sqlite.newQuerySelect';
+    export const newQueryInsert: string = 'sqlite.newQueryInsert';
     export const quickQuery: string = 'sqlite.quickQuery';
     export const runTableQuery: string = 'sqlite.runTableQuery';
     export const runSqliteMasterQuery: string = 'sqlite.runSqliteMasterQuery';
@@ -112,6 +114,14 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     context.subscriptions.push(commands.registerCommand(Commands.newQuery, (db?: {path: string}) => {
         let dbPath = db? db.path : undefined;
         return newQuery(dbPath);
+    }));
+    
+    context.subscriptions.push(commands.registerCommand(Commands.newQuerySelect, (table: {database: string, name: string}) => {
+        return newQuerySelect(table.database, table.name);
+    }));
+    
+    context.subscriptions.push(commands.registerCommand(Commands.newQueryInsert, (table: {database: string, name: string}) => {
+        return newQueryInsert(table.database, table.name);
     }));
     
     context.subscriptions.push(commands.registerCommand(Commands.quickQuery, () => {
@@ -220,8 +230,51 @@ function explorerRefresh() {
     });
 }
 
-function newQuery(dbPath?: string): Thenable<TextDocument> {
-    return createSqlDocument(true).then(sqlDocument => {
+function newQuerySelect(dbPath: string, tableName: string): Thenable<void> {
+    return sqlite.schema(sqliteCommand, dbPath).then(schema => {
+        console.log(schema);
+        let schemaTable = schema.tables.find(tbl => tbl.name === tableName);
+        if (schemaTable) {
+            let contentL0 = `SELECT ${schemaTable.columns.map(c => c.name).join(", ")}`;
+            let contentL1 = `FROM \`${tableName}\`;`;
+            let content = contentL0 + "\n" + contentL1;
+            let cursorPos = new Position(1, contentL1.length-1);
+            return newQuery(dbPath, content, cursorPos).then(() => {});
+        } else {
+            let message = `Failed to create file: table '${tableName}' not found in database '${dbPath}'`;
+            logger.error(message);
+            showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
+        }
+    }).catch(err => {
+        let message = `Failed to create file: ${err.message}`;
+        logger.error(message);
+        showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
+    });
+}
+
+function newQueryInsert(dbPath: string, tableName: string): Thenable<void> {
+    return sqlite.schema(sqliteCommand, dbPath).then(schema => {
+        let schemaTable = schema.tables.find(tbl => tbl.name === tableName);
+        if (schemaTable) {
+            let contentL0 = `INSERT INTO \`${tableName}\` (${schemaTable.columns.map(c => c.name).join(", ")})`;
+            let contentL1 = `VALUES ();`;
+            let content = contentL0 + "\n" + contentL1;
+            let cursorPos = new Position(1, contentL1.length-2);
+            return newQuery(dbPath, content, cursorPos).then(() => {});
+        } else {
+            let message = `Failed to create file: table '${tableName}' not found in database '${dbPath}'`;
+            logger.error(message);
+            showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
+        }
+    }).catch(err => {
+        let message = `Failed to create file: ${err.message}`;
+        logger.error(message);
+        showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
+    });
+}
+
+function newQuery(dbPath?: string, content: string = "", cursorPos: Position = new Position(0, 0)): Thenable<TextDocument> {
+    return createSqlDocument(content, cursorPos, true).then(sqlDocument => {
         if (dbPath) sqlWorkspace.bindDatabaseToDocument(dbPath, sqlDocument);
         return Promise.resolve(sqlDocument);
     });

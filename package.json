@@ -74,6 +74,16 @@
                 }
             },
             {
+                "command": "sqlite.newQuerySelect",
+                "title": "New Query: Select",
+                "category": "SQLite"
+            },
+            {
+                "command": "sqlite.newQueryInsert",
+                "title": "New Query: Insert",
+                "category": "SQLite"
+            },
+            {
                 "command": "sqlite.quickQuery",
                 "title": "Quick Query",
                 "category": "SQLite"
@@ -179,6 +189,16 @@
                     "command": "sqlite.explorer.copyRelativePath",
                     "group": "sqlite",
                     "when": "false"
+                },
+                {
+                    "command": "sqlite.newQuerySelect",
+                    "group": "sqlite",
+                    "when": "false"
+                },
+                {
+                    "command": "sqlite.newQueryInsert",
+                    "group": "sqlite",
+                    "when": "false"
                 }
             ],
             "explorer/context": [
@@ -237,6 +257,16 @@
                     "command": "sqlite.explorer.remove",
                     "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
                     "group": "4_utils@1"
+                },
+                {
+                    "command": "sqlite.newQuerySelect",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
+                    "group": "1_sql@1"
+                },
+                {
+                    "command": "sqlite.newQueryInsert",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
+                    "group": "1_sql@2"
                 },
                 {
                     "command": "sqlite.runTableQuery",
