@@ -29,7 +29,7 @@ export class TRow extends Component<Props, State> {
                 else td.innerHTML = sanitizeStringForHtml(nextProps.row[i-1]);
             }
         } else {
-            this.base.setAttribute('style', 'visibility: hidden;');
+            this.base.setAttribute('style', 'display: none;');
         }
 
         return false;
