@@ -9,9 +9,10 @@ import SqlWorkspace from './sqlworkspace';
 import SQLite from './sqlite';
 import ResultView from './resultview';
 import LanguageServer from './languageserver';
-import * as clipboardy from 'clipboardy';
 import Explorer from './explorer';
 import { validateSqliteCommand } from './sqlite/sqliteCommandValidation';
+import Clipboard from './utils/clipboard';
+import { Schema } from './common';
 
 export namespace Commands {
     export const showOutputChannel = "sqlite.showOutputChannel";
@@ -19,10 +20,10 @@ export namespace Commands {
     export const useDatabase: string = 'sqlite.useDatabase';
     export const explorerAdd: string = 'sqlite.explorer.add';
     export const explorerRemove: string = 'sqlite.explorer.remove';
+    export const explorerRefresh: string = 'sqlite.explorer.refresh';
     export const explorerCopyName: string = 'sqlite.explorer.copyName';
     export const explorerCopyPath: string = 'sqlite.explorer.copyPath';
     export const explorerCopyRelativePath: string = 'sqlite.explorer.copyRelativePath';
-    export const explorerRefresh: string = 'sqlite.explorer.refresh';
     export const newQuery: string = 'sqlite.newQuery';
     export const newQuerySelect: string = 'sqlite.newQuerySelect';
     export const newQueryInsert: string = 'sqlite.newQueryInsert';
@@ -116,19 +117,19 @@ export function activate(context: ExtensionContext): Promise<boolean> {
         return newQuery(dbPath);
     }));
     
-    context.subscriptions.push(commands.registerCommand(Commands.newQuerySelect, (table: {database: string, name: string}) => {
-        return newQuerySelect(table.database, table.name);
+    context.subscriptions.push(commands.registerCommand(Commands.newQuerySelect, (table: Schema.Table) => {
+        return newQuerySelect(table);
     }));
     
-    context.subscriptions.push(commands.registerCommand(Commands.newQueryInsert, (table: {database: string, name: string}) => {
-        return newQueryInsert(table.database, table.name);
+    context.subscriptions.push(commands.registerCommand(Commands.newQueryInsert, (table: Schema.Table) => {
+        return newQueryInsert(table);
     }));
     
     context.subscriptions.push(commands.registerCommand(Commands.quickQuery, () => {
         return quickQuery();
     }));
     
-    context.subscriptions.push(commands.registerCommand(Commands.runTableQuery, (table: {database: string, name: string}) => {
+    context.subscriptions.push(commands.registerCommand(Commands.runTableQuery, (table: Schema.Table) => {
         return runTableQuery(table.database, table.name);
     }));
     
@@ -139,7 +140,6 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     logger.info(`Extension activated.`);
     return Promise.resolve(true);
 }
-
 
 function runDocumentQuery() {
     let sqlDocument = getEditorSqlDocument();
@@ -182,7 +182,7 @@ function explorerAdd(dbPath?: string): Thenable<void> {
                 return explorer.add(schema);
             },
             err => {
-                let message = `Failed to add to explorer database ${dbPath}: ${err.message}`;
+                let message = `Failed to open database: ${err.message}`;
                 showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
             }
         );
@@ -214,63 +214,42 @@ function explorerRemove(dbPath?: string): Thenable<void> {
     }
 }
 
-function explorerRefresh() {
+function explorerRefresh(): Thenable<any> {
     let dbList = explorer.list();
-    dbList.forEach(db => {
-        let dbPath = db.path;
-        sqlite.schema(sqliteCommand, dbPath).then(
-            schema => {
-                explorer.add(schema);
-            },
-            err => {
-                let message = `Failed to refresh database ${dbPath}: ${err.message}`;
-                showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
-            }
-        );
-    });
+    return Promise.all(
+        dbList.map(db => {
+            let dbPath = db.path;
+            return sqlite.schema(sqliteCommand, dbPath).then(
+                schema => {
+                    return explorer.add(schema);
+                },
+                err => {
+                    // remove the database from the explorer
+                    explorer.remove(dbPath);
+                    // show error message
+                    let message = `Failed to refresh database: ${err.message}`;
+                    logger.error(message);
+                    showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
+                }
+            );
+        })
+    );
 }
 
-function newQuerySelect(dbPath: string, tableName: string): Thenable<void> {
-    return sqlite.schema(sqliteCommand, dbPath).then(schema => {
-        console.log(schema);
-        let schemaTable = schema.tables.find(tbl => tbl.name === tableName);
-        if (schemaTable) {
-            let contentL0 = `SELECT ${schemaTable.columns.map(c => c.name).join(", ")}`;
-            let contentL1 = `FROM \`${tableName}\`;`;
-            let content = contentL0 + "\n" + contentL1;
-            let cursorPos = new Position(1, contentL1.length-1);
-            return newQuery(dbPath, content, cursorPos).then(() => {});
-        } else {
-            let message = `Failed to create file: table '${tableName}' not found in database '${dbPath}'`;
-            logger.error(message);
-            showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
-        }
-    }).catch(err => {
-        let message = `Failed to create file: ${err.message}`;
-        logger.error(message);
-        showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
-    });
+function newQuerySelect(table: Schema.Table): Thenable<any> {
+    let contentL0 = `SELECT ${table.columns.map(c => c.name).join(", ")}`;
+    let contentL1 = `FROM \`${table.name}\`;`;
+    let content = contentL0 + "\n" + contentL1;
+    let cursorPos = new Position(1, contentL1.length-1);
+    return newQuery(table.database, content, cursorPos);
 }
 
-function newQueryInsert(dbPath: string, tableName: string): Thenable<void> {
-    return sqlite.schema(sqliteCommand, dbPath).then(schema => {
-        let schemaTable = schema.tables.find(tbl => tbl.name === tableName);
-        if (schemaTable) {
-            let contentL0 = `INSERT INTO \`${tableName}\` (${schemaTable.columns.map(c => c.name).join(", ")})`;
-            let contentL1 = `VALUES ();`;
-            let content = contentL0 + "\n" + contentL1;
-            let cursorPos = new Position(1, contentL1.length-2);
-            return newQuery(dbPath, content, cursorPos).then(() => {});
-        } else {
-            let message = `Failed to create file: table '${tableName}' not found in database '${dbPath}'`;
-            logger.error(message);
-            showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
-        }
-    }).catch(err => {
-        let message = `Failed to create file: ${err.message}`;
-        logger.error(message);
-        showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
-    });
+function newQueryInsert(table: Schema.Table): Thenable<any> {
+    let contentL0 = `INSERT INTO \`${table.name}\` (${table.columns.map(c => c.name).join(", ")})`;
+    let contentL1 = `VALUES ();`;
+    let content = contentL0 + "\n" + contentL1;
+    let cursorPos = new Position(1, contentL1.length-2);
+    return newQuery(table.database, content, cursorPos);
 }
 
 function newQuery(dbPath?: string, content: string = "", cursorPos: Position = new Position(0, 0)): Thenable<TextDocument> {
@@ -317,7 +296,7 @@ function setSqliteCommand(command: string, extensionPath: string) {
 }
 
 function copyToClipboard(text: string) {
-    return clipboardy.write(text).then(() => {
+    return Clipboard.copy(text).then(() => {
         return window.setStatusBarMessage(`Copied '${text}' to clipboard.`, 2000);
     });
 }
