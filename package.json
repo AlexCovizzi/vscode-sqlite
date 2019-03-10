@@ -18,6 +18,7 @@
     "activationEvents": [
         "onLanguage:sql",
         "onLanguage:sqlite",
+        "onLanguage:db",
         "onCommand:sqlite.showOutputChannel",
         "onCommand:sqlite.explorer.add",
         "onCommand:sqlite.explorer.remove",
@@ -36,13 +37,22 @@
             },
             {
                 "command": "sqlite.explorer.add",
-                "title": "Open Database in Explorer",
+                "title": "Open Database",
                 "category": "SQLite"
             },
             {
                 "command": "sqlite.explorer.remove",
-                "title": "Close Explorer Database",
+                "title": "Close Database",
                 "category": "SQLite"
+            },
+            {
+                "command": "sqlite.explorer.refresh",
+                "title": "Refresh Databases",
+                "category": "SQLite",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
             },
             {
                 "command": "sqlite.explorer.copyName",
@@ -75,12 +85,12 @@
             },
             {
                 "command": "sqlite.newQuerySelect",
-                "title": "New Query: Select",
+                "title": "New Query [Select]",
                 "category": "SQLite"
             },
             {
                 "command": "sqlite.newQueryInsert",
-                "title": "New Query: Insert",
+                "title": "New Query [Insert]",
                 "category": "SQLite"
             },
             {
@@ -102,15 +112,6 @@
                 "command": "sqlite.runSqliteMasterQuery",
                 "title": "Show sqlite_master",
                 "category": "SQLite"
-            },
-            {
-                "command": "sqlite.explorer.refresh",
-                "title": "Refresh",
-                "category": "SQLite",
-                "icon": {
-                    "light": "resources/light/refresh.svg",
-                    "dark": "resources/dark/refresh.svg"
-                }
             }
         ],
         "keybindings": [
@@ -146,6 +147,11 @@
                     "when": "sqlite.explorer.show"
                 },
                 {
+                    "command": "sqlite.explorer.refresh",
+                    "group": "sqlite",
+                    "when": "sqlite.explorer.show"
+                },
+                {
                     "command": "sqlite.newQuery",
                     "group": "sqlite"
                 },
@@ -169,10 +175,6 @@
                 },
                 {
                     "command": "sqlite.runTableQuery",
-                    "when": "false"
-                },
-                {
-                    "command": "sqlite.explorer.refresh",
                     "when": "false"
                 },
                 {
@@ -203,21 +205,26 @@
             ],
             "explorer/context": [
                 {
-                    "when": "resourceExtname =~ /\\.(db|db3|sdb|s3db|sqlite|sqlite3)/",
                     "command": "sqlite.explorer.add",
-                    "group": "navigation"
+                    "when": "resourceLangId == db && !explorerResourceIsFolder",
+                    "group": "0_sqlite@1"
+                },
+                {
+                    "command": "sqlite.newQuery",
+                    "when": "resourceLangId == db",
+                    "group": "0_sqlite@2"
                 }
             ],
             "editor/context": [
                 {
                     "when": "editorTextFocus && editorLangId =~ /(sql|sqlite)/",
                     "command": "sqlite.runDocumentQuery",
-                    "group": "sqlite@2"
+                    "group": "9.1_sqlite@1"
                 },
                 {
                     "when": "editorTextFocus && editorLangId =~ /(sql|sqlite)/",
                     "command": "sqlite.useDatabase",
-                    "group": "sqlite@1"
+                    "group": "9.1_sqlite@2"
                 }
             ],
             "view/title": [
@@ -234,14 +241,14 @@
             ],
             "view/item/context": [
                 {
-                    "command": "sqlite.newQuery",
-                    "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
-                    "group": "1_sql@1"
-                },
-                {
                     "command": "sqlite.runSqliteMasterQuery",
                     "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
-                    "group": "2_query@1"
+                    "group": "1_query@1"
+                },
+                {
+                    "command": "sqlite.newQuery",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
+                    "group": "2_sql@1"
                 },
                 {
                     "command": "sqlite.explorer.copyPath",
@@ -259,19 +266,19 @@
                     "group": "4_utils@1"
                 },
                 {
+                    "command": "sqlite.runTableQuery",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
+                    "group": "1_query@1"
+                },
+                {
                     "command": "sqlite.newQuerySelect",
                     "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
-                    "group": "1_sql@1"
+                    "group": "2_sql@1"
                 },
                 {
                     "command": "sqlite.newQueryInsert",
                     "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
-                    "group": "1_sql@2"
-                },
-                {
-                    "command": "sqlite.runTableQuery",
-                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
-                    "group": "2_query@1"
+                    "group": "2_sql@2"
                 },
                 {
                     "command": "sqlite.explorer.copyName",
@@ -295,9 +302,23 @@
                 "firstLine": "\\s*--\\s*(sql|SQL)ite",
                 "extensions": [
                     ".sql",
-                    "sql3"
+                    ".sql3"
                 ],
                 "configuration": "./language-configuration.json"
+            },
+            {
+                "id": "db",
+                "aliases": [
+                    "Database"
+                ],
+                "extensions": [
+                    ".db",
+                    ".db3",
+                    ".sdb",
+                    ".s3db",
+                    ".sqlite",
+                    ".sqlite3"
+                ]
             }
         ],
         "grammars": [
