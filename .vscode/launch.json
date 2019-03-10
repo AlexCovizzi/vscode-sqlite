@@ -11,7 +11,8 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}"
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--disable-extensions"
             ],
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
@@ -24,7 +25,7 @@
             "name": "Extension Tests",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
             "args": ["--silent", "--config", "jest.json"],
-            "console": "integratedTerminal",
+            "console": "externalTerminal",
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true,
             "windows": {
@@ -36,8 +37,8 @@
             "request": "launch",
             "name": "Test Current File",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
-            "args": ["${relativeFile}", "--silent", "--config", "jest.json"],
-            "console": "integratedTerminal",
+            "args": ["--runTestsByPath", "${relativeFile}", "--silent", "--config", "jest.json", "--verbose"],
+            "console": "externalTerminal",
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true,
             "windows": {
