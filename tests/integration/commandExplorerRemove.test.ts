@@ -3,27 +3,26 @@ import * as extension from "../../src/extension";
 import { Commands } from "../../src/extension";
 import { Constants } from "../../src/constants/constants";
 import { join } from 'path';
-import { setupDatabaseFixture, DatabaseFixture, teardownDatabaseFixture } from '../helpers/fixtureHelper';
 import { getMockCallWhereParamEquals } from '../helpers/mockHelper';
 import { getRegisteredCommandCallback } from '../helpers/vscodeHelper';
+import { Fixture } from '../fixtures';
+import { createDatabase, removeDatabase } from '../helpers/fixtureHelper';
 
 jest.mock('vscode');
-jest.setTimeout(2000);
 
 describe(`Command: ${Commands.explorerRemove}`, () => {
-    const DATABASE_FIXTURE_NAME = "fake_database";
+    let databaseFixture = Fixture.getDatabase(Fixture.DATABASE_MAIN);
 
-    let databaseFixture: DatabaseFixture;
     let treeDataProvider: vscode.TreeDataProvider<any>;
     let explorerAddCallback: any;
     let explorerRemoveCallback: any;
 
     beforeAll(async () => {
-        databaseFixture = await setupDatabaseFixture(DATABASE_FIXTURE_NAME);
+        await createDatabase(databaseFixture);
     });
 
     afterAll(async () => {
-        await teardownDatabaseFixture(databaseFixture);
+        await removeDatabase(databaseFixture);
     });
 
     beforeEach(async () => {

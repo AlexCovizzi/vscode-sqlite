@@ -44,6 +44,19 @@
             "windows": {
                 "program": "${workspaceFolder}/node_modules/jest/bin/jest",
             }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test Current File (Log)",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "args": ["--runTestsByPath", "${relativeFile}", "--config", "jest.json", "--verbose"],
+            "console": "externalTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+            }
         }
     ]
 }

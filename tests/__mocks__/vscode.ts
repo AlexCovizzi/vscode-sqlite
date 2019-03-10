@@ -22,7 +22,9 @@ export const window = {
 
     showOpenDialog: jest.fn(),
 
-    setStatusBarMessage: jest.fn()
+    setStatusBarMessage: jest.fn(),
+
+    showTextDocument: jest.fn().mockResolvedValue(jest.fn())
 };
 
 export const workspace = {
@@ -30,7 +32,8 @@ export const workspace = {
     onDidOpenTextDocument: jest.fn(),
     onDidCloseTextDocument: jest.fn(),
     onDidChangeConfiguration: jest.fn(),
-    getConfiguration: jest.fn(() => ({get: jest.fn()}))
+    getConfiguration: jest.fn(() => ({get: jest.fn()})),
+    openTextDocument: jest.fn().mockResolvedValue(jest.fn())
 };
 
 export const commands = {
@@ -72,6 +75,21 @@ export const TextDocument = jest.fn().mockImplementation(() => {
         uri: {toString: jest.fn()},
     };
 });
+
+export const Position = jest.fn().mockImplementation(() => {
+    return {
+        translate: jest.fn(),
+    };
+});
+
+export const Selection = jest.fn();
+
+export enum ViewColumn {
+    Active = -1,
+    One = 1,
+    Two = 2,
+    Three = 3
+}
 
 export const TreeItem = jest.fn();
 

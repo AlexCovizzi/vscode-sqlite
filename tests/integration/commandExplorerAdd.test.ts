@@ -3,25 +3,25 @@ import * as extension from "../../src/extension";
 import { Commands } from "../../src/extension";
 import { Constants } from "../../src/constants/constants";
 import { join, basename } from 'path';
-import { getRegisteredCommandCallback } from "../helpers/vscodeHelper";
-import { DatabaseFixture, setupDatabaseFixture, teardownDatabaseFixture } from '../helpers/fixtureHelper';
+import { getRegisteredCommandCallback, objectifyTree } from "../helpers/vscodeHelper";
 import { getMockCallWhereParamEquals } from '../helpers/mockHelper';
+import { Fixture } from '../fixtures';
+import { createDatabase, removeDatabase } from '../helpers/fixtureHelper';
 
 jest.mock('vscode');
 
 describe(`Command: ${Commands.explorerAdd}`, () => {
-    const DATABASE_FIXTURE_NAME = "fake_database";
+    let databaseFixture: Fixture.Database = Fixture.getDatabase(Fixture.DATABASE_MAIN);
 
-    let databaseFixture: DatabaseFixture;
     let treeDataProvider: vscode.TreeDataProvider<any>;
     let explorerAddCallback: any;
 
     beforeAll(async () => {
-        databaseFixture = await setupDatabaseFixture(DATABASE_FIXTURE_NAME);
+        await createDatabase(databaseFixture);
     });
 
     afterAll(async () => {
-        await teardownDatabaseFixture(databaseFixture);
+        await removeDatabase(databaseFixture);
     });
 
     beforeEach(async () => {
@@ -105,6 +105,24 @@ describe(`Command: ${Commands.explorerAdd}`, () => {
         await expect(treeDataProvider).toInclude(databaseFixture);
     });
 
+    test(`command ${Commands.explorerAdd} should add an empty database if the database selected is an empty file`, async () => {
+        expect.assertions(1);
+
+        let emptyDatabaseFixture = Fixture.getDatabase(Fixture.DATABASE_EMPTY);
+        await createDatabase(emptyDatabaseFixture);
+
+        // this is the uri of the database we are opening
+        let uri = {scheme: "file", fsPath: emptyDatabaseFixture.path};
+
+        // we are executing from the command palette so we dont pass any parameter
+        await explorerAddCallback(uri);
+        
+        // finally we test that the database is added to the tree
+        await expect(treeDataProvider).toInclude(emptyDatabaseFixture);
+
+        await removeDatabase(emptyDatabaseFixture);
+    });
+
     test(`command ${Commands.explorerAdd} should do nothing if no database is selected from the quickpick when executed from the command palette`, async () => {
         expect.assertions(3);
 
@@ -121,7 +139,7 @@ describe(`Command: ${Commands.explorerAdd}`, () => {
         await expect(treeDataProvider).not.toInclude(databaseFixture);
     });
 
-    test(`command ${Commands.explorerAdd} should show an error if it fails to retrieve the database info`, async () => {
+    test(`command ${Commands.explorerAdd} should show an error if it fails to retrieve the database schema`, async () => {
         expect.assertions(3);
 
         // we populate the quickpick with a non existing database and return it when using showQuickPick

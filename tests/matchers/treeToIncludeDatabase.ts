@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
-import { DatabaseFixture } from "../helpers/fixtureHelper";
+import { Fixture } from "../fixtures";
 
 expect.extend({
-    async toInclude(treeDataProvider: vscode.TreeDataProvider<any>, databaseFixture: DatabaseFixture) {
+    async toInclude(treeDataProvider: vscode.TreeDataProvider<any>, databaseFixture: Fixture.Database) {
+        // sort tables by name
+        databaseFixture.tables.sort(((a, b) => a.name > b.name? 1 : -1));
+
         let databaseTreeChildren = await treeDataProvider.getChildren();
         let databaseTreeItems = await Promise.all(databaseTreeChildren.map(child => treeDataProvider.getTreeItem(child)));
         let databaseTreeItemIndex = databaseTreeItems.findIndex(item => item.label === databaseFixture.name);
@@ -39,7 +42,7 @@ expect.extend({
         for(let i=0; i<databaseFixture.tables.length; i++) {
             let table = databaseFixture.tables[i];
             let tableItemLabels = tableTreeItems.map(item => item.label);
-            if (!tableItemLabels.includes(table.name)) {
+            if (tableItemLabels.indexOf(table.name) < 0) {
                 return {
                     message: () => `expected table lables [${tableItemLabels}] to include '${table.name}'`,
                     pass: false,
@@ -58,7 +61,7 @@ expect.extend({
                 // TODO: test tooltip??
                 let colLabel = `${column.name} : ${column.type.toLowerCase()}`;
                 let colItemLabels = tableColumnTreeItems.map(item => item.label);
-                if (!colItemLabels.includes(colLabel)) {
+                if (colItemLabels.indexOf(colLabel) < 0) {
                     return {
                         message: () => `expected table '${table.name}' column labels [${colItemLabels}] to include '${colLabel}'`,
                         pass: false,

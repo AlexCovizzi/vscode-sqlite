@@ -1,16 +1,8 @@
-import { join } from "path";
 import sqlite3 = require('sqlite3');
 import { unlink } from "fs";
-import { randomString } from "../../src/utils/utils";
+import { Fixture } from "../fixtures";
 
-export interface DatabaseFixture {name: string; path: string; tables: [{name: string; columns: [{name: string; type: string; notnull: boolean; pk: Number}]}];}
-
-export function setupDatabaseFixture(fixtureName: string): Promise<DatabaseFixture> {
-    let fixture: DatabaseFixture = require(join(__dirname, "..", "fixtures", fixtureName+".json"));
-    // we use a random string so that there are no problems running multiple tests in parallel
-    fixture.name = randomString(6) + ".db";
-    fixture.path = join(__dirname, fixture.name);
-
+export function createDatabase(fixture: Fixture.Database): Promise<Fixture.Database> {
     return new Promise((resolve, reject) => {
         let db = new sqlite3.Database(fixture.path, (err) => {
             if (err) {
@@ -38,6 +30,7 @@ export function setupDatabaseFixture(fixtureName: string): Promise<DatabaseFixtu
                 });
             }
         });
+        
         db.close((err) => {
             if (err) {
                 console.error(err);
@@ -49,7 +42,7 @@ export function setupDatabaseFixture(fixtureName: string): Promise<DatabaseFixtu
     });
 }
 
-export function teardownDatabaseFixture(fixture: DatabaseFixture): Promise<void> {
+export function removeDatabase(fixture: Fixture.Database): Promise<void> {
     // remove testing database
     return new Promise((resolve, reject) => {
         unlink(fixture.path, (err) => {
