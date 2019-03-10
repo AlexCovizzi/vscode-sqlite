@@ -1,4 +1,5 @@
 import { CliDatabase } from "./cliDatabase";
+import { isFileSync } from "../utils/files";
 
 export type Schema = Schema.Database;
 
@@ -28,18 +29,20 @@ export namespace Schema {
         defVal: string;
     }
 
-    export function build(dbPath: string, sqlite3: string): Thenable<Schema.Database> {
+    export function build(dbPath: string, sqlite3: string): Promise<Schema.Database> {
         return new Promise((resolve, reject) => {
+            if (!isFileSync(dbPath)) return reject(new Error(`Failed to retrieve database schema: '${dbPath}' is not a file`));
+
             let schema = {
                 path: dbPath,
                 tables: []
             } as Schema.Database;
 
             const tablesQuery = `SELECT name, type FROM sqlite_master
-                                 WHERE (type="table" OR type="view")
-                                 AND name <> 'sqlite_sequence'
-                                 AND name <> 'sqlite_stat1'
-                                 ORDER BY type ASC, name ASC;`;
+                                WHERE (type="table" OR type="view")
+                                AND name <> 'sqlite_sequence'
+                                AND name <> 'sqlite_stat1'
+                                ORDER BY type ASC, name ASC;`;
 
             let database = new CliDatabase(sqlite3, dbPath, (err) => {
                 reject(err);
