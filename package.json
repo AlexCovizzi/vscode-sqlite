@@ -86,7 +86,11 @@
             {
                 "command": "sqlite.newQuerySelect",
                 "title": "New Query [Select]",
-                "category": "SQLite"
+                "category": "SQLite",
+                "icon": {
+                    "light": "resources/light/newquery.svg",
+                    "dark": "resources/dark/newquery.svg"
+                }
             },
             {
                 "command": "sqlite.newQueryInsert",
@@ -106,12 +110,20 @@
             {
                 "command": "sqlite.runTableQuery",
                 "title": "Show Table",
-                "category": "SQLite"
+                "category": "SQLite",
+                "icon": {
+                    "light": "resources/light/runquery.svg",
+                    "dark": "resources/dark/runquery.svg"
+                }
             },
             {
                 "command": "sqlite.runSqliteMasterQuery",
                 "title": "Show sqlite_master",
-                "category": "SQLite"
+                "category": "SQLite",
+                "icon": {
+                    "light": "resources/light/runquery.svg",
+                    "dark": "resources/dark/runquery.svg"
+                }
             }
         ],
         "keybindings": [
@@ -207,12 +219,12 @@
                 {
                     "command": "sqlite.explorer.add",
                     "when": "resourceLangId == db && !explorerResourceIsFolder",
-                    "group": "0_sqlite@1"
+                    "group": "navigation@1"
                 },
                 {
                     "command": "sqlite.newQuery",
                     "when": "resourceLangId == db",
-                    "group": "0_sqlite@2"
+                    "group": "0_sqlite@1"
                 }
             ],
             "editor/context": [
@@ -241,6 +253,11 @@
             ],
             "view/item/context": [
                 {
+                    "command": "sqlite.newQuery",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
+                    "group": "inline@1"
+                },
+                {
                     "command": "sqlite.runSqliteMasterQuery",
                     "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
                     "group": "1_query@1"
@@ -264,6 +281,11 @@
                     "command": "sqlite.explorer.remove",
                     "when": "view == sqlite.explorer && viewItem == sqlite.databaseItem",
                     "group": "4_utils@1"
+                },
+                {
+                    "command": "sqlite.runTableQuery",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
+                    "group": "inline@1"
                 },
                 {
                     "command": "sqlite.runTableQuery",
