@@ -1,5 +1,25 @@
 # Change Log
 
+## 0.6.0 (? Mar 2019)
+
+Added
+1. Added option in the sqlite explorer to copy database path.
+2. Added option in the sqlite explorer to copy table/column name.
+3. Added option in the sqlite explorer to create a new table query (Select/Insert).
+4. Added option in the files explorer to create a new database query.
+5. Added command in the command palette to refresh sqlite explorer databases.
+6. Added support for EXPLAIN queries.
+
+Fixed
+1. Log level is now changed correctely.
+2. Fixed bug that caused the last line of the result table to disappear after hiding and then showing the result table.
+3. Fixed bug that prevented empty tables from showing in the sqlite explorer ([#63](https://github.com/AlexCovizzi/vscode-sqlite/issues/63))
+
+Other
+1. Improved query performance.
+2. Improved query logging.
+3. Improved table icon and changed view table icon.
+
 ## 0.5.3 (1 Mar 2019)
 
 Fixed
