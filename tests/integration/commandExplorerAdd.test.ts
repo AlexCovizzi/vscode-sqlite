@@ -3,7 +3,7 @@ import * as extension from "../../src/extension";
 import { Commands } from "../../src/extension";
 import { Constants } from "../../src/constants/constants";
 import { join, basename } from 'path';
-import { getRegisteredCommandCallback, objectifyTree } from "../helpers/vscodeHelper";
+import { getRegisteredCommandCallback } from "../helpers/vscodeHelper";
 import { getMockCallWhereParamEquals } from '../helpers/mockHelper';
 import { Fixture } from '../fixtures';
 import { createDatabase, removeDatabase } from '../helpers/fixtureHelper';
@@ -51,7 +51,7 @@ describe(`Command: ${Commands.explorerAdd}`, () => {
         // make sure the treeDataProvider updates the tree
         expect(treeDataProvider.onDidChangeTreeData).toHaveBeenCalledTimes(1);
         
-        await expect(treeDataProvider).toInclude(databaseFixture);
+        await expect(treeDataProvider).toRepresent([databaseFixture]);
     });
 
     test(`command ${Commands.explorerAdd} should add the database selected from the quickpick when executed from the command palette`, async () => {
@@ -102,7 +102,7 @@ describe(`Command: ${Commands.explorerAdd}`, () => {
         expect(treeDataProvider.onDidChangeTreeData).toHaveBeenCalledTimes(1);
         
         // finally we test that the database is added to the tree
-        await expect(treeDataProvider).toInclude(databaseFixture);
+        await expect(treeDataProvider).toRepresent([databaseFixture]);
     });
 
     test(`command ${Commands.explorerAdd} should add an empty database if the database selected is an empty file`, async () => {
@@ -118,7 +118,7 @@ describe(`Command: ${Commands.explorerAdd}`, () => {
         await explorerAddCallback(uri);
         
         // finally we test that the database is added to the tree
-        await expect(treeDataProvider).toInclude(emptyDatabaseFixture);
+        await expect(treeDataProvider).toRepresent([emptyDatabaseFixture]);
 
         await removeDatabase(emptyDatabaseFixture);
     });
@@ -136,7 +136,7 @@ describe(`Command: ${Commands.explorerAdd}`, () => {
         // make sure the treeDataProvider does not update the tree since no database is added
         expect(treeDataProvider.onDidChangeTreeData).toHaveBeenCalledTimes(0);
 
-        await expect(treeDataProvider).not.toInclude(databaseFixture);
+        await expect(treeDataProvider).toRepresent([]);
     });
 
     test(`command ${Commands.explorerAdd} should show an error if it fails to retrieve the database schema`, async () => {
@@ -156,7 +156,7 @@ describe(`Command: ${Commands.explorerAdd}`, () => {
         // make sure the treeDataProvider does not update the tree since the database we are trying to add does not exist
         expect(treeDataProvider.onDidChangeTreeData).toHaveBeenCalledTimes(0);
 
-        await expect(treeDataProvider).not.toInclude(databaseFixture);
+        await expect(treeDataProvider).toRepresent([]);
 
         expect(vscode.window.showErrorMessage).toHaveBeenCalledTimes(1);
     });

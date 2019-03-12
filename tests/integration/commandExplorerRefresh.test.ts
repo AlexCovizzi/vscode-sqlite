@@ -55,7 +55,7 @@ describe(`Command: ${Commands.explorerRefresh}`, () => {
         // add a table to the database
         databaseFixture = await new Promise((resolve, reject) => {
             let table = {
-                name: "added_table", 
+                name: "table_added",
                 columns: [
                     {name: "id", type: "TEXT", notnull: true, pk: 1},
                     {name: "name", type: "TEXT", notnull: false, pk: 0}
@@ -93,7 +93,7 @@ describe(`Command: ${Commands.explorerRefresh}`, () => {
         // make sure the treeDataProvider updates the tree 2 times (when adding the database and when refreshing it)
         expect(treeDataProvider.onDidChangeTreeData).toHaveBeenCalledTimes(2);
 
-        await expect(treeDataProvider).toInclude(databaseFixture);
+        await expect(treeDataProvider).toRepresent([databaseFixture]);
         
         await removeDatabase(databaseFixture);
     });
@@ -119,7 +119,7 @@ describe(`Command: ${Commands.explorerRefresh}`, () => {
         // make sure the treeDataProvider updates the tree 2 times (when adding the database and when removing it)
         expect(treeDataProvider.onDidChangeTreeData).toHaveBeenCalledTimes(2);
 
-        await expect(treeDataProvider).not.toInclude(databaseFixture);
+        await expect(treeDataProvider).toRepresent([]);
     });
 
 });

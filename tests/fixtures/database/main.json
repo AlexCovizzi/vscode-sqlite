@@ -67,28 +67,28 @@
             ]
         },
         {
-            "name": "user_agent",
+            "name": "registration",
             "columns": [
                 {
                     "name": "id",
-                    "type": "TEXT",
+                    "type": "INTEGER",
                     "notnull": true,
                     "pk": 1
                 },
                 {
-                    "name": "ip",
+                    "name": "email",
                     "type": "TEXT",
                     "notnull": false,
                     "pk": 0
                 },
                 {
-                    "name": "countrycode",
+                    "name": "password",
                     "type": "TEXT",
                     "notnull": false,
                     "pk": 0
                 },
                 {
-                    "name": "useragent",
+                    "name": "phone",
                     "type": "TEXT",
                     "notnull": false,
                     "pk": 0

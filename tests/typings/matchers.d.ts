@@ -1,10 +1,10 @@
 import { TreeDataProvider } from "vscode";
-import { DatabaseFixture } from "../helpers/fixtureHelper";
+import { Fixture } from "../fixtures";
 
 declare global {
     namespace jest {
         interface Matchers<R> {
-            toInclude(databaseFixture: DatabaseFixture): TreeDataProvider<any>;
+            toRepresent(databases: Fixture.Database[]): TreeDataProvider<any>;
         }
     }
 }
