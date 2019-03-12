@@ -1,42 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="16"
-   height="16"
-   viewBox="0 0 4.2333332 4.2333332"
-   version="1.1"
    id="svg853"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="table.svg">
+   version="1.1"
+   viewBox="0 0 4.2333332 4.2333332"
+   height="16"
+   width="16">
   <defs
      id="defs847" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="31.678384"
-     inkscape:cx="11.758229"
-     inkscape:cy="5.8083951"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     units="px"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
   <metadata
      id="metadata850">
     <rdf:RDF>
@@ -50,18 +25,17 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Livello 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-292.76667)">
+     transform="translate(0,-292.76667)"
+     id="layer1">
     <a
+       transform="translate(0,3.2655e-4)"
        id="a4566">
       <g
          id="g854">
         <path
-           id="rect848"
-           style="fill:#c3c3c3;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-           d="M 0.39687499,295.21408 H 3.8364583 v 0.13229 H 0.39687499 Z m 1.65364571,-0.99219 h 0.1322916 v 2.11667 H 2.0505207 Z m -1.64662079,0.004 -0.007025,2.11232 3.43958309,-0.007 0.00255,-2.11005 z m -0.13931658,0.65713 v -1.58751 H 2.1166665 3.9687499 v 1.58751 1.58749 H 2.1166665 0.26458333 Z" />
+           d="M 0.52916665,295.14759 H 3.4395834 v 0.26459 H 0.52916665 Z m 1.32291665,-0.79375 h 0.2645833 v 1.85209 H 1.8520833 Z m -1.32291665,0 v 1.85209 H 3.4395831 l 2e-7,-1.85209 z M 0.26458333,293.29551 H 3.7041666 v 3.175 H 0.26458333 Z"
+           style="fill:#c5c5c5;fill-opacity:1;stroke:none;stroke-width:0.24090588"
+           id="rect848" />
       </g>
     </a>
   </g>
