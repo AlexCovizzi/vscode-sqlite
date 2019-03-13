@@ -8,18 +8,20 @@ Added
 3. Added option in the sqlite explorer to create a new table query (Select/Insert).
 4. Added option in the files explorer to create a new database query.
 5. Added command in the command palette to refresh sqlite explorer databases.
-6. Added support for EXPLAIN queries.
+6. Added support for ```EXPLAIN QUERY PLAN```.
 
 Fixed
 1. Log level is now changed correctely.
 2. Fixed bug that caused the last line of the result table to disappear after hiding and then showing the result table.
 3. Fixed bug that prevented empty tables from showing in the sqlite explorer ([#63](https://github.com/AlexCovizzi/vscode-sqlite/issues/63))
 
+Changed
+1. Changed view table icon.
+2. New lines are now rendered in the result table.
+
 Other
 1. Improved query performance.
 2. Improved query logging.
-3. Changed view table icon.
-4. New lines are now rendered in the result table.
 
 ## 0.5.3 (1 Mar 2019)
 
