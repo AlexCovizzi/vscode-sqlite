@@ -18,7 +18,8 @@ Fixed
 Other
 1. Improved query performance.
 2. Improved query logging.
-3. Improved table icon and changed view table icon.
+3. Changed view table icon.
+4. New lines are now rendered in the result table.
 
 ## 0.5.3 (1 Mar 2019)
 
