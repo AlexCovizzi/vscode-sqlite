@@ -102,7 +102,7 @@ describe('CliDatabase Tests', () => {
     test("select should callback in the same order they are called", (done) => {
         expect.assertions(1);
 
-        let database = new CliDatabase("sqlite3", ":memory:");
+        let database = new CliDatabase("sqlite3", ":memory:", fail);
 
         let callbackOrder: number[] = [];
         let callback_1 = jest.fn().mockImplementation(() => callbackOrder.push(1));
@@ -122,7 +122,7 @@ describe('CliDatabase Tests', () => {
     test('select should callback with an error and close the database without errors if there is an error in the query', (done) => {
         expect.assertions(3);
 
-        let database = new CliDatabase("sqlite3", ":memory:");
+        let database = new CliDatabase("sqlite3", ":memory:", fail);
 
         database.execute(`select 'hello';`, (_rows, err) => {
             expect(err).toBeFalsy();
@@ -143,7 +143,7 @@ describe('CliDatabase Tests', () => {
     test('close should callback after every query is finished, subsequent calls should callback with an error', (done) => {
         expect.assertions(5);
 
-        let database = new CliDatabase("sqlite3", ":memory:");
+        let database = new CliDatabase("sqlite3", ":memory:", fail);
 
         let callbackOrder: number[] = [];
         let callback_1 = jest.fn().mockImplementation(() => callbackOrder.push(1));
@@ -171,7 +171,7 @@ describe('CliDatabase Tests', () => {
     test('close should callback after there is an error in the query', (done) => {
         expect.assertions(4);
 
-        let database = new CliDatabase("sqlite3", ":memory:");
+        let database = new CliDatabase("sqlite3", ":memory:", fail);
 
         let callbackOrder: number[] = [];
         let callback_1 = jest.fn().mockImplementation(() => callbackOrder.push(1));

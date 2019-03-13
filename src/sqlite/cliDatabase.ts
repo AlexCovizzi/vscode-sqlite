@@ -5,6 +5,8 @@ import { randomString } from "../utils/utils";
 import { Database } from "./interfaces/database";
 const csvparser = require("csv-parser");
 
+const NO_HANDLER = (...args: any[]) => {}; // this is just an empty function to handle callbacks i dont care about
+
 const RESULT_SEPARATOR = randomString(8); // just a random separator to recognize when there are no more rows
 
 export class CliDatabase implements Database {
@@ -21,8 +23,8 @@ export class CliDatabase implements Database {
     private rows: string[][];
     private busy: boolean;
 
-    constructor(private command: string, private path: string, callback?: (err: Error) => void) {
-        let args = ["-csv", "-header"];
+    constructor(private command: string, private path: string, callback: (err: Error) => void) {
+        let args = ["-csv", "-header", "-bail"];
 
         this._started = false;
         this._ended = false;
@@ -70,9 +72,17 @@ export class CliDatabase implements Database {
         this.sqliteProcess.stdout.pipe(this.csvParser).on("data", (data: Object) => {
             this.onData(data);
         });
+
+        // register an empty handler for stdio,
+        // we dont care about errors,
+        // they will only occur when the process stops because of -bail
+        this.sqliteProcess.stdin.once("error", NO_HANDLER);
+        this.sqliteProcess.stdout.once("error", NO_HANDLER);
+        this.sqliteProcess.stderr.once("error", NO_HANDLER);
+        this.csvParser.once("error", NO_HANDLER);
     }
 
-    close(callback?: (err?: Error) => void): void {
+    close(callback: (err?: Error) => void): void {
         if (this._ended) {
             if (callback) callback(new Error("Database is closed: SQLite process already ended."));
             return;
@@ -144,21 +154,24 @@ export class CliDatabase implements Database {
     private onExit(code: number|null, signal: string|null) {
         this._ended = true;
         this.csvParser.end();
+        if (!this._started) {
+            if (this.startCallback) this.startCallback(new Error(`Database failed to open: '${this.path}'`));
+            return;
+        }
 
         if (code === 0) {
             //
         } else if (code === 1 || signal) {
             if (this.writeCallback) this.writeCallback([], new Error(this.errStr));
         }
-        if (this._started) {
-            if (this.endCallback) this.endCallback();
-        } else {
-            if (this.startCallback) this.startCallback(new Error(`Database failed to open: '${this.path}'`));
-        }
+
+        if (this.endCallback) this.endCallback();
     }
     
     private onData(data: Object) {
-        if (this.errStr) return;
+        if (this.errStr) {
+            return;
+        }
 
         //@ts-ignore
         let row: string[] = Object.values(data);
@@ -177,6 +190,7 @@ export class CliDatabase implements Database {
     }
 
     private onError(data: string|Buffer) {
+        if (!data) return;
         this.errStr += data.toString();
         // last part of the error output
         if (this.errStr.endsWith("\n")) {
@@ -188,7 +202,7 @@ export class CliDatabase implements Database {
                 this.errStr = `${token? `near "${token}": `: ``}${rest}`;
             }
 
-            if (this.sqliteProcess) this.sqliteProcess.kill();
+            //if (this.sqliteProcess) this.sqliteProcess.kill();
         }
     }
 
