@@ -24,7 +24,7 @@ export class CliDatabase implements Database {
     private busy: boolean;
 
     constructor(private command: string, private path: string, callback: (err: Error) => void) {
-        let args = ["-csv", "-header", "-bail"];
+        let args = ["-csv", "-header", "-bail", "-nullvalue", "NULL"];
 
         this._started = false;
         this._ended = false;
