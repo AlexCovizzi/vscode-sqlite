@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.6.0 (? Mar 2019)
+## 0.6.0 (13 Mar 2019)
 
 Added
 1. Added option in the sqlite explorer to copy database path.

@@ -29,11 +29,13 @@ No requirements
 
 * **SQLite: Quick Query** &nbsp; Choose a database and execute a query without creating a new document.
 
-* **SQLite: Use Database** &nbsp; Bind current document to the selected database.
+* **SQLite: Use Database** &nbsp; Bind current ```sql``` document to the selected database.
 
-* **SQLite: Open Database in Explorer** &nbsp; Open the selected database in the sidebar explorer.
+* **SQLite: Open Database** &nbsp; Open the selected database in the sqlite explorer.
 
-* **SQLite: Close Explorer Database** &nbsp; Remove the selected database from the explorer.
+* **SQLite: Close Database** &nbsp; Remove the selected database from the sqlite explorer.
+
+* **SQLite: Refresh Databases** &nbsp; Refresh databases open in the sqlite explorer.
 
 * **SQLite: Show output** &nbsp; Show the extension's output channel.
 
