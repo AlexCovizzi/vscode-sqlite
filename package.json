@@ -352,14 +352,15 @@
         ],
         "configuration": {
             "type": "object",
-            "title": "SQLite Configuration",
+            "title": "SQLite extension configuration",
             "properties": {
                 "sqlite.sqlite3": {
+                    "description": "SQLite3 command or binaries path.",
                     "type": "string",
-                    "default": "sqlite3",
-                    "description": "sqlite3 command or binaries path."
+                    "default": ""
                 },
                 "sqlite.logLevel": {
+                    "description": "Logging level in the output channel (DEBUG, INFO, WARN, ERROR)",
                     "type": "string",
                     "enum": [
                         "DEBUG",
@@ -367,14 +368,120 @@
                         "WARN",
                         "ERROR"
                     ],
-                    "default": "INFO",
-                    "description": "Logging level in the output channel (DEBUG, INFO, WARN, ERROR)"
+                    "default": "INFO"
                 },
                 "sqlite.recordsPerPage": {
+                    "description": "Number of records to show per page. (-1 to show all records)",
                     "type": "number",
-                    "default": 50,
                     "minimum": -1,
-                    "description": "Number of records to show per page. (-1 to show all records)"
+                    "default": 50
+                },
+                "sqlite.databaseConfig": {
+                    "markdownDescription": "Configure workspace databases by glob pattern. For example:\n\n`\"**/*/*.db\": { ... }`\n\nwill define the configuration used for every database in the workspace with extension `.db` (that is every database that matches the glob).\n\nUse `[default]` to define the base configuration for every database.\n\n**Note:** The configurations are incremental.",
+                    "type": "object",
+                    "default": {
+                        "[default]": {
+                            "tableQuery": {
+                                "columnsMap": [
+                                    {
+                                        "map": "hex(${column})",
+                                        "when": "type == binary || type == blob || type == guid || type == none"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "propertyNames": {
+                        "minLength": 1
+                    },
+                    "patternProperties": {
+                        ".*": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "enableForeignKeys": {
+                                    "description": "Enable Foreign keys",
+                                    "type": "boolean",
+                                    "default": "false"
+                                },
+                                "executeAfterOpen": {
+                                    "markdownDescription": "Execute this queries right after you open the database. The results of this queries won't be retuned. \n\n**Note:** This queries will effectevely be executed every time you run a query, since when running a query you open the database, run the query and then close the database.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "executeBeforeStatement": {
+                                    "markdownDescription": "",
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "query": {
+                                            "markdownDescription": "",
+                                            "type": "string"
+                                        },
+                                        "when": {
+                                            "markdownDescription": "",
+                                            "type": "string",
+                                            "pattern": "^\\s*\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?((\\s+(&&|\\|\\|)\\s+\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?))*$"
+                                        }
+                                    }
+                                },
+                                "executeAfterStatement": {
+                                    "markdownDescription": "",
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "query": {
+                                            "markdownDescription": "",
+                                            "type": "string"
+                                        },
+                                        "when": {
+                                            "markdownDescription": "",
+                                            "type": "string",
+                                            "pattern": "^\\s*\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?((\\s+(&&|\\|\\|)\\s+\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?))*$"
+                                        }
+                                    }
+                                },
+                                "tableQuery": {
+                                    "description": "Configuration of 'Show Table'.",
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "limit": {
+                                            "markdownDescription": "Limit the number of records (-1 to not limit). For example:\n\n`\"limit\": 100`\n\nwill result in a query like:\n\n`SELECT [columns] FROM [table] LIMIT 100;`",
+                                            "type": "integer",
+                                            "minimum": -1,
+                                            "default": -1
+                                        },
+                                        "appendSql": {
+                                            "markdownDescription": "Append a string after the select. For example:\n\n`\"appendSql\": \"JOIN [other_table] ON [condition]\"`\n\nwill result in a query like:\n\n`SELECT [columns] FROM [table] JOIN [other_table] ON [condition];`",
+                                            "type": "string"
+                                        },
+                                        "columnsMap": {
+                                            "markdownDescription": "",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "properties": {
+                                                    "map": {
+                                                        "markdownDescription": "",
+                                                        "type": "string"
+                                                    },
+                                                    "when": {
+                                                        "markdownDescription": "",
+                                                        "type": "string",
+                                                        "pattern": "^\\s*\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?((\\s+(&&|\\|\\|)\\s+\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?))*$"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
