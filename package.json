@@ -382,12 +382,12 @@
                     "default": {
                         "[default]": {
                             "tableQuery": {
-                                "columnsMap": [
-                                    {
-                                        "map": "hex(${column})",
+                                "*": {
+                                    "columnsReplace": {
+                                        "replace": "hex(${column})",
                                         "when": "type == binary || type == blob || type == guid || type == none"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
@@ -404,8 +404,33 @@
                                     "type": "boolean",
                                     "default": "false"
                                 },
+                                "attachDatabases": {
+                                    "description": "",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "path": {
+                                                "description": "",
+                                                "type": "string"
+                                            },
+                                            "alias": {
+                                                "description": "",
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
                                 "executeAfterOpen": {
-                                    "markdownDescription": "Execute this queries right after you open the database. The results of this queries won't be retuned. \n\n**Note:** This queries will effectevely be executed every time you run a query, since when running a query you open the database, run the query and then close the database.",
+                                    "markdownDescription": "Execute this queries right after you open the database. The results of this queries won't be returned. \n\n**Note:** This queries will effectevely be executed every time you run a query, since when running a query you open the database, run the query and then close the database.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "executeBeforeClose": {
+                                    "markdownDescription": "Execute this queries before closing the database.",
                                     "type": "array",
                                     "items": {
                                         "type": "string"
@@ -446,33 +471,65 @@
                                 "tableQuery": {
                                     "description": "Configuration of 'Show Table'.",
                                     "type": "object",
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "limit": {
-                                            "markdownDescription": "Limit the number of records (-1 to not limit). For example:\n\n`\"limit\": 100`\n\nwill result in a query like:\n\n`SELECT [columns] FROM [table] LIMIT 100;`",
-                                            "type": "integer",
-                                            "minimum": -1,
-                                            "default": -1
-                                        },
-                                        "appendSql": {
-                                            "markdownDescription": "Append a string after the select. For example:\n\n`\"appendSql\": \"JOIN [other_table] ON [condition]\"`\n\nwill result in a query like:\n\n`SELECT [columns] FROM [table] JOIN [other_table] ON [condition];`",
-                                            "type": "string"
-                                        },
-                                        "columnsMap": {
-                                            "markdownDescription": "",
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "additionalProperties": false,
-                                                "properties": {
-                                                    "map": {
-                                                        "markdownDescription": "",
+                                    "propertyNames": {
+                                        "minLength": 1
+                                    },
+                                    "patternProperties": {
+                                        ".*": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "limit": {
+                                                    "markdownDescription": "Limit the number of records (-1 to not limit). For example:\n\n`\"limit\": 100`\n\nwill result in a query like:\n\n`SELECT [columns] FROM [table] LIMIT 100;`",
+                                                    "type": "integer",
+                                                    "minimum": -1,
+                                                    "default": -1
+                                                },
+                                                "offset": {
+                                                    "markdownDescription": "",
+                                                    "type": "integer",
+                                                    "minimum": -1,
+                                                    "default": -1
+                                                },
+                                                "orderBy": {
+                                                    "markdownDescription": "",
+                                                    "type": "string"
+                                                },
+                                                "appendSql": {
+                                                    "markdownDescription": "Append a string after the select. For example:\n\n`\"appendSql\": \"JOIN [other_table] ON [condition]\"`\n\nwill result in a query like:\n\n`SELECT [columns] FROM [table] JOIN [other_table] ON [condition];`",
+                                                    "type": "string"
+                                                },
+                                                "columnsAdd": {
+                                                    "markdownDescription": "",
+                                                    "type": "array",
+                                                    "items": {
                                                         "type": "string"
-                                                    },
-                                                    "when": {
-                                                        "markdownDescription": "",
-                                                        "type": "string",
-                                                        "pattern": "^\\s*\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?((\\s+(&&|\\|\\|)\\s+\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?))*$"
+                                                    }
+                                                },
+                                                "columnsRemove": {
+                                                    "markdownDescription": "",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "columnsReplace": {
+                                                    "markdownDescription": "",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "replace": {
+                                                                "markdownDescription": "",
+                                                                "type": "string"
+                                                            },
+                                                            "when": {
+                                                                "markdownDescription": "",
+                                                                "type": "string",
+                                                                "pattern": "^\\s*\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?((\\s+(&&|\\|\\|)\\s+\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?))*$"
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
