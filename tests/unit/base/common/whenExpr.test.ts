@@ -1,4 +1,4 @@
-import * as whenExpr from '../../../src/utils/whenExpr';
+import * as whenExpr from "../../../../src/base/common/whenExpr";
 
 describe("whenExpr.ts", () => {
 
@@ -14,7 +14,7 @@ describe("whenExpr.ts", () => {
                 whenExpr.Operator.AND,
                 {variable: "is_ok"}
             ];
-            let actual = whenExpr.createWhenExpr(str).expression;
+            let actual = whenExpr.WhenExpr.parse(str).expression;
             
             expect(actual).toEqual(expected);
         });
@@ -25,7 +25,7 @@ describe("whenExpr.ts", () => {
             let expected: whenExpr.Expression = [
                 {variable: "is_ok"}
             ];
-            let actual = whenExpr.createWhenExpr(str).expression;
+            let actual = whenExpr.WhenExpr.parse(str).expression;
             
             expect(actual).toEqual(expected);
         });
@@ -36,26 +36,26 @@ describe("whenExpr.ts", () => {
             let expected: whenExpr.Expression = [
                 {variable: "is_ok"}
             ];
-            let actual = whenExpr.createWhenExpr(str).expression;
+            let actual = whenExpr.WhenExpr.parse(str).expression;
             
             expect(actual).toEqual(expected);
         });
 
         test("should throw an error if the expression is not valid", function() {
             let str_1 = "is_not_ok &&";
-            expect(() => { whenExpr.createWhenExpr(str_1); }).toThrow();
+            expect(() => { whenExpr.WhenExpr.parse(str_1); }).toThrow();
             let str_2 = "&& is_not_ok";
-            expect(() => { whenExpr.createWhenExpr(str_2); }).toThrow();
+            expect(() => { whenExpr.WhenExpr.parse(str_2); }).toThrow();
             let str_3 = "table ==";
-            expect(() => { whenExpr.createWhenExpr(str_3); }).toThrow();
+            expect(() => { whenExpr.WhenExpr.parse(str_3); }).toThrow();
             let str_4 = "table == ciao ||";
-            expect(() => { whenExpr.createWhenExpr(str_4); }).toThrow();
+            expect(() => { whenExpr.WhenExpr.parse(str_4); }).toThrow();
             let str_5 = "&& table == ciao || hell";
-            expect(() => { whenExpr.createWhenExpr(str_5); }).toThrow();
+            expect(() => { whenExpr.WhenExpr.parse(str_5); }).toThrow();
             let str_6 = "table== ciao || hello";
-            expect(() => { whenExpr.createWhenExpr(str_6); }).toThrow();
+            expect(() => { whenExpr.WhenExpr.parse(str_6); }).toThrow();
             let str_7 = "table == ciao ||hello";
-            expect(() => { whenExpr.createWhenExpr(str_7); }).toThrow();
+            expect(() => { whenExpr.WhenExpr.parse(str_7); }).toThrow();
         });
 
     });
@@ -66,7 +66,7 @@ describe("whenExpr.ts", () => {
             let str = "table == hello && column != not";
             let values = {table: "hello", column: "not_not"};
 
-            let actual = whenExpr.createWhenExpr(str).verify(values);
+            let actual = whenExpr.WhenExpr.parse(str).verify(values);
             
             expect(actual).toBeTruthy();
         });
@@ -75,7 +75,7 @@ describe("whenExpr.ts", () => {
             let str = "is_ok";
             let values = {is_ok: "truthy"};
 
-            let actual = whenExpr.createWhenExpr(str).verify(values);
+            let actual = whenExpr.WhenExpr.parse(str).verify(values);
             
             expect(actual).toBeTruthy();
         });
@@ -84,7 +84,7 @@ describe("whenExpr.ts", () => {
             let str = "is_not_ok";
             let values = {};
 
-            let actual = whenExpr.createWhenExpr(str).verify(values);
+            let actual = whenExpr.WhenExpr.parse(str).verify(values);
             
             expect(actual).toBeFalsy();
         });
@@ -93,7 +93,7 @@ describe("whenExpr.ts", () => {
             let str = "table == hello && column != not || is_ok";
             let values = {table: "not_hello", column: "not"};
 
-            let actual = whenExpr.createWhenExpr(str).verify(values);
+            let actual = whenExpr.WhenExpr.parse(str).verify(values);
             
             expect(actual).toBeFalsy();
         });

@@ -1,4 +1,4 @@
-import * as strings from '../../../src/utils/strings';
+import * as strings from "../../../../src/base/common/strings";
 
 describe("strings.ts", () => {
 

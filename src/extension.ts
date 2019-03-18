@@ -11,7 +11,7 @@ import ResultView from './resultview';
 import LanguageServer from './languageserver';
 import Explorer from './explorer';
 import { validateSqliteCommand } from './sqlite/sqliteCommandValidation';
-import Clipboard from './utils/clipboard';
+import Clipboard from './base/node/clipboard';
 import { Schema } from './common';
 
 export namespace Commands {
@@ -48,6 +48,7 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     configuration = getConfiguration();
     logger.setLogLevel(configuration.logLevel);
     setSqliteCommand(configuration.sqlite3, context.extensionPath);
+    
     
     context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
         configuration = getConfiguration();

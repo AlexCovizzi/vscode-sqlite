@@ -1,0 +1,1 @@
+Common utilities that do not depend on node or vscode modules (arrays, objects, types ...)

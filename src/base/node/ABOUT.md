@@ -1,0 +1,1 @@
+Base utilities that depend on node modules (es. globs: depends on micromatch, clipboard: depends on clipboardy ...)

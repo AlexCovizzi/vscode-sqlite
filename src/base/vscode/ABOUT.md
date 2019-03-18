@@ -1,0 +1,1 @@
+Base utilities that depend on the vscode API

@@ -1,5 +1,5 @@
 import { CliDatabase } from "./cliDatabase";
-import { isFileSync } from "../utils/files";
+import { isFileSync } from "../base/node/files";
 
 export type Schema = Schema.Database;
 
