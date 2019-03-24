@@ -14,3 +14,19 @@ export function isArray(obj: any): boolean {
     return Array.isArray(obj)
         && obj !== null;
 }
+
+export function isString(obj: any, minLength: number = 0, maxLength: number = Number.MAX_VALUE): obj is string {
+    return (
+        typeof obj === "string" &&
+        obj.length >= minLength &&
+        obj.length <= maxLength
+    );
+}
+
+export function isNumber(obj: any, min: number = Number.MIN_VALUE, max: number = Number.MAX_VALUE): obj is number {
+    return (
+        typeof obj === "number" &&
+        obj >= min &&
+        obj <= max
+    );
+}

@@ -3,7 +3,7 @@
 import { ExtensionContext, commands, Uri, TextDocument, workspace, window, Position } from 'vscode';
 import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection, showErrorMessage } from './vscodewrapper';
 import { logger } from './logging/logger';
-import { getConfiguration, Configuration } from './configuration';
+import { getConfiguration, Configuration } from './configuration/configuration';
 import { Constants } from './constants/constants';
 import SqlWorkspace from './sqlworkspace';
 import SQLite from './sqlite';
@@ -46,12 +46,13 @@ export function activate(context: ExtensionContext): Promise<boolean> {
 
     // load configuration and reload every time it's changed
     configuration = getConfiguration();
+    
     logger.setLogLevel(configuration.logLevel);
     setSqliteCommand(configuration.sqlite3, context.extensionPath);
     
-    
     context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
         configuration = getConfiguration();
+        
         logger.setLogLevel(configuration.logLevel);
         setSqliteCommand(configuration.sqlite3, context.extensionPath);
     }));

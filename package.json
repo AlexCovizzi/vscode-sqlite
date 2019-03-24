@@ -353,6 +353,7 @@
         "configuration": {
             "type": "object",
             "title": "SQLite extension configuration",
+            "additionalProperties": false,
             "properties": {
                 "sqlite.sqlite3": {
                     "description": "SQLite3 command or binaries path.",
@@ -410,6 +411,10 @@
                                     "items": {
                                         "type": "object",
                                         "additionalProperties": false,
+                                        "required": [
+                                            "path",
+                                            "alias"
+                                        ],
                                         "properties": {
                                             "path": {
                                                 "description": "",
@@ -447,8 +452,7 @@
                                         },
                                         "when": {
                                             "markdownDescription": "",
-                                            "type": "string",
-                                            "pattern": "^\\s*\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?((\\s+(&&|\\|\\|)\\s+\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?))*$"
+                                            "type": "string"
                                         }
                                     }
                                 },
@@ -463,8 +467,7 @@
                                         },
                                         "when": {
                                             "markdownDescription": "",
-                                            "type": "string",
-                                            "pattern": "^\\s*\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?((\\s+(&&|\\|\\|)\\s+\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?))*$"
+                                            "type": "string"
                                         }
                                     }
                                 },
@@ -519,6 +522,7 @@
                                                     "items": {
                                                         "type": "object",
                                                         "additionalProperties": false,
+                                                        "required": ["replace", "when"],
                                                         "properties": {
                                                             "replace": {
                                                                 "markdownDescription": "",
@@ -526,8 +530,7 @@
                                                             },
                                                             "when": {
                                                                 "markdownDescription": "",
-                                                                "type": "string",
-                                                                "pattern": "^\\s*\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?((\\s+(&&|\\|\\|)\\s+\\w+\\s*(\\s+(=|!)=\\s+\\w+\\s*)?))*$"
+                                                                "type": "string"
                                                             }
                                                         }
                                                     }
@@ -566,8 +569,8 @@
         "vscode": "^1.1.6"
     },
     "dependencies": {
-        "csv-parser": "^2.2.0",
         "clipboardy": "^1.2.3",
+        "csv-parser": "^2.2.0",
         "csv-stringify": "^3.1.1"
     }
 }

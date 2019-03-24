@@ -3,7 +3,7 @@ import { isObject } from "./types";
 /**
  * Merge two arrays.
  * @param allowDuplicates If this is `true` the returned array is the concatenation of the two arrays passed as argument,
- * otherwise, duplicate items (objects, arrays, others) are ignored
+ * otherwise, duplicate items (objects, arrays, others) are ignored. Defaults to `false`
  */
 export function merge<T>(arrA: T[], arrB: T[], allowDuplicates: boolean = false): T[] {
     if (arrA.length === 0) return arrB;

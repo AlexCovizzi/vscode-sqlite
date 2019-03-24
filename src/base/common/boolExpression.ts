@@ -115,6 +115,9 @@ class EvaluationImpl implements Evaluation {
     constructor(public variable: string) { }
 
     eval(context: ExprContext) {
+        if (this.variable.toLowerCase() === "true") return true;
+        if (this.variable.toLowerCase() === "false") return false;
+        
         let varValue = context[this.variable];
         return Boolean(varValue);
     }
