@@ -1,5 +1,5 @@
 import { join, basename } from "path";
-import { randomString } from "../../src/utils/utils";
+import { randomString } from "../helpers/utils";
 
 export namespace Fixture {
     export const DATABASE_MAIN = "main";

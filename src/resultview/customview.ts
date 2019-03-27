@@ -1,8 +1,8 @@
 import { WebviewPanel, window, ViewColumn, Disposable, Uri } from "vscode";
 import { dirname } from "path";
 import { readFile } from "fs";
-import { randomString } from "../utils/utils";
 import { EventEmitter } from "events";
+import { randomString } from "../base/common/strings";
 
 export interface Message {
     command: string;

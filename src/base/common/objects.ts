@@ -29,23 +29,16 @@ export function mixin(destination: any, source: any): any {
     return destination;
 }
 
-/**
- * Replace a property inside an object.
- * NOTE: This function uses `eval`, so make sure the values you are passing are safe.
- * @param instance The object of which you want to chnage the property
- * @param property The "path" to the property, starting with "instance", e.g "instance.person.name"
- * @param newValue The new value to replace
- */
-export function replaceProperty(instance: any, property: string, newValue: any) {
-    eval(`${property} = newValue`);
-}
-
-/**
- * Delete a property inside an object.
- * NOTE: This function uses `eval`, so make sure the values you are passing are safe.
- * @param instance The object of which you want to delete the property
- * @param property The "path" to the property, starting with "instance", e.g "instance.person.name"
- */
-export function deleteProperty(instance: any, property: string) {
-    eval(`delete ${property}`);
+export function queryObject(obj: Object, query: string): Object | undefined {
+    let ret: Object | undefined = obj;
+    let tokens = query.split('/').filter(tkn => tkn !== "");
+    while(true) {
+        let token = tokens.shift();
+        if (token && ret) {
+            ret = (<any>ret)[token];
+        } else {
+            break;
+        }
+    }
+    return ret;
 }
