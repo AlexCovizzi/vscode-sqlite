@@ -1,7 +1,7 @@
 import { Position, workspace, window, ViewColumn, Selection, TextDocument } from "vscode";
 import { isArray } from "util";
-import { normalize } from "../common/strings";
 import { includes } from "../common/arrays";
+import { normalizeString } from "../common/strings";
 
 export function createTextDocument(language?: string, content?: string, cursorPos: Position = new Position(0,0), show: boolean = false): Thenable<TextDocument> {
     return workspace.openTextDocument({language: language, content: content}).then(document => {
@@ -19,8 +19,8 @@ export function getActiveTextDocument(language?: string|string[]): TextDocument 
     if (!editor) return undefined;
     if (!language) return editor.document;
 
-    let languages = normalize(isArray(language)? language : [language]);
-    let documentLang = normalize(editor.document.languageId);
+    let languages = normalizeString(isArray(language)? language : [language]);
+    let documentLang = normalizeString(editor.document.languageId);
     if (includes(languages, documentLang)) return editor.document;
     else return undefined;
 }

@@ -45,7 +45,7 @@ class ConfigurationImpl implements Configuration {
     }
 
     private updateDefaultConfiguration() {
-        let workspaceConfiguration = workspace.getConfiguration(this.configPrefix);
+        let workspaceConfiguration = workspace.getConfiguration(this.configPrefix, null);
         this.defaultConfiguration = getExtensionConfiguration(workspaceConfiguration);
     }
 }

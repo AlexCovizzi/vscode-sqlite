@@ -356,11 +356,13 @@
             "additionalProperties": false,
             "properties": {
                 "sqlite.sqlite3": {
+                    "scope": "resource",
                     "description": "SQLite3 command or binaries path.",
                     "type": "string",
                     "default": ""
                 },
                 "sqlite.logLevel": {
+                    "scope": "resource",
                     "description": "Logging level in the output channel (DEBUG, INFO, WARN, ERROR)",
                     "type": "string",
                     "enum": [
@@ -372,12 +374,14 @@
                     "default": "INFO"
                 },
                 "sqlite.recordsPerPage": {
+                    "scope": "resource",
                     "description": "Number of records to show per page. (-1 to show all records)",
                     "type": "number",
                     "minimum": -1,
                     "default": 50
                 },
                 "sqlite.databaseConfig": {
+                    "scope": "resource",
                     "markdownDescription": "Configure workspace databases by glob pattern. For example:\n\n`\"**/*/*.db\": { ... }`\n\nwill define the configuration used for every database in the workspace with extension `.db` (that is every database that matches the glob).\n\nUse `[default]` to define the base configuration for every database.\n\n**Note:** The configurations are incremental.",
                     "type": "object",
                     "default": {

@@ -29,11 +29,11 @@ export function createFormattableString(str: string): FormattableString {
 /**
  * Normalize, trim, all lower case
  */
-export function normalizeString(str: string, trim: boolean, toLowerCase: boolean): string;
+export function normalizeString(str: string, trim?: boolean, toLowerCase?: boolean): string;
 /**
  * Normalize, trim, all lower case, remove empty
  */
-export function normalizeString(strArr: string[], trim: boolean, toLowerCase: boolean, removeEmpty: boolean): string[];
+export function normalizeString(strArr: string[], trim?: boolean, toLowerCase?: boolean, removeEmpty?: boolean): string[];
 
 export function normalizeString(strOrArr: string|string[], trim: boolean = true, toLowerCase: boolean = true, removeEmpty: boolean = true): string|string[] {
     if (typeof strOrArr === "string") {
@@ -44,7 +44,9 @@ export function normalizeString(strOrArr: string|string[], trim: boolean = true,
         return str;
     } else {
         let strArr = strOrArr as string[];
-        return strArr.map(str => normalizeString(str, trim, toLowerCase)).filter(str => str !== "");
+        strArr = strArr.map(str => normalizeString(str, trim, toLowerCase));
+        if (removeEmpty) strArr = strArr.filter(str => str !== "");
+        return strArr;
     }
 }
 
