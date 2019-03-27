@@ -1,9 +1,9 @@
 import { ChildProcess, spawn } from "child_process";
 import { Transform } from "stream";
 import { EOL } from "os";
-import { randomString } from "../utils/utils";
-import { Database } from "./interfaces/database";
 const csvparser = require("csv-parser");
+import { Database } from "./database";
+import { randomString } from "../../common/strings";
 
 const NO_HANDLER = (...args: any[]) => {}; // this is just an empty function to handle callbacks i dont care about
 
@@ -23,7 +23,7 @@ export class CliDatabase implements Database {
     private rows: string[][];
     private busy: boolean;
 
-    constructor(private command: string, private path: string, callback: (err: Error) => void) {
+    constructor(private command: string, readonly path: string, callback: (err: Error) => void) {
         let args = ["-csv", "-header", "-bail", "-nullvalue", "NULL"];
 
         this._started = false;
@@ -56,7 +56,7 @@ export class CliDatabase implements Database {
             this._write(`.print ${RESULT_SEPARATOR}${EOL}`);
             this.busy = true;
         } catch(err) {
-            let startError = new Error(`Database failed to open: '${this.path}'`);
+            let startError = new Error(`Database failed to open: `+err.toString());
             setTimeout(() => this.onStartError(startError), 0);
             return;
         }

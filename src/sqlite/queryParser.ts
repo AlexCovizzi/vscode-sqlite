@@ -1,6 +1,6 @@
 import { Statement, StatementType } from "./interfaces/statement";
 
-export function extractStatements(query: string): Statement[] {
+export function getStatements(query: string): Statement[] {
     let statements: Statement[] = [];
 
     let statement: Statement|undefined;

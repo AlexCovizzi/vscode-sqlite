@@ -1,16 +1,15 @@
-import { CliDatabase } from "./cliDatabase";
-import { Database } from "./interfaces/database";
-import { extractStatements } from "./queryParser";
+import { Database } from "../base/node/sqlite/database";
 import { ResultSet } from "../common";
 import { QueryResult } from ".";
 import { Statement } from "./interfaces/statement";
 import { logger } from "../logging/logger";
+import { getStatements } from "./queryParser";
 
-interface QueryExecutionOptions {
+interface QueryExecuteOptions {
     sql: string[]; // sql to execute before executing the query (e.g ATTACH DATABASE <path>; PRAGMA foreign_keys = ON; ecc)
 }
 
-export function executeQuery(sqlite3: string, dbPath: string, query: string, options: QueryExecutionOptions = {sql: []}): Promise<QueryResult> {
+export function executeQuery(sqlite3: string, dbPath: string, query: string, options: QueryExecuteOptions = {sql: []}): Promise<QueryResult> {
     if (!sqlite3) {
         return Promise.reject(new Error(`Unable to execute query: SQLite command is not valid: '${sqlite3}'`));
     }
@@ -22,7 +21,7 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
     // extract the statements from the query
     let statements: Statement[];
     try {
-        statements = extractStatements(query);
+        statements = getStatements(query);
     } catch(err) {
         return Promise.reject(`Unable to execute query: ${err.message}`);
     }
@@ -36,7 +35,7 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
     return new Promise((resolve, reject) => {
         let database: Database;
 
-        database = new CliDatabase(sqlite3, dbPath, (err) => {
+        database = Database.open(dbPath, {engine: "cli", command: sqlite3}, (err) => {
             // there was an error opening the database, reject
             reject(err);
         });

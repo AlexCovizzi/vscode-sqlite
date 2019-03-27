@@ -10,7 +10,7 @@ describe("QueryParser Tests", function () {
         let multiline_comment = `/* something that spans multiple \n lines and also that has ; another\n line yeah*/`;
         let query = ` \n${stmt1} ${inline_comment}\n    ${stmt2}${multiline_comment}\n${stmt3}`;
 
-        let actual = queryParser.extractStatements(query);
+        let actual = queryParser.getStatements(query);
         let expected = [stmt1, stmt2, stmt3];
 
         expect(actual.map(stmt => stmt.sql)).toEqual(expected);
@@ -25,7 +25,7 @@ describe("QueryParser Tests", function () {
         let multiline_comment = `/* something that spans multiple \r\n lines and also that has ; another\r\n line yeah*/`;
         let query = ` \t${stmt1} ${inline_comment}\n ${stmt2}${multiline_comment}`;
 
-        let actual = queryParser.extractStatements(query);
+        let actual = queryParser.getStatements(query);
         let expected = [expected_stmt1, expected_stmt2];
         
         expect(actual.map(s => s.sql)).toEqual(expected);
@@ -36,7 +36,7 @@ describe("QueryParser Tests", function () {
         let multiline_comment = `/* something that spans multiple and double dash -- qualcosa\n  also that has ;and /* *\\/ another\n line yeah*/`;
         let query = `${inline_comment}\n${multiline_comment}`;
 
-        let actual = queryParser.extractStatements(query);
+        let actual = queryParser.getStatements(query);
         let expected = [];
         
         expect(actual).toEqual(expected);
@@ -51,7 +51,7 @@ describe("QueryParser Tests", function () {
        
         select "a" as const;`;
 
-        let actual = queryParser.extractStatements(query);
+        let actual = queryParser.getStatements(query);
         let expected = ['select "a" as const;'];
 
         expect(actual.map(s => s.sql)).toEqual(expected);
@@ -60,7 +60,7 @@ describe("QueryParser Tests", function () {
     test("query of issue #11 should ignore the query that does not end with ;", function() {
         let query = `SELECT\n*\nFROM\nsqlite_master\n`;
 
-        let actual = queryParser.extractStatements(query);
+        let actual = queryParser.getStatements(query);
         let expected = ["SELECT\n*\nFROM\nsqlite_master;"];
 
         expect(actual.map(s => s.sql)).toEqual(expected);

@@ -1,5 +1,5 @@
-import { CliDatabase } from "../../../src/sqlite/cliDatabase";
-import { isRunning, wait } from "../../helpers/utils";
+import { CliDatabase } from "../../../../src/base/node/sqlite/cliDatabase";
+import { isRunning, wait } from "../../../helpers/utils";
 import { join } from "path";
 
 describe('CliDatabase Tests', () => {
