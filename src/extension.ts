@@ -3,7 +3,6 @@
 import { ExtensionContext, commands, Uri, TextDocument, workspace, window, Position } from 'vscode';
 import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection, showErrorMessage } from './vscodewrapper';
 import { logger } from './logging/logger';
-import { getConfiguration, Configuration } from './configuration/configuration';
 import { Constants } from './constants/constants';
 import SqlWorkspace from './sqlworkspace';
 import SQLite from './sqlite';
@@ -13,6 +12,7 @@ import Explorer from './explorer';
 import { validateSqliteCommand } from './sqlite/sqliteCommandValidation';
 import Clipboard from './base/node/clipboard';
 import { Schema } from './common';
+import { Configuration, getConfiguration } from './configuration/configuration';
 
 export namespace Commands {
     export const showOutputChannel = "sqlite.showOutputChannel";
@@ -45,16 +45,16 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     logger.info(`Activating extension ${Constants.extensionName} v${Constants.extensionVersion}...`);
 
     // load configuration and reload every time it's changed
-    configuration = getConfiguration();
+    configuration = getConfiguration("sqlite");
     
-    logger.setLogLevel(configuration.logLevel);
-    setSqliteCommand(configuration.sqlite3, context.extensionPath);
+    logger.setLogLevel(configuration.get().logLevel);
+    setSqliteCommand(configuration.get().cliCommand, context.extensionPath);
     
     context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
-        configuration = getConfiguration();
+        configuration.update();
         
-        logger.setLogLevel(configuration.logLevel);
-        setSqliteCommand(configuration.sqlite3, context.extensionPath);
+        logger.setLogLevel(configuration.get().logLevel);
+        setSqliteCommand(configuration.get().cliCommand, context.extensionPath);
     }));
 
     // initialize modules
@@ -283,7 +283,7 @@ function runQuery(dbPath: string, query: string, display: boolean) {
     });
 
     if (display) {
-        resultView.display(resultSet, configuration.recordsPerPage);
+        resultView.display(resultSet, configuration.get().recordsPerPage);
     }
 }
 

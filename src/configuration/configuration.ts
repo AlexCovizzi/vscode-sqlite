@@ -1,68 +1,51 @@
-import { getExtensionConfiguration } from "../base/vscode/configuration";
-const configurationSchema = require('../../package.json')["contributes"]["configuration"];
-const defaultConfiguration = _getDefaultConfiguration(configurationSchema);
+import { ExtensionConfiguration, getExtensionConfiguration } from "./extensionConfiguration";
+import { Uri, workspace } from "vscode";
 
 export interface Configuration {
-    sqlite3: string;
-    logLevel: string;
-    recordsPerPage: number;
-    databaseConfig: DatabaseConfig;
+    get: (resource?: Uri) => ExtensionConfiguration;
+    update: () => void;
 }
 
-interface DatabaseConfig {
-    [dbGlob: string]: DatabaseConfigInstance;
+export function getConfiguration(configPrefix: string): Configuration {
+    return new ConfigurationImpl(configPrefix);
 }
 
-interface DatabaseConfigInstance {
-    enableForeignKeys: boolean;
-    executeAfterOpen: string[];
-    executeBeforeClose: string[];
-    attachDatabases: {
-        path: string;
-        alias: string;
-    }[];
-    executeBeforeStatement: {
-        query: string;
-        when: string;
-    }[];
-    executeAfterStatement: {
-        query: string;
-        when: string;
-    }[];
-    tableQuery: TableQueryConfig;
-}
+class ConfigurationImpl implements Configuration {
+    private configurationMap: Map<Uri, ExtensionConfiguration>;
+    private defaultConfiguration!: ExtensionConfiguration;
 
-interface TableQueryConfig {
-    [tableGlob: string]: TableQueryConfigInstance;
-}
+    constructor(private configPrefix: string) {
+        this.configurationMap = new Map<Uri, ExtensionConfiguration>();
 
-interface TableQueryConfigInstance {
-    limit: number;
-    offset: number;
-    orderBy: string;
-    appendSql: string;
-    columnsAdd: string[];
-    columnsRemove: string[];
-    columnsReplace: {
-        replace: string;
-        when: string;
-    }[];
-}
+        this.update();
+    }
 
-export function getConfiguration(): Configuration {
-    let configPrefix = "sqlite";
-    let extensionConfiguration = getExtensionConfiguration<Configuration>(configPrefix, defaultConfiguration);
-    return extensionConfiguration;
-}
+    get(resource?: Uri): ExtensionConfiguration {
+        if (!resource) return this.defaultConfiguration;
+        let folder = workspace.getWorkspaceFolder(resource);
+        if (!folder) return this.defaultConfiguration;
+        let configuration = this.configurationMap.get(folder.uri);
+        if (!configuration) return this.defaultConfiguration;
+        return configuration;
+    }
 
+    update() {
+        this.updateFoldersConfigurations();
+        this.updateDefaultConfiguration();
+    }
 
-function _getDefaultConfiguration(schema: any): Configuration {
-    let properties = schema["properties"];
-    let defaultConfig = {
-        sqlite3: properties["sqlite.sqlite3"]["default"],
-        logLevel: properties["sqlite.logLevel"]["default"],
-        recordsPerPage: properties["sqlite.recordsPerPage"]["default"],
-        databaseConfig: properties["sqlite.databaseConfig"]["default"]
-    };
-    return defaultConfig;
+    private updateFoldersConfigurations() {
+        let folders = workspace.workspaceFolders || [];
+        let folderUris = folders.map(folder => folder.uri);
+        for(let uri of folderUris) {
+            let workspaceConfiguration = workspace.getConfiguration(this.configPrefix, uri);
+            let extensionConfiguration = getExtensionConfiguration(workspaceConfiguration);
+            this.configurationMap.set(uri, extensionConfiguration);
+        }
+    }
+
+    private updateDefaultConfiguration() {
+        let workspaceConfiguration = workspace.getConfiguration(this.configPrefix);
+        this.defaultConfiguration = getExtensionConfiguration(workspaceConfiguration);
+    }
 }
