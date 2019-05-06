@@ -1,3 +1,10 @@
 .statement {
     width: 80%;
 }
+
+
+.statementCollapsed {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
