@@ -6,10 +6,10 @@ import { logger } from "../logging/logger";
 import { getStatements } from "./queryParser";
 
 interface QueryExecuteOptions {
-    sql: string[]; // sql to execute before executing the query (e.g ATTACH DATABASE <path>; PRAGMA foreign_keys = ON; ecc)
+    sql?: string; // sql to execute before executing the query (e.g ATTACH DATABASE <path>; PRAGMA foreign_keys = ON; ecc)
 }
 
-export function executeQuery(sqlite3: string, dbPath: string, query: string, options: QueryExecuteOptions = {sql: []}): Promise<QueryResult> {
+export function executeQuery(sqlite3: string, dbPath: string, query: string, options?: QueryExecuteOptions): Promise<QueryResult> {
     if (!sqlite3) {
         return Promise.reject(new Error(`Unable to execute query: SQLite command is not valid: '${sqlite3}'`));
     }
@@ -41,9 +41,9 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
         });
 
         // execute sql before the queries, reject if there is any error
-        for(let sql of options.sql) {
-            database.execute(sql, (_rows, err) => {
-                if (err) reject(new Error(`Failed to execute: '${sql}': ${err.message}`));
+        if (options && options.sql) {
+            database.execute(options.sql, (_rows, err) => {
+                if (err) reject(new Error(`Failed to execute: '${options.sql}': ${err.message}`));
             });
         }
 

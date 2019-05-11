@@ -356,13 +356,13 @@
             "additionalProperties": false,
             "properties": {
                 "sqlite.sqlite3": {
-                    "scope": "resource",
+                    "scope": "window",
                     "description": "SQLite3 command or binaries path.",
                     "type": "string",
                     "default": ""
                 },
                 "sqlite.logLevel": {
-                    "scope": "resource",
+                    "scope": "window",
                     "description": "Logging level in the output channel (DEBUG, INFO, WARN, ERROR)",
                     "type": "string",
                     "enum": [
@@ -374,28 +374,23 @@
                     "default": "INFO"
                 },
                 "sqlite.recordsPerPage": {
-                    "scope": "resource",
+                    "scope": "window",
                     "description": "Number of records to show per page. (-1 to show all records)",
                     "type": "number",
                     "minimum": -1,
                     "default": 50
                 },
-                "sqlite.databaseConfig": {
+                "sqlite.enableForeignKeys": {
                     "scope": "resource",
-                    "markdownDescription": "Configure workspace databases by glob pattern. For example:\n\n`\"**/*/*.db\": { ... }`\n\nwill define the configuration used for every database in the workspace with extension `.db` (that is every database that matches the glob).\n\nUse `[default]` to define the base configuration for every database.\n\n**Note:** The configurations are incremental.",
+                    "description": "Enable Foreign keys",
+                    "type": "boolean",
+                    "default": false
+                },
+                "sqlite.setupDatabase": {
+                    "scope": "resource",
+                    "markdownDescription": "Configure workspace databases by glob pattern.",
                     "type": "object",
-                    "default": {
-                        "[default]": {
-                            "tableQuery": {
-                                "*": {
-                                    "columnsReplace": {
-                                        "replace": "hex(${column})",
-                                        "when": "type == binary || type == blob || type == guid || type == none"
-                                    }
-                                }
-                            }
-                        }
-                    },
+                    "default": {},
                     "propertyNames": {
                         "minLength": 1
                     },
@@ -404,21 +399,13 @@
                             "type": "object",
                             "additionalProperties": false,
                             "properties": {
-                                "enableForeignKeys": {
-                                    "description": "Enable Foreign keys",
-                                    "type": "boolean",
-                                    "default": "false"
-                                },
                                 "attachDatabases": {
                                     "description": "",
                                     "type": "array",
                                     "items": {
                                         "type": "object",
                                         "additionalProperties": false,
-                                        "required": [
-                                            "path",
-                                            "alias"
-                                        ],
+                                        "required": [ "path", "alias" ],
                                         "properties": {
                                             "path": {
                                                 "description": "",
@@ -429,119 +416,16 @@
                                                 "type": "string"
                                             }
                                         }
-                                    }
-                                },
-                                "executeAfterOpen": {
-                                    "markdownDescription": "Execute this queries right after you open the database. The results of this queries won't be returned. \n\n**Note:** This queries will effectevely be executed every time you run a query, since when running a query you open the database, run the query and then close the database.",
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                "executeBeforeClose": {
-                                    "markdownDescription": "Execute this queries before closing the database.",
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                "executeBeforeStatement": {
-                                    "markdownDescription": "",
-                                    "type": "object",
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "query": {
-                                            "markdownDescription": "",
-                                            "type": "string"
-                                        },
-                                        "when": {
-                                            "markdownDescription": "",
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "executeAfterStatement": {
-                                    "markdownDescription": "",
-                                    "type": "object",
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "query": {
-                                            "markdownDescription": "",
-                                            "type": "string"
-                                        },
-                                        "when": {
-                                            "markdownDescription": "",
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "tableQuery": {
-                                    "description": "Configuration of 'Show Table'.",
-                                    "type": "object",
-                                    "propertyNames": {
-                                        "minLength": 1
                                     },
-                                    "patternProperties": {
-                                        ".*": {
-                                            "type": "object",
-                                            "additionalProperties": false,
-                                            "properties": {
-                                                "limit": {
-                                                    "markdownDescription": "Limit the number of records (-1 to not limit). For example:\n\n`\"limit\": 100`\n\nwill result in a query like:\n\n`SELECT [columns] FROM [table] LIMIT 100;`",
-                                                    "type": "integer",
-                                                    "minimum": -1,
-                                                    "default": -1
-                                                },
-                                                "offset": {
-                                                    "markdownDescription": "",
-                                                    "type": "integer",
-                                                    "minimum": -1,
-                                                    "default": -1
-                                                },
-                                                "orderBy": {
-                                                    "markdownDescription": "",
-                                                    "type": "string"
-                                                },
-                                                "appendSql": {
-                                                    "markdownDescription": "Append a string after the select. For example:\n\n`\"appendSql\": \"JOIN [other_table] ON [condition]\"`\n\nwill result in a query like:\n\n`SELECT [columns] FROM [table] JOIN [other_table] ON [condition];`",
-                                                    "type": "string"
-                                                },
-                                                "columnsAdd": {
-                                                    "markdownDescription": "",
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "columnsRemove": {
-                                                    "markdownDescription": "",
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "columnsReplace": {
-                                                    "markdownDescription": "",
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "additionalProperties": false,
-                                                        "required": ["replace", "when"],
-                                                        "properties": {
-                                                            "replace": {
-                                                                "markdownDescription": "",
-                                                                "type": "string"
-                                                            },
-                                                            "when": {
-                                                                "markdownDescription": "",
-                                                                "type": "string"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                                    "default": []
+                                },
+                                "sql": {
+                                    "markdownDescription": "Execute this queries right after you open the database. The results of this queries won't be returned. \n\n**Note:** This queries will be executed every time you run a query, since when running a query you open the database, run the query and then close the database.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "default": []
                                 }
                             }
                         }

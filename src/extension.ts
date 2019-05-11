@@ -1,6 +1,6 @@
 'use strict';
 
-import { ExtensionContext, commands, Uri, TextDocument, workspace, window, Position } from 'vscode';
+import { ExtensionContext, commands, Uri, TextDocument, workspace, Position } from 'vscode';
 import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection, showErrorMessage } from './vscodewrapper';
 import { logger } from './logging/logger';
 import { Constants } from './constants/constants';
@@ -10,9 +10,9 @@ import ResultView from './resultview';
 import LanguageServer from './languageserver';
 import Explorer from './explorer';
 import { validateSqliteCommand } from './sqlite/sqliteCommandValidation';
-import Clipboard from './base/node/clipboard';
 import { Schema } from './common';
-import { Configuration, getConfiguration } from './configuration/configuration';
+import { ExtensionConfiguration, getExtensionConfiguration } from './configuration/configuration';
+import { copyToClipboard } from './base/vscode/clipboard';
 
 export namespace Commands {
     export const showOutputChannel = "sqlite.showOutputChannel";
@@ -33,7 +33,7 @@ export namespace Commands {
 }
 
 let sqliteCommand: string;
-let configuration: Configuration;
+let configuration: ExtensionConfiguration;
 let languageserver: LanguageServer;
 let sqlWorkspace: SqlWorkspace;
 let sqlite: SQLite;
@@ -45,16 +45,16 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     logger.info(`Activating extension ${Constants.extensionName} v${Constants.extensionVersion}...`);
 
     // load configuration and reload every time it's changed
-    configuration = getConfiguration("sqlite");
+    configuration = getExtensionConfiguration();
     
-    logger.setLogLevel(configuration.get().logLevel);
-    setSqliteCommand(configuration.get().cliCommand, context.extensionPath);
+    logger.setLogLevel(configuration.logLevel);
+    setSqliteCommand(configuration.cliCommand, context.extensionPath);
     
     context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
         configuration.update();
         
-        logger.setLogLevel(configuration.get().logLevel);
-        setSqliteCommand(configuration.get().cliCommand, context.extensionPath);
+        logger.setLogLevel(configuration.logLevel);
+        setSqliteCommand(configuration.cliCommand, context.extensionPath);
     }));
 
     // initialize modules
@@ -66,8 +66,11 @@ export function activate(context: ExtensionContext): Promise<boolean> {
 
     languageserver.setSchemaHandler(doc => {
         let dbPath = sqlWorkspace.getDocumentDatabase(doc);
-        if (dbPath) return sqlite.schema(sqliteCommand, dbPath);
-        else return Promise.resolve();
+        if (dbPath) {
+            let sql = configuration.getEngineConfig(dbPath).setupSql;
+            sql += configuration.getDatabaseConfig(dbPath).setupSql;
+            return sqlite.schema(sqliteCommand, dbPath, {sql: sql});
+        } else return Promise.resolve();
     });
 
     context.subscriptions.push(languageserver, sqlWorkspace, sqlite, explorer, resultView);
@@ -179,7 +182,9 @@ function useDatabase(): Thenable<string> {
 
 function explorerAdd(dbPath?: string): Thenable<void> {
     if (dbPath) {
-        return sqlite.schema(sqliteCommand, dbPath).then(
+        let sql = configuration.getEngineConfig(dbPath).setupSql;
+        sql += configuration.getDatabaseConfig(dbPath).setupSql;
+        return sqlite.schema(sqliteCommand, dbPath, {sql: sql}).then(
             schema => {
                 return explorer.add(schema);
             },
@@ -210,7 +215,7 @@ function explorerRemove(dbPath?: string): Thenable<void> {
                 if (dbPath) return explorerRemove(dbPath);
             },
             onrejected => {
-                // fail silently
+                // No database selected
             }
         );
     }
@@ -221,7 +226,9 @@ function explorerRefresh(): Thenable<any> {
     return Promise.all(
         dbList.map(db => {
             let dbPath = db.path;
-            return sqlite.schema(sqliteCommand, dbPath).then(
+            let sql = configuration.getEngineConfig(dbPath).setupSql;
+            sql += configuration.getDatabaseConfig(dbPath).setupSql;
+            return sqlite.schema(sqliteCommand, dbPath, {sql: sql}).then(
                 schema => {
                     return explorer.add(schema);
                 },
@@ -272,7 +279,9 @@ function runSqliteMasterQuery(dbPath: string) {
 }
 
 function runQuery(dbPath: string, query: string, display: boolean) {
-    let resultSet = sqlite.query(sqliteCommand, dbPath, query).then(({resultSet, error}) => {
+    let sql = configuration.getEngineConfig(dbPath).setupSql;
+    sql += configuration.getDatabaseConfig(dbPath).setupSql;
+    let resultSet = sqlite.query(sqliteCommand, dbPath, query, {sql: sql}).then(({resultSet, error}) => {
         // log and show if there is any error
         if (error) {
             logger.error(error.message);
@@ -283,7 +292,7 @@ function runQuery(dbPath: string, query: string, display: boolean) {
     });
 
     if (display) {
-        resultView.display(resultSet, configuration.get().recordsPerPage);
+        resultView.display(resultSet, configuration.recordsPerPage);
     }
 }
 
@@ -295,12 +304,6 @@ function setSqliteCommand(command: string, extensionPath: string) {
         showErrorMessage(e.message, {title: "Show output", command: Commands.showOutputChannel});
         sqliteCommand = "";
     }
-}
-
-function copyToClipboard(text: string) {
-    return Clipboard.copy(text).then(() => {
-        return window.setStatusBarMessage(`Copied '${text}' to clipboard.`, 2000);
-    });
 }
 
 // this method is called when your extension is deactivated

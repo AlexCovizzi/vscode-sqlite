@@ -56,7 +56,7 @@ class Logger implements Disposable {
 
     private log(msg: string, level: LogLevel) {
         const time = new Date().toLocaleTimeString();
-        msg = `[${time}][${Constants.extensionName}][${LogLevel}] ${msg}`;
+        msg = `[${time}][${Constants.extensionName}][${level}] ${msg}`;
         // i dont think log to console is needed for the extension
         /*
         switch(level) {

@@ -1,0 +1,20 @@
+// when variables: dbPath, dbRelativePath, dbExt, dbName, dbFullName, stmtType, stmtFirstWord, tableName, tableType, colName, colType, colDefVal, colPk
+{
+    "sqlite.sqlite3": "",
+    "sqlite.logLevel": "INFO",
+    "sqlite.enableForeignKeys": true,
+    "sqlite.setupDatabase": {
+        "test_db/dbs": {
+            "attachDatabases": [
+                {
+                    "path": "<path relative to workspaces>",
+                    "alias": "name"
+                }
+            ],
+            "sql": [
+                "select * fro dvk",
+                "sdgfksdl"
+            ]
+        }
+    }
+}

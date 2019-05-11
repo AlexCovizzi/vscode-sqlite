@@ -1,3 +1,7 @@
+export function isBoolean(obj: any): obj is boolean {
+    return (obj === false || obj === true);
+}
+
 export function isObject(obj: any, strict: boolean = true): boolean {
     if (strict) {
         return typeof obj === "object"
