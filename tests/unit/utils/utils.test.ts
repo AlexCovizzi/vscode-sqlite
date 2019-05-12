@@ -40,4 +40,40 @@ describe("utils.ts", () => {
             expect(actual).toEqual(expected);
         });
     });
+
+    describe("uniqueBy", function () {
+
+        test("should filter out elements with the same value on the property passed as argument", function() {
+            let arr = [{name: "alex"}, {name: "alessio"}, {name: "alessandro"}, {name: "simone"}, {name: "mirko"}, {name: "alex"}, {name: "alessio"}];
+            let expected = [{name: "alex"}, {name: "alessio"}, {name: "alessandro"}, {name: "simone"}, {name: "mirko"}];
+            let actual = utils.uniqueBy(arr, "name");
+
+            expect(actual).toStrictEqual(expected);
+        });
+
+        test("should return the same array if there are no duplicate property values", function() {
+            let arr = [{name: "alex"}, {name: "alessio"}, {name: "alessandro"}, {name: "simone"}, {name: "mirko"}];
+            let expected = [{name: "alex"}, {name: "alessio"}, {name: "alessandro"}, {name: "simone"}, {name: "mirko"}];
+            let actual = utils.uniqueBy(arr, "name");
+
+            expect(actual).toStrictEqual(expected);
+        });
+
+        test("should return the same array if the property passed as argument is not a property of the elements in the array", function() {
+            let arr = [{name: "alex"}, {name: "alessio"}, {name: "alessandro"}, {name: "simone"}, {name: "mirko"}];
+            let expected = [{name: "alex"}, {name: "alessio"}, {name: "alessandro"}, {name: "simone"}, {name: "mirko"}];
+            let actual = utils.uniqueBy(arr, "age");
+
+            expect(actual).toStrictEqual(expected);
+        });
+
+        test("empty array", function() {
+            let arr = [];
+            let expected = [];
+            let actual = utils.uniqueBy(arr, "age");
+
+            expect(actual).toStrictEqual(expected);
+        });
+
+    });
 });
