@@ -27,10 +27,10 @@ export class Statement extends Component<Props, State> {
         return (
             <Fetch resource={`resultSet/${props.idx}/stmt`} forceUpdate={true}>
                 {(response: Response) => (
-                    <div class={state.isCollapsed ? style.statementCollapsed : null} onClick={() => this.onclick()}>
-                        {response.loading && <code>Loading...</code>}
-                        {response.error &&  <code>Error: {response.error}</code>}
-                        {response.data && <code>{response.data}</code>} 
+                    <div class={state.isCollapsed ? style.statementCollapsed : style.statement} onClick={() => this.onclick()}>
+                        {response.loading && <code class={style.code}>Loading...</code>}
+                        {response.error &&  <code class={style.code}>Error: {response.error}</code>}
+                        {response.data && <code class={style.code}> {response.data}</code>}
                     </div>
                 )}
             </Fetch>

@@ -1,7 +1,10 @@
 .statement {
-    width: 80%;
+    white-space: pre-line;
 }
-
+.code {
+    cursor: default;
+    font-family: monospace;
+}
 
 .statementCollapsed {
     white-space: nowrap;
