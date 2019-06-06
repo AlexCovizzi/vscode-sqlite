@@ -49,6 +49,8 @@ No requirements
 
 * `"sqlite.recordsPerPage": <number>` &nbsp; Number of records to show per page. (-1 to show all records).
 
+* `"sqlite.databaseExtensions": <string[]>` &nbsp; The file extensions recognized as SQLite database.
+
 
 ## Known Issues
 
