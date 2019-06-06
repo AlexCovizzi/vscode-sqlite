@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.7.0 (6 Jun 2019)
+
+Added
+1. Added setting ```"sqlite.databaseExtensions"```, to customize file extensions recognized as SQLite database.
+
 ## 0.6.0 (13 Mar 2019)
 
 Added
