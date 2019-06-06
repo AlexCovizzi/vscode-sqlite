@@ -375,6 +375,14 @@
                     "default": 50,
                     "minimum": -1,
                     "description": "Number of records to show per page. (-1 to show all records)"
+                },
+                "sqlite.databaseExtensions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": [ "db", "db3", "sdb", "s3db", "sqlite", "sqlite3"],
+                    "description": "The file extensions recognized as SQLite database."
                 }
             }
         }
