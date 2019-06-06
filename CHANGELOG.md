@@ -5,6 +5,10 @@
 Added
 1. Added setting ```"sqlite.databaseExtensions"```, to customize file extensions recognized as SQLite database.
 
+Changed
+1. Autocompletion now suggests only the name of the column (instead of `[table].[column]`)
+2. The statement in the result panel is now collapsed in a single line and can be expanded clicking on it.
+
 ## 0.6.0 (13 Mar 2019)
 
 Added
