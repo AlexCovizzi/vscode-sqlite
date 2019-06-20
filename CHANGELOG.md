@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.7.1 (20 Jun 2019)
+
+Fixed
+1. Fixed bug that caused SQLite binaries with version not supported to not throw an error when used.
+2. Fixed bug that caused, in some OSs, SQLite binaries to not work as expected.
+
 ## 0.7.0 (6 Jun 2019)
 
 Added
