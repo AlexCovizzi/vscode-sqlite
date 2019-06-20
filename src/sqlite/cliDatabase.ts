@@ -191,6 +191,10 @@ export class CliDatabase implements Database {
 
     private onError(data: string|Buffer) {
         if (!data) return;
+        
+        // Workaround for CentOS (and maybe other OS's) where the command throws an error at the start but everything works fine
+        if (data.toString().match(/\: \/lib64\/libtinfo\.so\.[0-9]+: no version information available \(required by /)) return;
+
         this.errStr += data.toString();
         // last part of the error output
         if (this.errStr.endsWith("\n")) {

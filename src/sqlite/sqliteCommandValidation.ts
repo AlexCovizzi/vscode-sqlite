@@ -28,15 +28,22 @@ export function validateSqliteCommand(sqliteCommand: string, extensionPath: stri
 // verifies that the command/path passed as argument is an sqlite command
 export function isSqliteCommandValid(sqliteCommand: string) {
     let proc = spawnSync(`"${sqliteCommand}"`, [`-version`], {shell: true});
-    
+    let error = proc.stderr.toString();
     let output = proc.stdout.toString();
+    
+    // if there is any error the command is note valid
+    // Note: the string match is a workaround for CentOS (and maybe other OS's) where the command throws an error at the start but everything works fine
+    if (error && !error.match(/\: \/lib64\/libtinfo\.so\.[0-9]+: no version information available \(required by /)) {
+        logger.debug(`'${sqliteCommand}' is not a valid SQLite command: ${error}`);
+        return false;
+    }
 
     // out must be: {version at least 3} {date} {time}}
     // this is a naive way to check that the command is for sqlite3 after version 3.9
-    let match = output.match(/3\.[0-9]{1,2}\.[0-9]{1,2} [0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}\:[0-9]{2}\:[0-9]{2}/);
+    let match = output.match(/3\.(?:9|[0-9][0-9])\.[0-9]{1,2} [0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}\:[0-9]{2}\:[0-9]{2}/);
     
     if(!match) {
-        logger.debug(`'${sqliteCommand}' is not a valid SQLite command.`);
+        logger.debug(`'${sqliteCommand}' is not a valid SQLite command: version must be >= 3.9`);
     }
     
     return match? true : false;
