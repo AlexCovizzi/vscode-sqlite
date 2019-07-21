@@ -1,6 +1,6 @@
 'use strict';
 
-import { ExtensionContext, commands, Uri, TextDocument, workspace, window, Position } from 'vscode';
+import { ExtensionContext, commands, Uri, TextDocument, workspace, window, Position, Range } from 'vscode';
 import { pickListDatabase, pickWorkspaceDatabase, showQueryInputBox, createSqlDocument, getEditorSqlDocument, getEditorSelection, showErrorMessage } from './vscodewrapper';
 import { logger } from './logging/logger';
 import { getConfiguration, Configuration } from './configuration';
@@ -13,10 +13,12 @@ import Explorer from './explorer';
 import { validateSqliteCommand } from './sqlite/sqliteCommandValidation';
 import Clipboard from './utils/clipboard';
 import { Schema } from './common';
+import { extractStatements } from './sqlite/queryParser';
 
 export namespace Commands {
     export const showOutputChannel = "sqlite.showOutputChannel";
     export const runDocumentQuery = "sqlite.runDocumentQuery";
+    export const runSelectedQuery = "sqlite.runSelectedQuery";
     export const useDatabase: string = 'sqlite.useDatabase';
     export const explorerAdd: string = 'sqlite.explorer.add';
     export const explorerRemove: string = 'sqlite.explorer.remove';
@@ -77,6 +79,10 @@ export function activate(context: ExtensionContext): Promise<boolean> {
 
     context.subscriptions.push(commands.registerCommand(Commands.runDocumentQuery, () => {
         return runDocumentQuery();
+    }));
+
+    context.subscriptions.push(commands.registerCommand(Commands.runSelectedQuery, () => {
+        return runSelectedQuery();
     }));
     
     context.subscriptions.push(commands.registerCommand(Commands.explorerAdd, (dbUri?: Uri) => {
@@ -146,9 +152,48 @@ function runDocumentQuery() {
     if (sqlDocument) {
         let dbPath = sqlWorkspace.getDocumentDatabase(sqlDocument);
         if (dbPath) {
-            let selection = getEditorSelection();
-            let query = sqlDocument.getText(selection);
+            // let selection = getEditorSelection();
+            let query = sqlDocument.getText();
             runQuery(dbPath, query, true);
+        } else {
+            useDatabase().then(dbPath => {
+                if (dbPath) runDocumentQuery();
+            });
+        }
+    }
+}
+
+function runSelectedQuery() {
+    let sqlDocument = getEditorSqlDocument();
+    if (sqlDocument) {
+        let dbPath = sqlWorkspace.getDocumentDatabase(sqlDocument);
+        if (dbPath) {
+            let selection = getEditorSelection();
+            let query = "";
+            if (!selection) {
+                query = sqlDocument.getText();
+            } else if (selection.isEmpty) {
+                let text = sqlDocument.getText();
+                let statements = extractStatements(text);
+                // find the statement that includes the selection
+                for (let stmt of statements) {
+                    let stmtStartPosition = new Position(stmt.position.start[0], stmt.position.start[1]);
+                    let stmtEndPosition = new Position(stmt.position.end[0], stmt.position.end[1]+1);
+                    let stmtRange = new Range(stmtStartPosition, stmtEndPosition);
+                    if (stmtRange.contains(selection)) {
+                            query = stmt.sql;
+                            break;
+                        }
+                }
+            } else {
+                query = sqlDocument.getText(selection);
+            }
+            if (query != "") {
+                runQuery(dbPath, query, true);
+            } else {
+                let message = `No query selected.`;
+                showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
+            }
         } else {
             useDatabase().then(dbPath => {
                 if (dbPath) runDocumentQuery();
@@ -248,6 +293,7 @@ function newQueryInsert(table: Schema.Table): Thenable<any> {
     let contentL0 = `INSERT INTO \`${table.name}\` (${table.columns.map(c => c.name).join(", ")})`;
     let contentL1 = `VALUES ();`;
     let content = contentL0 + "\n" + contentL1;
+    // move the cursor inside the round brackets
     let cursorPos = new Position(1, contentL1.length-2);
     return newQuery(table.database, content, cursorPos);
 }
