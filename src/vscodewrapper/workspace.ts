@@ -25,6 +25,6 @@ export function getEditorSqlDocument(): TextDocument | undefined {
     
 export function getEditorSelection(): Selection | undefined {
     let selection = window.activeTextEditor? window.activeTextEditor.selection : undefined;
-    selection = selection && selection.isEmpty? undefined : selection;
+    // selection = selection && selection.isEmpty? undefined : selection;
     return selection;
 }

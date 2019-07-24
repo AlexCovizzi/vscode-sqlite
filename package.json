@@ -3,7 +3,7 @@
     "icon": "resources/icon/icon_128x128.png",
     "displayName": "SQLite",
     "description": "Explore and query SQLite databases.",
-    "version": "0.7.1",
+    "version": "0.8.0",
     "publisher": "alexcvzz",
     "repository": {
         "url": "https://github.com/AlexCovizzi/vscode-sqlite",
@@ -108,6 +108,11 @@
                 "category": "SQLite"
             },
             {
+                "command": "sqlite.runSelectedQuery",
+                "title": "Run Selected Query",
+                "category": "SQLite"
+            },
+            {
                 "command": "sqlite.runTableQuery",
                 "title": "Show Table",
                 "category": "SQLite",
@@ -177,6 +182,11 @@
                     "group": "sqlite"
                 },
                 {
+                    "command": "sqlite.runSelectedQuery",
+                    "when": "editorLangId =~ /(sql|sqlite)/",
+                    "group": "sqlite"
+                },
+                {
                     "command": "sqlite.useDatabase",
                     "when": "editorLangId =~ /(sql|sqlite)/",
                     "group": "sqlite"
@@ -235,8 +245,13 @@
                 },
                 {
                     "when": "editorTextFocus && editorLangId =~ /(sql|sqlite)/",
-                    "command": "sqlite.useDatabase",
+                    "command": "sqlite.runSelectedQuery",
                     "group": "9.1_sqlite@2"
+                },
+                {
+                    "when": "editorTextFocus && editorLangId =~ /(sql|sqlite)/",
+                    "command": "sqlite.useDatabase",
+                    "group": "9.1_sqlite@3"
                 }
             ],
             "view/title": [

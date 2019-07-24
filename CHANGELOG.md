@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.8.0 (24 Jul 2019)
+
+Added
+1. Added command ```Run Selected Query``` to run only the query selected in the document.
+
+Changed
+1. The command ```Run Query``` now runs every query in the document (previously if there was a query selected it ran that query)
+
 ## 0.7.1 (20 Jun 2019)
 
 Fixed
