@@ -35,7 +35,7 @@ export function extractStatements(query: string): Statement[] {
                 } else if (!isString && char === '"') {
                     isString = true;
                     stringChar = '"';
-                } else if (isString && char === stringChar && prevChar !== stringChar) {
+                } else if (isString && char === stringChar) {
                     isString = false;
                     stringChar = '';
                 }

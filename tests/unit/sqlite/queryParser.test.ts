@@ -65,4 +65,32 @@ describe("QueryParser Tests", function () {
 
         expect(actual.map(s => s.sql)).toEqual(expected);
     });
+
+    test("should parse string when quote is escaped", function() {
+        let query = `SELECT * FROM sqlite_master WHERE name LIKE "ciao""hey";`;
+
+        let actual = queryParser.extractStatements(query);
+        let expected = ['SELECT * FROM sqlite_master WHERE name LIKE "ciao""hey";'];
+
+        expect(actual.map(s => s.sql)).toEqual(expected);
+
+        
+        let query1 = `SELECT * FROM sqlite_master WHERE name LIKE """hey""";`;
+
+        let actual1 = queryParser.extractStatements(query1);
+        let expected1 = ['SELECT * FROM sqlite_master WHERE name LIKE """hey""";'];
+
+        expect(actual1.map(s => s.sql)).toEqual(expected1);
+    });
+
+    test("should parse empty strings (\"\") correctely (issue #82)", function() {
+        let query = `SELECT * FROM sqlite_master WHERE name LIKE "";`;
+
+        let actual = queryParser.extractStatements(query);
+        let expected = ['SELECT * FROM sqlite_master WHERE name LIKE "";'];
+
+        expect(actual.map(s => s.sql)).toEqual(expected);
+    });
+
+
 });
