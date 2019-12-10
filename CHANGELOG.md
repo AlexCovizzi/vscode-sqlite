@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.8.1 (10 December 2019)
+## 0.8.1 (10 Dec 2019)
 
 Fixed
 1. Fixed bug that caused emptry strings in the query to be parsed incorrectly ([#82](https://github.com/AlexCovizzi/vscode-sqlite/issues/82)).
