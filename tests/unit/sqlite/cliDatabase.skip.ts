@@ -3,7 +3,7 @@ import { isRunning, wait } from "../../helpers/utils";
 import { join } from "path";
 
 describe('CliDatabase Tests', () => {
-    
+
     test('new should start a new database without errors and close should close the database without errors', (done) => {
         expect.assertions(1);
 

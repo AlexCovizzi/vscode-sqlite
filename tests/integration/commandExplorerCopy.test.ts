@@ -10,6 +10,7 @@ import { Fixture } from '../fixtures';
 import { createDatabase, removeDatabase } from '../helpers/fixtureHelper';
 
 jest.mock('vscode');
+jest.mock('clipboardy');
 
 describe(`Command: ${Commands.explorerCopyName}`, () => {
     let databaseFixture: Fixture.Database = Fixture.getDatabase(Fixture.DATABASE_MAIN);
@@ -62,8 +63,7 @@ describe(`Command: ${Commands.explorerCopyName}`, () => {
         await explorerCopyNameCallback(tableTreeChild);
 
         // make sure the name of the table is copied to the clipboard
-        let clipboardText = await clipboardy.read();
-        expect(clipboardText).toBe(tableName);
+        expect(clipboardy.write).toBeCalledWith(tableName);
     });
 
     test(`command ${Commands.explorerCopyName} should copy to clipboard the name of the column selected from the explorer`, async () => {
@@ -91,8 +91,7 @@ describe(`Command: ${Commands.explorerCopyName}`, () => {
         await explorerCopyNameCallback(colTreeChild);
 
         // make sure the name of the column is copied to the clipboard
-        let clipboardText = await clipboardy.read();
-        expect(clipboardText).toBe(colName);
+        expect(clipboardy.write).toBeCalledWith(colName);
     });
 
 });
@@ -128,9 +127,9 @@ describe(`Command: ${Commands.explorerCopyPath}`, () => {
         jest.clearAllMocks();
     });
 
-    test(`command ${Commands.explorerCopyPath} should copy to clipboard the absoulute path of the database selected from the explorer`, async () => {
-        expect.assertions(2);
-        
+    test(`command ${Commands.explorerCopyPath} should copy to clipboard the path of the database selected from the explorer`, async () => {
+        expect.assertions(1);
+
         // this is the uri of the database we are opening
         let uri = {scheme: "file", fsPath: databaseFixture.path};
 
@@ -142,11 +141,9 @@ describe(`Command: ${Commands.explorerCopyPath}`, () => {
         let databaseTreeChild = databaseTreeChildren[0];
 
         await explorerCopyPathCallback(databaseTreeChild);
-        
-        // make sure the absolute of the database is copied to the clipboard
-        let clipboardText = await clipboardy.read();
-        expect(isAbsolute(clipboardText)).toBeTruthy();
-        expect(clipboardText).toBe(dbPath);
+
+        // make sure the path of the database is copied to the clipboard
+        expect(clipboardy.write).toBeCalledWith(dbPath);
     });
 
 });
