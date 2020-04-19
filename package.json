@@ -414,6 +414,7 @@
         "compile": "tsc -p ./",
         "install-html": "cd ./src/resultview/htmlcontent && npm install",
         "build-html": "cd ./src/resultview/htmlcontent && npm run build",
+        "test-html": "cd ./src/resultview/htmlcontent && npm run test",
         "watch": "tsc -watch -p ./",
         "test": "jest --silent --config jest.json"
     },
