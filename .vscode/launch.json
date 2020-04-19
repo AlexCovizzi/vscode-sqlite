@@ -25,9 +25,9 @@
             "name": "Extension Tests",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
             "args": ["--silent", "--config", "jest.json"],
-            "console": "externalTerminal",
+            "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "disableOptimisticBPs": true,
+            "protocol": "inspector",
             "windows": {
                 "program": "${workspaceFolder}/node_modules/jest/bin/jest",
             }
@@ -38,7 +38,7 @@
             "name": "Test Current File",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
             "args": ["--runTestsByPath", "${relativeFile}", "--silent", "--config", "jest.json", "--verbose"],
-            "console": "externalTerminal",
+            "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true,
             "windows": {
@@ -51,7 +51,7 @@
             "name": "Test Current File (Log)",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
             "args": ["--runTestsByPath", "${relativeFile}", "--config", "jest.json", "--verbose"],
-            "console": "externalTerminal",
+            "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true,
             "windows": {

@@ -20,14 +20,14 @@ export function getConfiguration() {
 }
 
 function _sqlite3(): string {
-    let sqlite3Conf = workspace.getConfiguration().get('sqlite.sqlite3');
-    let sqlite3: string | undefined = sqlite3Conf? sqlite3Conf.toString() : '';
+    let sqlite3Conf = workspace.getConfiguration().get<string>('sqlite.sqlite3');
+    let sqlite3 = sqlite3Conf? sqlite3Conf.toString() : '';
 
     return sqlite3;
 }
 
 function _logLevel(): string {
-    let logLevelConf = workspace.getConfiguration().get('sqlite.logLevel');
+    let logLevelConf = workspace.getConfiguration().get<string>('sqlite.logLevel');
     let logLevel: string = properties["sqlite.logLevel"]["default"];
 
     if (logLevelConf && (<any>Level)[`${logLevelConf}`] != null) {
