@@ -96,7 +96,14 @@ export class CustomView extends EventEmitter implements Disposable {
     }
 
     private replaceUris(html: string, htmlPath: string) {
+        if (!this.panel) return html;
+
         let basePath = Uri.file(dirname(htmlPath)).with({scheme: this.resourceScheme}).toString();
+        try {
+            basePath = (this.panel.webview as any).asWebviewUri(Uri.file(dirname(htmlPath))).toString();
+        } catch(err) {
+            // Note: This is a relly bad way to assign base path but for now it will do
+        }
         let regex = /(href|src)\=\"(.+?)\"/g;
         html = html.replace(regex, `$1="${basePath+'$2'}"`);
         return html;
