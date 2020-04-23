@@ -416,7 +416,8 @@
         "build-html": "cd ./src/resultview/htmlcontent && npm run build",
         "test-html": "cd ./src/resultview/htmlcontent && npm run test",
         "watch": "tsc -watch -p ./",
-        "test": "jest --silent --config jest.json"
+        "test": "jest --silent --config jest.json",
+        "package": "vsce package"
     },
     "devDependencies": {
         "@types/jest": "~25.2.0",
@@ -427,7 +428,8 @@
         "sqlite3": "~4.1.0",
         "ts-jest": "~25.2.0",
         "tslint": "~6.1.0",
-        "typescript": "~3.2.4"
+        "typescript": "~3.2.4",
+        "vsce": "^1.75.0"
     },
     "dependencies": {
         "csv-parser": "~2.3.0",
