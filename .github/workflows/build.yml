@@ -34,12 +34,10 @@ jobs:
         npm run test-html
     - name: Package
       run: npm run package
-    - name: Get version
-      run: ::set-env name=VERSION::$(node -p -e "require('./package.json').version")
+    - name: Set version
+      run: echo ::set-env name=VERSION::$(node -p -e "require('./package.json').version")
     - name: Upload artifact
       uses: actions/upload-artifact@v1
       with:
         name: vscode-sqlite-${{ env.VERSION }}
         path: vscode-sqlite-${{ env.VERSION }}.vsix
-      env:
-        CI: true
