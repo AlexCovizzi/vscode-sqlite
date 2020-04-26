@@ -1,7 +1,6 @@
 import { CliDatabase } from "./cliDatabase";
 import { isFileSync } from "../utils/files";
 import { logger } from "../logging/logger";
-import { showErrorMessage } from "../vscodewrapper";
 
 export type Schema = Schema.Database;
 
