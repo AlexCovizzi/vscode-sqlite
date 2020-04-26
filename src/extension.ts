@@ -281,8 +281,11 @@ function explorerRefresh(): Thenable<any> {
     );
 }
 
-function newQuerySelect(table: Schema.Table): Thenable<any> {
-    let contentL0 = `SELECT ${table.columns.map(c => c.name).join(", ")}`;
+export function newQuerySelect(table: Schema.Table): Thenable<any> {
+    function sqlSafeColName(name: string) {
+        return name.indexOf(" ") < 0 ? name : `\`${name}\``;
+    }
+    let contentL0 = `SELECT ${table.columns.map(c => sqlSafeColName(c.name)).join(", ")}`;
     let contentL1 = `FROM \`${table.name}\`;`;
     let content = contentL0 + "\n" + contentL1;
     let cursorPos = new Position(1, contentL1.length-1);
@@ -290,7 +293,10 @@ function newQuerySelect(table: Schema.Table): Thenable<any> {
 }
 
 function newQueryInsert(table: Schema.Table): Thenable<any> {
-    let contentL0 = `INSERT INTO \`${table.name}\` (${table.columns.map(c => c.name).join(", ")})`;
+    function sqlSafeColName(name: string) {
+        return name.indexOf(" ") < 0 ? name : `\`${name}\``;
+    }
+    let contentL0 = `INSERT INTO \`${table.name}\` (${table.columns.map(c => sqlSafeColName(c.name)).join(", ")})`;
     let contentL1 = `VALUES ();`;
     let content = contentL0 + "\n" + contentL1;
     // move the cursor inside the round brackets
