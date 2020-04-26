@@ -1,5 +1,7 @@
 import { CliDatabase } from "./cliDatabase";
 import { isFileSync } from "../utils/files";
+import { logger } from "../logging/logger";
+import { showErrorMessage } from "../vscodewrapper";
 
 export type Schema = Schema.Database;
 
@@ -59,7 +61,11 @@ export namespace Schema {
                 for(let table of schema.tables) {
                     let columnQuery = `PRAGMA table_info('${table.name}');`;
                     database.execute(columnQuery, (rows, err) => {
-                        if (err) return reject(err);
+                        if (err) {
+                            const msg = `Error retrieving '${table.name}' schema: ${err}`;
+                            logger.warn(msg);
+                            return;
+                        }
 
                         if (rows.length < 2) return;
 
