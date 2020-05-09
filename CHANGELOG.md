@@ -5,6 +5,7 @@
 Fixed
 1. Fixed bug that sometimes caused result view to not be displayed in a remote session ([#94](https://github.com/AlexCovizzi/vscode-sqlite/issues/94))
 2. Fixed bug in the SELECT/INSERT sql generation for columns with spaces in the name ([#97](https://github.com/AlexCovizzi/vscode-sqlite/issues/97))
+3. Fixed bug that prevented database with single quotes in the path to be opened correctly ([#106](https://github.com/AlexCovizzi/vscode-sqlite/issues/106))
 
 Changed
 1. Whenever an error is encountered retrieving a table or a view when opening a database, a warning is displayed in the SQLite output channel (previously the database failed to open completely) ([#99](https://github.com/AlexCovizzi/vscode-sqlite/issues/99))
