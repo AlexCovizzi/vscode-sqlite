@@ -50,13 +50,14 @@ export class CliDatabase implements Database {
             this.onStartError(startError);
         });
 
+        const quotedPath = `"${this.path.replace(/\\/g, "/")}"`;
         try {
-            this._write(`.open '${this.path}'${EOL}`);
+            this._write(`.open ${quotedPath}${EOL}`);
             this._write(`select 1 from sqlite_master;${EOL}`);
             this._write(`.print ${RESULT_SEPARATOR}${EOL}`);
             this.busy = true;
         } catch(err) {
-            let startError = new Error(`Database failed to open: '${this.path}'`);
+            let startError = new Error(`Database failed to open: ${quotedPath}`);
             setTimeout(() => this.onStartError(startError), 0);
             return;
         }
