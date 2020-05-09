@@ -1,9 +1,18 @@
 # Change Log
 
+## 0.8.2 (09 May 2020)
+
+Fixed
+1. Fixed bug that sometimes caused result view to not be displayed in a remote session ([#94](https://github.com/AlexCovizzi/vscode-sqlite/issues/94))
+2. Fixed bug in the SELECT/INSERT sql generation for columns with spaces in the name ([#97](https://github.com/AlexCovizzi/vscode-sqlite/issues/97))
+
+Changed
+1. Whenever an error is encountered retrieving a table or a view when opening a database, a warning is displayed in the SQLite output channel (previously the database failed to open completely) ([#99](https://github.com/AlexCovizzi/vscode-sqlite/issues/99))
+
 ## 0.8.1 (10 Dec 2019)
 
 Fixed
-1. Fixed bug that caused emptry strings in the query to be parsed incorrectly ([#82](https://github.com/AlexCovizzi/vscode-sqlite/issues/82)).
+1. Fixed bug that caused empty strings in the query to be parsed incorrectly ([#82](https://github.com/AlexCovizzi/vscode-sqlite/issues/82)).
 
 ## 0.8.0 (24 Jul 2019)
 
@@ -39,7 +48,7 @@ Added
 6. Added support for ```EXPLAIN QUERY PLAN```.
 
 Fixed
-1. Log level is now changed correctely.
+1. Log level is now changed correctly.
 2. Fixed bug that caused the last line of the result table to disappear after hiding and then showing the result table.
 3. Fixed bug that prevented empty tables from showing in the sqlite explorer ([#63](https://github.com/AlexCovizzi/vscode-sqlite/issues/63))
 
