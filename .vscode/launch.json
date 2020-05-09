@@ -15,16 +15,16 @@
                 "--disable-extensions"
             ],
             "outFiles": [
-                "${workspaceFolder}/out/**/*.js"
+                "${workspaceFolder}/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: watch"
+            "preLaunchTask": "npm: compile"
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Extension Tests",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
-            "args": ["--silent", "--config", "jest.json"],
+            "args": ["--silent", "--config", "jest.config.js"],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "protocol": "inspector",
@@ -37,20 +37,7 @@
             "request": "launch",
             "name": "Test Current File",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
-            "args": ["--runTestsByPath", "${relativeFile}", "--silent", "--config", "jest.json", "--verbose"],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen",
-            "disableOptimisticBPs": true,
-            "windows": {
-                "program": "${workspaceFolder}/node_modules/jest/bin/jest",
-            }
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Test Current File (Log)",
-            "program": "${workspaceFolder}/node_modules/.bin/jest",
-            "args": ["--runTestsByPath", "${relativeFile}", "--config", "jest.json", "--verbose"],
+            "args": ["--runTestsByPath", "${relativeFile}", "--silent", "--config", "jest.config.js"],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true,
