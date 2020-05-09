@@ -1,6 +1,4 @@
-out
-node_modules
-.vscode-test/
-.test_db/
+dist/
+node_modules/
 *.vsix
 *.db
