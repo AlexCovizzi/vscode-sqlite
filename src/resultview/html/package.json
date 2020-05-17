@@ -1,0 +1,24 @@
+{
+    "name": "vscode-sqlite.result-view",
+    "version": "0.0.1",
+    "description": "Result view subproject of the extension vscode-sqlite",
+    "main": "index.js",
+    "scripts": {
+        "build": "webpack --mode development",
+        "watch": "webpack --mode development --watch",
+        "test": "jest"
+    },
+    "devDependencies": {
+        "@types/react": "^16.9.29",
+        "@types/react-dom": "^16.9.5",
+        "source-map-loader": "^0.2.4",
+        "ts-loader": "^6.2.2",
+        "typescript": "^3.8.3",
+        "webpack": "^4.42.1",
+        "webpack-cli": "^3.3.11"
+    },
+    "dependencies": {
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1"
+    }
+}
