@@ -1,7 +1,7 @@
 import * as React from "react";
 import { isThemeLight } from "../../utils";
 
-const ExportJsonIcon: React.FunctionComponent<{}> = () => {
+const IconExportJson: React.FunctionComponent<{}> = () => {
     const themeLight = isThemeLight();
     const fgFill = themeLight ? "#656565" : "#c5c5c5";
     const actionFill = themeLight ? "#00539c" : "#75beff";
@@ -13,4 +13,4 @@ const ExportJsonIcon: React.FunctionComponent<{}> = () => {
     );
 };
 
-export default ExportJsonIcon;
+export default IconExportJson;

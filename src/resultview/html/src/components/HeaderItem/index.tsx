@@ -1,12 +1,17 @@
 import * as React from "react";
 
-interface Props extends React.CSSProperties {
-
+interface Props {
+    width?: string | number;
+    align?: "left" | "right";
 }
 
 const HeaderItem: React.FunctionComponent<Props> = (props) => {
+    const style: React.CSSProperties = {
+        width: props.width,
+        float: props.align
+    };
     return (
-        <li style={props}>
+        <li style={style}>
             {props.children}
         </li>
     );

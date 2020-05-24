@@ -1,17 +1,17 @@
 import * as React from "react";
-import ButtonExportJson from "./ButtonExportJson";
-import ButtonExportCsv from "./ButtonExportCsv";
-import ButtonExportHtml from "./ButtonExportHtml";
-import ButtonShowHide from "./ButtonShowHide";
-import Statement from "./Statement";
-import Header from "./Header";
-import HeaderItem from "./HeaderItem";
-import Table from "./Table";
-import Pager from "./Pager";
-import Hideable from "./Hideable";
+import Header from "../Header";
+import HeaderItem from "../HeaderItem";
+import Statement from "../Statement";
+import ButtonShowHide from "../ButtonShowHide";
+import ButtonExportCsv from "../ButtonExportCsv";
+import ButtonExportHtml from "../ButtonExportHtml";
+import ButtonExportJson from "../ButtonExportJson";
+import Hideable from "../Hideable";
+import Table from "../Table";
+import Pager from "../Pager";
 
 interface Props {
-
+    
 }
 
 interface State {

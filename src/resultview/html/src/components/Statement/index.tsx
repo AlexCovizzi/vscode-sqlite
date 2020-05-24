@@ -1,5 +1,5 @@
 import * as React from "react";
-import { merge } from "../../utils";
+import styles from "./styles";
 
 interface Props {
     value: string;
@@ -17,9 +17,10 @@ class Statement extends React.Component<Props, State> {
     }
 
     render() {
+        const style = this.state.collapsed ? styles.statementCollapsed : styles.statement;
         return (
-            <div style={this.getStyle(this.state.collapsed)} onClick={this.handleClick.bind(this)}>
-                <code style={{cursor: "default"}}>{this.props.value}</code>
+            <div style={style} onClick={this.handleClick.bind(this)}>
+                <code style={styles.code}>{this.props.value}</code>
             </div>
         );
     }
@@ -30,19 +31,6 @@ class Statement extends React.Component<Props, State> {
         this.setState({collapsed: !oldCollapsed});
     }
 
-    private getStyle(collapsed: boolean): React.CSSProperties {
-        let style: React.CSSProperties = {
-            whiteSpace: "pre-line"
-        };
-        if (collapsed) {
-            style = merge(style, {
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis"
-            });
-        }
-        return style;
-    }
 }
 
 export default Statement;

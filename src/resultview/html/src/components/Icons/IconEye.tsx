@@ -1,7 +1,7 @@
 import * as React from "react";
 import { isThemeLight } from "../../utils";
 
-const EyeIcon: React.FunctionComponent<{}> = () => {
+const IconEye: React.FunctionComponent<{}> = () => {
     const themeLight = isThemeLight();
     const fgFill = themeLight ? "#656565" : "#c5c5c5";
     return (
@@ -11,4 +11,4 @@ const EyeIcon: React.FunctionComponent<{}> = () => {
     );
 };
 
-export default EyeIcon;
+export default IconEye;

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { isThemeLight } from "../../utils";
 
-const ArrowRightIcon: React.FunctionComponent<{}> = () => {
+const IconArrowRight: React.FunctionComponent<{}> = () => {
     const fgFill = isThemeLight() ? "#656565" : "#c5c5c5";
     return (
         <svg viewBox="0 0 16 16" transform="rotate(180)">
@@ -10,4 +10,4 @@ const ArrowRightIcon: React.FunctionComponent<{}> = () => {
     );
 };
 
-export default ArrowRightIcon;
+export default IconArrowRight;

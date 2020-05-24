@@ -1,58 +1,75 @@
 import * as React from "react";
 import Button from "../Button";
-import ArrowLeftIcon from "../Icons/ArrowLeftIcon";
-import ArrowRightIcon from "../Icons/ArrowRightIcon";
+import IconArrowLeft from "../Icons/IconArrowLeft";
+import IconArrowRight from "../Icons/IconArrowRight";
+import styles from "./styles";
 
 interface Props {
     total: number;
-    current: number;
+    start: number;
     onChangePage?: (page: number) => void;
 }
 
-const Pager: React.FunctionComponent<Props> = (props) => {
-    const handlePrevClick = (event: React.MouseEvent) => {
-        event.preventDefault();
-        changePage(props.current - 1);
-    };
+interface State {
+    input: string;
+    current: number;
+}
 
-    const handleNextClick = (event: React.MouseEvent) => {
-        event.preventDefault();
-        changePage(props.current + 1);
-    };
+class Pager extends React.Component<Props, State> {
 
-    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    constructor(props: Props) {
+        super(props);
+        this.state = {input: props.start.toString(), current: props.start};
+    }
+
+    render() {
+        return (
+            <div style={styles.pager}>
+                <Button background="transparent" onClick={this.handlePrevClick.bind(this)}><IconArrowLeft/></Button>
+                <input type="number" min={1} max={this.props.total}
+                    value={this.state.input} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleChangeInput.bind(this)}
+                />
+                <small>{`/${this.props.total}`}</small>
+                <Button background="transparent" onClick={this.handleNextClick.bind(this)}><IconArrowRight/></Button>
+            </div>
+        );
+    }
+
+    private handleChangeInput(event: React.ChangeEvent<HTMLInputElement>) {
+        event.preventDefault();
+        this.setState({input: event.target.value});
+    }
+
+    private handlePrevClick(event: React.MouseEvent) {
+        event.preventDefault();
+        this.changePage(this.state.current - 1);
+    }
+
+    private handleNextClick(event: React.MouseEvent) {
+        event.preventDefault();
+        this.changePage(this.state.current + 1);
+    }
+
+    private handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
         let keyCode = event.keyCode || event.which;
         if (keyCode === 13){
             event.preventDefault();
-            changePage(parseInt(event.currentTarget.value));
+            this.changePage(parseInt(event.currentTarget.value));
         }
-    };
+    }
 
-    const changePage = (newPage: number) => {
+    private changePage(newPage: number) {
         if (newPage < 1) newPage = 1;
-        if (newPage > props.total) newPage = props.total;
-        if (newPage === props.current) return;
-        if (props.onChangePage){
-            props.onChangePage(newPage);
-        }
-    };
+        if (newPage > this.props.total) newPage = this.props.total;
+        if (newPage === this.state.current) return;
 
-    return (
-        <div style={getStyle()}>
-            <Button style={{background: "transparent"}} onClick={handlePrevClick}><ArrowLeftIcon/></Button>
-            <input type="number" min={1} max={props.total}
-                defaultValue={props.current} onKeyPress={handleKeyPress}
-            />
-            <small>{`/${props.total}`}</small>
-            <Button style={{background: "transparent"}} onClick={handleNextClick}><ArrowRightIcon/></Button>
-        </div>
-    );
-};
+        this.setState({current: newPage, input: newPage.toString()});
+
+        if (this.props.onChangePage){
+            this.props.onChangePage(newPage);
+        }
+    }
+
+}
 
 export default Pager;
-
-function getStyle(): React.CSSProperties {
-    return {
-        
-    };
-}
