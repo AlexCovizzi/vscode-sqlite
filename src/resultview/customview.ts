@@ -27,16 +27,6 @@ export class CustomView extends EventEmitter implements Disposable {
             this.init();
         }
         
-        /*
-        this.readWithCache(htmlPath, (html: string) => {
-            if (this.panel) {
-                // little hack to make the html unique so that the webview is reloaded
-                html = html.replace(/\<\/body\>/, `<div id="${randomString(8)}"></div></body>`);
-                this.panel.webview.html = html;
-            }
-        });
-        */
-        
         const jsPath = join(this.resourcesPath, "resultview.js");
         this.panel!.webview.html = `
             <html>
@@ -83,7 +73,6 @@ export class CustomView extends EventEmitter implements Disposable {
         subscriptions.push(this.panel.onDidDispose(() => this.dispose()));
 
         subscriptions.push(this.panel.webview.onDidReceiveMessage((message: Message) => {
-            //console.log("Received message from webview: "+JSON.stringify(message));
             this.handleMessage(message);
         }));
 

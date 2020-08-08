@@ -10,11 +10,10 @@ interface Props {
 
 interface State {
     results: Array<{
-        refresh: boolean;
         statement: string;
         columns: string[];
         size: number;
-        rows: string[][];
+        rows?: string[][];
     }>;
 }
 
@@ -26,7 +25,7 @@ class App extends React.Component<Props, State> {
 
         props.api.onResults((results) => {
             const state = produce(this.state, (draftState) => {
-                draftState.results = results.map(result => ({...result, rows: [], refresh: true}));
+                draftState.results = results.map(result => ({...result, rows: undefined}));
             });
             this.setState(state);
         });

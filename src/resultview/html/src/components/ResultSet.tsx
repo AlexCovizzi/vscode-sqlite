@@ -3,16 +3,16 @@ import { Hideable, Table, Pager } from "./Base";
 import ResultSetHeader from "./ResultSetHeader";
 
 interface Props {
-    refresh: boolean;
     statement: string;
     columns: string[];
     size: number;
-    rows: string[][];
+    rows?: string[][];
     onExport: (format: string) => void;
     onRows: (offset: number, limit: number) => void;
 }
 
 interface State {
+    page: number;
     hidden: boolean;
 }
 
@@ -21,21 +21,22 @@ const INITIAL_PAGE = 1;
 
 class ResultSet extends React.Component<Props, State> {
 
-    private dirty: boolean;
-
     constructor(props: Props) {
         super(props);
-        this.state = {hidden: false};
-        this.dirty = true;
+        this.state = {page: INITIAL_PAGE, hidden: false};
     }
 
     componentDidMount() {
-        if (this.dirty) this.props.onRows(0, ROWS_PER_PAGE);
+        this.props.onRows(0, ROWS_PER_PAGE);
     }
 
     componentDidUpdate(prevProps: Props) {
-        if (prevProps.rows == null) this.dirty = false;
-        if (this.dirty) this.props.onRows(0, ROWS_PER_PAGE);
+        if (this.props.rows == null) {
+            if (this.props.statement != prevProps.statement) {
+                this.setState({page: INITIAL_PAGE});
+            }
+            this.props.onRows((this.state.page-1)*ROWS_PER_PAGE, ROWS_PER_PAGE);
+        }
     }
 
     render() {
@@ -49,12 +50,12 @@ class ResultSet extends React.Component<Props, State> {
                 <Hideable hidden={this.state.hidden}>
                     <Table
                         columns={this.props.columns}
-                        rows={this.props.rows}
+                        rows={this.props.rows || []}
                     />
                     <Pager
-                        start={INITIAL_PAGE}
+                        current={this.state.page}
                         total={Math.ceil(this.props.size/ROWS_PER_PAGE)}
-                        onPage={(page) => this.props.onRows((page-1)*ROWS_PER_PAGE, ROWS_PER_PAGE)}
+                        onPage={this.handlePageChange.bind(this)}
                     />
                 </Hideable>
             </div>
@@ -63,6 +64,11 @@ class ResultSet extends React.Component<Props, State> {
 
     private handleToggleHidden() {
         this.setState({hidden: !this.state.hidden});
+    }
+
+    private handlePageChange(page: number) {
+        this.setState({page});
+        this.props.onRows((page-1)*ROWS_PER_PAGE, ROWS_PER_PAGE);
     }
 }
 

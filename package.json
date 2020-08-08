@@ -417,6 +417,7 @@
         "install-html": "cd ./src/resultview/html && npm install",
         "build-html": "cd ./src/resultview/html && npm run build",
         "test-html": "cd ./src/resultview/html && npm run test",
+        "watch-html": "cd ./src/resultview/html && npm run watch",
         "package": "vsce package"
     },
     "devDependencies": {

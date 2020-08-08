@@ -11,8 +11,8 @@ interface Props {
 
 const Button: React.FunctionComponent<Props> = (props) => {
     const style = merge(styles.button, {
-        width: props.width,
-        height: props.height,
+        width: props.width || 16,
+        height: props.height || props.width,
         background: props.background
     });
     return (

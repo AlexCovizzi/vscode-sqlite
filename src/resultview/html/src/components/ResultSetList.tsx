@@ -3,11 +3,10 @@ import ResultSet from "./ResultSet";
 
 interface Props {
     list: Array<{
-        refresh: boolean;
         statement: string;
         columns: string[];
         size: number;
-        rows: string[][];
+        rows?: string[][];
     }>;
     onExport: (format: string, result: number) => void;
     onRows: (offset: number, limit: number, result: number) => void;

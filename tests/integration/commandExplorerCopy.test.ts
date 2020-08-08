@@ -2,7 +2,7 @@ import vscode = require('vscode');
 import * as extension from "../../src/extension";
 import { Commands } from "../../src/extension";
 import { Constants } from "../../src/constants/constants";
-import { join, isAbsolute } from 'path';
+import { join } from 'path';
 import { getMockCallWhereParamEquals } from '../helpers/mockHelper';
 import { getRegisteredCommandCallback } from '../helpers/vscodeHelper';
 import * as clipboardy from 'clipboardy';
@@ -28,7 +28,7 @@ describe(`Command: ${Commands.explorerCopyName}`, () => {
     });
 
     beforeEach(async () => {
-        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", "..")};
+        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", ".."), asAbsolutePath: (path) => join(__dirname, "..", "..", path) };
         await extension.activate(context);
 
         // retrieve the tree data provider created in activate() with name Constants.sqliteExplorerViewId

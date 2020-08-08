@@ -3,20 +3,19 @@ import { Button, Icons } from "../Base";
 
 interface Props {
     total: number;
-    start: number;
+    current: number;
     onPage?: (page: number) => void;
 }
 
 interface State {
     input: string;
-    current: number;
 }
 
 class Pager extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = {input: props.start.toString(), current: props.start};
+        this.state = {input: props.current.toString()};
     }
 
     render() {
@@ -24,7 +23,7 @@ class Pager extends React.Component<Props, State> {
             <div style={styles.pager}>
                 <Button background="transparent" onClick={this.handlePrevClick.bind(this)}><Icons.ArrowLeft/></Button>
                 <input type="number" min={1} max={this.props.total}
-                    value={this.state.input} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleChangeInput.bind(this)}
+                    value={this.props.current} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleChangeInput.bind(this)}
                 />
                 <small>{`/${this.props.total}`}</small>
                 <Button background="transparent" onClick={this.handleNextClick.bind(this)}><Icons.ArrowRight/></Button>
@@ -39,12 +38,12 @@ class Pager extends React.Component<Props, State> {
 
     private handlePrevClick(event: React.MouseEvent) {
         event.preventDefault();
-        this.changePage(this.state.current - 1);
+        this.changePage(this.props.current - 1);
     }
 
     private handleNextClick(event: React.MouseEvent) {
         event.preventDefault();
-        this.changePage(this.state.current + 1);
+        this.changePage(this.props.current + 1);
     }
 
     private handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -58,9 +57,9 @@ class Pager extends React.Component<Props, State> {
     private changePage(newPage: number) {
         if (newPage < 1) newPage = 1;
         if (newPage > this.props.total) newPage = this.props.total;
-        if (newPage === this.state.current) return;
+        if (newPage === this.props.current) return;
 
-        this.setState({current: newPage, input: newPage.toString()});
+        this.setState({ input: newPage.toString()});
 
         if (this.props.onPage){
             this.props.onPage(newPage);
@@ -73,5 +72,7 @@ export default Pager;
 
 
 const styles: {[prop: string]: React.CSSProperties} = {
-    
+    pager: {
+        textAlign: "center"
+    }
 };

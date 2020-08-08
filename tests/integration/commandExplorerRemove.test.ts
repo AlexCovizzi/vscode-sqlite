@@ -26,7 +26,7 @@ describe(`Command: ${Commands.explorerRemove}`, () => {
     });
 
     beforeEach(async () => {
-        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", "..")};
+        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", ".."), asAbsolutePath: (path) => join(__dirname, "..", "..", path) };
         await extension.activate(context);
 
         // retrieve the tree data provider created in activate() with name Constants.sqliteExplorerViewId

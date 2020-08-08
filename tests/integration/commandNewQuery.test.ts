@@ -19,7 +19,7 @@ describe(`Command: ${Commands.newQuery}`, () => {
     });
 
     beforeEach(async () => {
-        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", "..")};
+        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", ".."), asAbsolutePath: (path) => join(__dirname, "..", "..", path) };
         await extension.activate(context);
 
         // retrieve callback for the registered commands

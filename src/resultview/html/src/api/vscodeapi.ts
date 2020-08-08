@@ -32,12 +32,14 @@ class VsCodeApi {
     }
 
     postMessage(message: Message) {
+        console.log("Sent: " + JSON.stringify(message));
         this.api.postMessage(message);
     }
 
     onMessage(listener: (message: Message) => void) {
         window.addEventListener('message', (event) => {
             const data = event.data;
+            console.log("Received: " + JSON.stringify(data));
             listener(data as Message);
         });
     }

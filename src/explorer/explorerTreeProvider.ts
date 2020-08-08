@@ -1,4 +1,4 @@
-import { TreeDataProvider, Event, TreeItem, EventEmitter, ProviderResult } from "vscode";
+import { TreeDataProvider, Event, TreeItem, EventEmitter, ProviderResult, ExtensionContext } from "vscode";
 import { DBItem, TableItem, ColumnItem } from "./treeItem";
 import { Schema } from "../common";
 
@@ -8,9 +8,11 @@ export class ExplorerTreeProvider implements TreeDataProvider<Schema.Item> {
     private _onDidChangeTreeData: EventEmitter<Schema.Item | undefined> = new EventEmitter<Schema.Item | undefined>();
     readonly onDidChangeTreeData: Event<Schema.Item | undefined> = this._onDidChangeTreeData.event;
 
+    private context: ExtensionContext;
     private databaseList: Schema.Database[];
 
-    constructor() {
+    constructor(context: ExtensionContext) {
+        this.context = context;
         this.databaseList = [];
     }
     
@@ -42,13 +44,13 @@ export class ExplorerTreeProvider implements TreeDataProvider<Schema.Item> {
     getTreeItem(item: Schema.Item): TreeItem {
         if ('tables' in item) {
             // Database
-            return new DBItem(item.path);
+            return new DBItem(this.context, item.path);
         } else if ('columns' in item) {
             // Table
-            return new TableItem(item.name, item.type);
+            return new TableItem(this.context, item.name, item.type);
         } else {
             // Column
-            return new ColumnItem(item.name, item.type, item.notnull, item.pk, item.defVal);
+            return new ColumnItem(this.context, item.name, item.type, item.notnull, item.pk, item.defVal);
         }
     }
 

@@ -9,7 +9,7 @@ jest.mock('vscode');
 describe(`Command: ${extension.Commands.showOutputChannel}`, () => {
 
     beforeEach(() => {
-        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", "..")};
+        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", ".."), asAbsolutePath: (path) => join(__dirname, "..", "..", path) };
         return extension.activate(context);
     });
 

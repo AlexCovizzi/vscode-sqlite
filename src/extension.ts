@@ -61,7 +61,7 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     languageserver = new LanguageServer();
     sqlWorkspace = new SqlWorkspace();
     sqlite = new SQLite(context.extensionPath);
-    explorer = new Explorer();
+    explorer = new Explorer(context);
     resultView = new ResultView(context.extensionPath);
 
     languageserver.setSchemaHandler(doc => {

@@ -29,7 +29,6 @@ class Statement extends React.Component<Props, State> {
         const oldCollapsed = this.state.collapsed;
         this.setState({collapsed: !oldCollapsed});
     }
-
 }
 
 export default Statement;
