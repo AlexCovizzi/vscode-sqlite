@@ -1,4 +1,5 @@
 .vscode/
+.data/
 tests/
 dist/**/*.map
 src/

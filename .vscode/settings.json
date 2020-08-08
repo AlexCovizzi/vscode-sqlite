@@ -1,5 +1,0 @@
-{
-    "jest.autoEnable": true,
-    "jest.pathToConfig": "jest.config.js",
-    "tslint.enable": true
-}

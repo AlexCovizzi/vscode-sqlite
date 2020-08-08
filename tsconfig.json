@@ -17,6 +17,7 @@
         "src/**/*.ts"
     ],
     "exclude": [
+        "src/resultview/html",
         "src/resultview/htmlcontent",
         "node_modules",
         ".vscode-test"

@@ -1,5 +1,8 @@
+.vscode/extensions.json
+.vscode/settings.json
 dist/
 out/
 node_modules/
+.data/
 *.vsix
 *.db

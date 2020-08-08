@@ -1,13 +1,10 @@
 import { WebviewPanel, window, ViewColumn, Disposable, Uri } from "vscode";
-import { dirname } from "path";
-import { readFile } from "fs";
-import { randomString } from "../utils/utils";
 import { EventEmitter } from "events";
+import { join } from "path";
 
 export interface Message {
-    command: string;
-    data: Object;
-    id?: string;
+    type: string;
+    payload: any;
 }
 
 export class CustomView extends EventEmitter implements Disposable {
@@ -17,21 +14,20 @@ export class CustomView extends EventEmitter implements Disposable {
 
     private resourcesPath: string;
     private panel: WebviewPanel | undefined;
-    private htmlCache: {[path: string]: string};
 
     constructor(private type: string, private title: string) {
         super();
         this.resourcesPath = "";
-        this.htmlCache = {};
     }
 
-    show(htmlPath: string) {
-        this.resourcesPath = dirname(htmlPath);
+    show(basePath: string) {
+        this.resourcesPath = join(basePath, "dist");
 
         if (!this.panel) {
             this.init();
         }
-
+        
+        /*
         this.readWithCache(htmlPath, (html: string) => {
             if (this.panel) {
                 // little hack to make the html unique so that the webview is reloaded
@@ -39,6 +35,20 @@ export class CustomView extends EventEmitter implements Disposable {
                 this.panel.webview.html = html;
             }
         });
+        */
+        
+        const jsPath = join(this.resourcesPath, "resultview.js");
+        this.panel!.webview.html = `
+            <html>
+                <head>
+                    <title>ResultView</title>
+                </head>
+                <body>
+                    <div id="root"></div>
+                    <script src="${(this.panel!.webview as any).asWebviewUri(Uri.file(jsPath)).toString()}"></script>
+                </body>
+            </html>
+        `;
     }
 
     send(message: Message) {
@@ -78,34 +88,5 @@ export class CustomView extends EventEmitter implements Disposable {
         }));
 
         this.disposable = Disposable.from(...subscriptions);
-    }
-
-    private readWithCache(path: string, callback: (html: string) => void) {
-        let html: string = '';
-        if (path in this.htmlCache) {
-            html = this.htmlCache[path];
-            callback(html);
-        } else {
-            readFile(path, 'utf8', (err, content) => {
-                html = content || "";
-                html = this.replaceUris(html, path);
-                this.htmlCache[path] = html;
-                callback(html);
-            });
-        }
-    }
-
-    private replaceUris(html: string, htmlPath: string) {
-        if (!this.panel) return html;
-
-        let basePath = Uri.file(dirname(htmlPath)).with({scheme: this.resourceScheme}).toString();
-        try {
-            basePath = (this.panel.webview as any).asWebviewUri(Uri.file(dirname(htmlPath))).toString();
-        } catch(err) {
-            // Note: This is a relly bad way to assign base path but for now it will do
-        }
-        let regex = /(href|src)\=\"(.+?)\"/g;
-        html = html.replace(regex, `$1="${basePath+'$2'}"`);
-        return html;
     }
 }

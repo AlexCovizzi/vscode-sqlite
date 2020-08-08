@@ -28,8 +28,8 @@ export class DBItem extends SQLItem {
         );
 
         this.iconPath = {
-            light: join(__filename, '..', '..', '..', 'resources', 'light', 'database.svg'),
-            dark: join(__filename, '..', '..', '..', 'resources', 'dark', 'database.svg')
+            light: join(__filename, '..', 'resources', 'light', 'database.svg'),
+            dark: join(__filename, '..', 'resources', 'dark', 'database.svg')
         };
 
         this.contextValue = 'sqlite.databaseItem';
@@ -56,8 +56,8 @@ export class TableItem extends SQLItem {
             icon_name = "table_view.svg";
         }
         this.iconPath = {
-            light: join(__filename, '..', '..', '..', 'resources', 'light', icon_name),
-            dark: join(__filename, '..', '..', '..', 'resources', 'dark', icon_name)
+            light: join(__filename, '..', 'resources', 'light', icon_name),
+            dark: join(__filename, '..', 'resources', 'dark', icon_name)
         };
     }
 
@@ -85,8 +85,8 @@ export class ColumnItem extends SQLItem {
         iconName = pk > 0? 'col_pk.svg' : iconName;
 
         this.iconPath = {
-            light: join(__filename, '..', '..', '..', 'resources', 'light', iconName),
-            dark: join(__filename, '..', '..', '..', 'resources', 'dark', iconName)
+            light: join(__filename, '..', 'resources', 'light', iconName),
+            dark: join(__filename, '..', 'resources', 'dark', iconName)
         };
     }
 

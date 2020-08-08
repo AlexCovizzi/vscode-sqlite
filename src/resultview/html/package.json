@@ -11,6 +11,7 @@
     "devDependencies": {
         "@types/react": "^16.9.29",
         "@types/react-dom": "^16.9.5",
+        "@types/react-redux": "^7.1.9",
         "source-map-loader": "^0.2.4",
         "ts-loader": "^6.2.2",
         "typescript": "^3.8.3",
@@ -18,7 +19,13 @@
         "webpack-cli": "^3.3.11"
     },
     "dependencies": {
+        "@types/redux-logger": "^3.0.8",
+        "immer": "^7.0.5",
         "react": "^16.13.1",
-        "react-dom": "^16.13.1"
+        "react-dom": "^16.13.1",
+        "react-redux": "^7.2.0",
+        "redux": "^4.0.5",
+        "redux-logger": "^3.0.6",
+        "redux-thunk": "^2.3.0"
     }
 }

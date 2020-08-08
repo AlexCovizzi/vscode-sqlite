@@ -1,67 +1,63 @@
 import * as React from "react";
-import ButtonExportJson from "./ButtonExportJson";
-import ButtonExportCsv from "./ButtonExportCsv";
-import ButtonExportHtml from "./ButtonExportHtml";
-import ButtonShowHide from "./ButtonShowHide";
-import Statement from "./Statement";
-import Header from "./Header";
-import HeaderItem from "./HeaderItem";
-import Table from "./Table";
-import Pager from "./Pager";
-import Hideable from "./Hideable";
+import produce from "immer";
+import AppHeader from "./AppHeader";
+import { Api } from "../api";
+import ResultSetList from "./ResultSetList";
 
 interface Props {
-
+    api: Api;
 }
 
 interface State {
-    hidden: boolean;
-    data: {
-        header: string[];
+    results: Array<{
+        refresh: boolean;
+        statement: string;
+        columns: string[];
+        size: number;
         rows: string[][];
-    };
+    }>;
 }
 
 class App extends React.Component<Props, State> {
-    private data = {
-        header: [...Array(5).keys()].map(i => "name"+i),
-        rows: [...Array(10).keys()].map(i => [...Array(5).keys()].map(j => "alex"+i+j))
-    };
 
     constructor(props: Props) {
         super(props);
-        this.state = {hidden: false, data: this.data};
+        this.state = {results: []};
+
+        props.api.onResults((results) => {
+            const state = produce(this.state, (draftState) => {
+                draftState.results = results.map(result => ({...result, rows: [], refresh: true}));
+            });
+            this.setState(state);
+        });
+
+        props.api.onRows((rowsData) => {
+            const state = produce(this.state, (draftState) => {
+                draftState.results[rowsData.result].rows = rowsData.rows;
+            });
+            this.setState(state);
+        });
     }
 
     render() {
         return (
             <div>
-                <Header>
-                    <HeaderItem width="80%" align="left">
-                        <Statement value="ciao sono alex e ho 25 anni dall' 8 Maggio"/>
-                    </HeaderItem>
-                    <HeaderItem align="right">
-                        <ButtonShowHide onClick={this.handleToggleHidden.bind(this)} />
-                        <ButtonExportCsv/>
-                        <ButtonExportHtml/>
-                        <ButtonExportJson/>
-                    </HeaderItem>
-                </Header>
-                <Hideable hidden={this.state.hidden}>
-                    <Table data={this.state.data}/>
-                    <Pager start={1} total={10} onChangePage={this.handleChangePage.bind(this)}/>
-                </Hideable>
+                <AppHeader onExport={this.handleExport.bind(this)}/>
+                <ResultSetList
+                    list={this.state.results}
+                    onExport={this.handleExport.bind(this)}
+                    onRows={this.handleRows.bind(this)}
+                />
             </div>
         );
     }
 
-    private handleChangePage(newPage: number) {
-        
+    private handleExport(format: string, index?: number) {
+        this.props.api.exportResults(format, index);
     }
 
-    private handleToggleHidden() {
-        const oldHidden = this.state.hidden;
-        this.setState({hidden: !oldHidden});
+    private handleRows(offset: number, limit: number, index: number) {
+        this.props.api.fetchRows(index, offset, limit);
     }
 }
 
