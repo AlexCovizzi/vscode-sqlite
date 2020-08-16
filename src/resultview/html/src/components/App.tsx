@@ -1,7 +1,7 @@
 import * as React from "react";
 import produce from "immer";
 import AppHeader from "./AppHeader";
-import { Api } from "../api";
+import { Api, ResultSetData } from "../api";
 import ResultSetList from "./ResultSetList";
 
 interface Props {
@@ -9,12 +9,7 @@ interface Props {
 }
 
 interface State {
-    results: Array<{
-        statement: string;
-        columns: string[];
-        size: number;
-        rows?: string[][];
-    }>;
+    results: Array<ResultSetData>;
 }
 
 class App extends React.Component<Props, State> {
@@ -22,17 +17,19 @@ class App extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {results: []};
+    }
 
-        props.api.onResults((results) => {
+    componentDidMount() {
+        this.props.api.onResults((results) => {
             const state = produce(this.state, (draftState) => {
-                draftState.results = results.map(result => ({...result, rows: undefined}));
+                draftState.results = results.map(result => ({...result}));
             });
             this.setState(state);
         });
 
-        props.api.onRows((rowsData) => {
+        this.props.api.onRows((rowsData) => {
             const state = produce(this.state, (draftState) => {
-                draftState.results[rowsData.result].rows = rowsData.rows;
+                draftState.results[rowsData.result].rows = rowsData;
             });
             this.setState(state);
         });

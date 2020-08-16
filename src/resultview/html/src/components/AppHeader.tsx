@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Header, Item } from "./Base";
+import { Header } from "./Base";
 import BtnExportJson from "./BtnExportJson";
 import BtnExportHtml from "./BtnExportHtml";
 import BtnExportCsv from "./BtnExportCsv";
@@ -10,12 +10,13 @@ interface Props {
 
 const AppHeader: React.FunctionComponent<Props> = (props) => {
     return (
-        <Header transparent={true}>
-            <Item align="right">
+        <Header style={"transparent"}>
+            <div/>
+            <div>
                 <BtnExportCsv onClick={() => props.onExport("csv")}/>
                 <BtnExportHtml onClick={() => props.onExport("html")}/>
                 <BtnExportJson onClick={() => props.onExport("json")}/>
-            </Item>
+            </div>
         </Header>
     );
 };

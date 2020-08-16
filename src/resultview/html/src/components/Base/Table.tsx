@@ -41,12 +41,12 @@ const styles: {[prop: string]: React.CSSProperties} = {
         marginBottom: "4px"
     },
     headCol: {
-        border: "1px solid var(--light)",
+        border: "1px solid var(--vscode-foreground)",
         padding: "5px",
-        background: "var(--dark)"
+        background: "rgba(0, 0, 0, 0.1)"
     },
     bodyCol: {
-        border: "1px solid var(--light)",
+        border: "1px solid var(--vscode-foreground)",
         padding: "5px",
         whiteSpace: "pre"
     }

@@ -5,12 +5,14 @@ export interface ResultSetData {
     statement: string;
     columns: string[];
     size: number;
+    rows: RowsData;
 }
 
 export interface RowsData {
     result: number;
-    range: [number, number];
     rows: string[][];
+    offset: number;
+    limit: number;
 }
 
 export class Api {

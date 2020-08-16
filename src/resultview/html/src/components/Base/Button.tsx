@@ -11,7 +11,7 @@ interface Props {
 
 const Button: React.FunctionComponent<Props> = (props) => {
     const style = merge(styles.button, {
-        width: props.width || 16,
+        width: props.width || 24,
         height: props.height || props.width,
         background: props.background
     });
@@ -26,9 +26,9 @@ export default Button;
 
 const styles: {button: React.CSSProperties} = {
     button: {
-        width: 16,
-        height: 16,
-        padding: "0px",
+        width: 24,
+        height: 24,
+        padding: "2px",
         border: "none",
         cursor: "pointer",
         margin: "2px 2px"

@@ -1,10 +1,8 @@
 import * as React from "react";
-import { isThemeLight } from "../../../utils";
 
 const ExportHtml: React.FunctionComponent<{}> = () => {
-    const themeLight = isThemeLight();
-    const fgFill = themeLight ? "#656565" : "#c5c5c5";
-    const actionFill = themeLight ? "#00539c" : "#75beff";
+    const fgFill = "var(--vscode-editor-foreground)";
+    const actionFill = "var(--vscode-list-highlightForeground)";
     return (
         <svg viewBox="0 0 16 16">
             <g transform="matrix(4.1791045,0,0,4.3076924,-0.04477611,-0.07692331)">

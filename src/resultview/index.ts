@@ -8,46 +8,27 @@ import { ResultSet } from "../common";
 export default class ResultView extends CustomView implements Disposable {
 
     private resultSet?: ResultSet;
-    private recordsPerPage: number;
     private msgQueue: Message[];
 
     constructor(private extensionPath: string) {
         super('resultview', 'SQLite');
 
         this.msgQueue = [];
-        this.recordsPerPage = 50;
     }
 
-    display(resultSet: ResultSet | Promise<ResultSet | undefined>, recordsPerPage: number) {
-        this.show(this.extensionPath);
+    display(resultSet: Promise<ResultSet|undefined>, recordsPerPage: number) {
+        this.show(this.extensionPath, recordsPerPage);
         
-        this.recordsPerPage = recordsPerPage;
-        this.resultSet = undefined;
         this.msgQueue = [];
-
-        console.log(this.recordsPerPage);
         
-        if (Array.isArray(resultSet)) {
-            this.resultSet = resultSet;
+        resultSet.then(rs => {
+            this.resultSet = rs? rs : [];
             const results = this.resultSet? this.resultSet : [];
-            this.send({type: "FETCH_RESULTS", payload: results.map(result => (
-                {statement: result.stmt, columns: result.header, size: result.rows.length}
+            this.send({type: "FETCH_RESULTS", payload: results.map((result, idx) => (
+                {statement: result.stmt, columns: result.header, size: result.rows.length, rows: {rows: result.rows.slice(0, recordsPerPage), offset: 0, limit: recordsPerPage, result: idx}}
             ))});
-        } else {
-            resultSet.then(rs => {
-                this.resultSet = rs? rs : [];
-                const results = this.resultSet? this.resultSet : [];
-                this.send({type: "FETCH_RESULTS", payload: results.map(result => (
-                    {statement: result.stmt, columns: result.header, size: result.rows.length}
-                ))});
-                
-                //if (this.resultSet) {
-                    if (this.msgQueue) this.msgQueue.forEach(this.handleMessage.bind(this));
-                //} else {
-                    //this.dispose();
-                //}
-            });
-        }
+            if (this.msgQueue) this.msgQueue.forEach(this.handleMessage.bind(this));
+        });
     }
 
     handleMessage(message: Message) {
@@ -66,7 +47,7 @@ export default class ResultView extends CustomView implements Disposable {
                 const result = this.resultSet? this.resultSet[message.payload.result] : null;
                 const fromRow = message.payload.offset;
                 const toRow = fromRow + message.payload.limit;
-                this.send({type: "FETCH_ROWS", payload: {result: message.payload.result, rows: result!.rows.slice(fromRow, toRow)}});
+                this.send({type: "FETCH_ROWS", payload: {result: message.payload.result, rows: result!.rows.slice(fromRow, toRow), offset: fromRow, limit: message.payload.limit}});
             }
             case "EXPORT_RESULTS": {
                 const obj = message.payload.result ? this.resultSet![message.payload.result] : this.resultSet;

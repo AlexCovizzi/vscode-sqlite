@@ -1,13 +1,9 @@
 import * as React from "react";
 import ResultSet from "./ResultSet";
+import { ResultSetData } from "../api";
 
 interface Props {
-    list: Array<{
-        statement: string;
-        columns: string[];
-        size: number;
-        rows?: string[][];
-    }>;
+    list: Array<ResultSetData>;
     onExport: (format: string, result: number) => void;
     onRows: (offset: number, limit: number, result: number) => void;
 }

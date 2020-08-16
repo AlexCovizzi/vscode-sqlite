@@ -3,67 +3,67 @@ import { Button, Icons } from "../Base";
 
 interface Props {
     total: number;
-    current: number;
-    onPage?: (page: number) => void;
+    offset: number;
+    limit: number;
+    onPage?: (offset: number, limit: number) => void;
 }
 
 interface State {
-    input: string;
+    value: string;
 }
 
 class Pager extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = {input: props.current.toString()};
+
+        this.state = {value: String(this.props.offset + 1)};
     }
 
     render() {
+        const toRowStr = String(this.props.offset + this.props.limit < this.props.total ? this.props.offset + this.props.limit : this.props.total);
         return (
-            <div style={styles.pager}>
-                <Button background="transparent" onClick={this.handlePrevClick.bind(this)}><Icons.ArrowLeft/></Button>
-                <input type="number" min={1} max={this.props.total}
-                    value={this.props.current} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleChangeInput.bind(this)}
-                />
-                <small>{`/${this.props.total}`}</small>
-                <Button background="transparent" onClick={this.handleNextClick.bind(this)}><Icons.ArrowRight/></Button>
-            </div>
+            <table style={styles.pager}>
+                <tr>
+                <td><Button background="transparent" onClick={this.handlePrevClick.bind(this)}><Icons.ArrowLeft/></Button></td>
+                <td><input style={{...styles.input, width: this.props.total.toString().length + "em"}} type="text" value={this.state.value} onChange={this.handleInputChange.bind(this)} onKeyPress={this.handleKeyPress.bind(this)} />{` - ${toRowStr} of ${this.props.total}`}</td>
+                <td><Button background="transparent" onClick={this.handleNextClick.bind(this)}><Icons.ArrowRight/></Button></td>
+                </tr>
+            </table>
         );
     }
 
-    private handleChangeInput(event: React.ChangeEvent<HTMLInputElement>) {
-        event.preventDefault();
-        this.setState({input: event.target.value});
+    private handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
+        if (event.key === "Enter" || event.keyCode === 13) {
+            if (Number(this.state.value) != NaN) {
+                this.changePage(Number(this.state.value) - 1);
+            } 
+        }
+    }
+
+    private handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({value: event.target.value});
     }
 
     private handlePrevClick(event: React.MouseEvent) {
         event.preventDefault();
-        this.changePage(this.props.current - 1);
+        this.changePage(this.props.offset - this.props.limit);
     }
 
     private handleNextClick(event: React.MouseEvent) {
         event.preventDefault();
-        this.changePage(this.props.current + 1);
+        this.changePage(this.props.offset + this.props.limit);
     }
 
-    private handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
-        let keyCode = event.keyCode || event.which;
-        if (keyCode === 13){
-            event.preventDefault();
-            this.changePage(parseInt(event.currentTarget.value));
-        }
-    }
-
-    private changePage(newPage: number) {
-        if (newPage < 1) newPage = 1;
-        if (newPage > this.props.total) newPage = this.props.total;
-        if (newPage === this.props.current) return;
-
-        this.setState({ input: newPage.toString()});
+    private changePage(newOffset: number) {
+        let offset = newOffset < this.props.total ? newOffset : this.props.offset;
+        offset = offset > 0 ? offset : 0;
 
         if (this.props.onPage){
-            this.props.onPage(newPage);
+            this.props.onPage(offset, this.props.limit);
         }
+
+        this.setState({value: String(offset + 1)});
     }
 
 }
@@ -73,6 +73,12 @@ export default Pager;
 
 const styles: {[prop: string]: React.CSSProperties} = {
     pager: {
-        textAlign: "center"
+        backgroundColor: "transparent"
+    },
+    input: {
+        color: "var(--vscode-editor-foreground)",
+        textAlign: "center",
+        backgroundColor: "rgba(127, 127, 127, 0.25)",
+        border: "none"
     }
 };

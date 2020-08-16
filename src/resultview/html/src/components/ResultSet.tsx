@@ -1,42 +1,25 @@
 import * as React from "react";
-import { Hideable, Table, Pager } from "./Base";
+import { Hideable, Table } from "./Base";
 import ResultSetHeader from "./ResultSetHeader";
+import { ResultSetData } from "../api";
 
-interface Props {
-    statement: string;
-    columns: string[];
-    size: number;
-    rows?: string[][];
+declare const RECORDS_PER_PAGE: number;
+
+interface Props  extends ResultSetData {
     onExport: (format: string) => void;
     onRows: (offset: number, limit: number) => void;
 }
 
 interface State {
-    page: number;
-    hidden: boolean;
+    showTable: boolean;
+    showStatement: boolean;
 }
-
-const ROWS_PER_PAGE = 50;
-const INITIAL_PAGE = 1;
 
 class ResultSet extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = {page: INITIAL_PAGE, hidden: false};
-    }
-
-    componentDidMount() {
-        this.props.onRows(0, ROWS_PER_PAGE);
-    }
-
-    componentDidUpdate(prevProps: Props) {
-        if (this.props.rows == null) {
-            if (this.props.statement != prevProps.statement) {
-                this.setState({page: INITIAL_PAGE});
-            }
-            this.props.onRows((this.state.page-1)*ROWS_PER_PAGE, ROWS_PER_PAGE);
-        }
+        this.state = {showTable: true, showStatement: false};
     }
 
     render() {
@@ -44,31 +27,28 @@ class ResultSet extends React.Component<Props, State> {
             <div>
                 <ResultSetHeader
                     statement={this.props.statement}
-                    onToggleHidden={this.handleToggleHidden.bind(this)}
+                    pager={{total: this.props.size, offset: this.props.rows.offset, limit: RECORDS_PER_PAGE, onPage: this.props.onRows}}
+                    showStatement={this.state.showStatement}
+                    onToggleHidden={this.handleToggleShowTable.bind(this)}
+                    onSql={this.handleToggleShowStatement.bind(this)}
                     onExport={this.props.onExport}
                 />
-                <Hideable hidden={this.state.hidden}>
+                <Hideable hidden={!this.state.showTable}>
                     <Table
                         columns={this.props.columns}
-                        rows={this.props.rows || []}
-                    />
-                    <Pager
-                        current={this.state.page}
-                        total={Math.ceil(this.props.size/ROWS_PER_PAGE)}
-                        onPage={this.handlePageChange.bind(this)}
+                        rows={this.props.rows.rows}
                     />
                 </Hideable>
             </div>
         );
     }
 
-    private handleToggleHidden() {
-        this.setState({hidden: !this.state.hidden});
+    private handleToggleShowStatement() {
+        this.setState({showStatement: !this.state.showStatement});
     }
 
-    private handlePageChange(page: number) {
-        this.setState({page});
-        this.props.onRows((page-1)*ROWS_PER_PAGE, ROWS_PER_PAGE);
+    private handleToggleShowTable() {
+        this.setState({showTable: !this.state.showTable});
     }
 }
 

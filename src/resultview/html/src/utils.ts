@@ -15,6 +15,20 @@ export function objectEquals(obj1: any, obj2: any): boolean {
     return true;
 }
 
+export function padLeft(str: string, size: number, char: string = " "): string {
+    while (str.length <= size) {
+        str = char + str;
+    }
+    return str;
+}
+
+export function padRight(str: string, size: number, char: string = " "): string {
+    while (str.length <= size) {
+        str = str + char;
+    }
+    return str;
+}
+
 export function merge(...objects: (object | undefined | null)[]) {
     return Object.assign({}, ...objects.filter(o => o != null));
 }
