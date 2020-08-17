@@ -8,7 +8,7 @@ interface Props {
 
 const BtnExportJson: React.FunctionComponent<Props> = (props) => {
     return (
-        <Button background="transparent" title="Export JSON" onClick={props.onClick}>
+        <Button title="Export JSON" onClick={props.onClick}>
             <Icons.ExportJson/>
         </Button>
     );

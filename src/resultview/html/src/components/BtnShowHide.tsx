@@ -8,7 +8,7 @@ interface Props {
 
 const BtnShowHide: React.FunctionComponent<Props> = (props) => {
     return (
-        <Button background="transparent" title="Show/Hide" onClick={props.onClick}>
+        <Button title="Show/Hide" onClick={props.onClick}>
             <Icons.Eye/>
         </Button>
     );

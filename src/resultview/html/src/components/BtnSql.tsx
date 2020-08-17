@@ -8,7 +8,7 @@ interface Props {
 
 const BtnSql: React.FunctionComponent<Props> = (props) => {
     return (
-        <Button background="transparent" title="Show SQL" onClick={props.onClick} width={32} height={24}>
+        <Button title="Show SQL" onClick={props.onClick} width={32} height={24}>
             <div style={styles.text}>SQL</div>
         </Button>
     );

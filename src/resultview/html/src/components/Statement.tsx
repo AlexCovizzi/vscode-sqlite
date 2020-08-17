@@ -26,6 +26,6 @@ const styles: {[prop: string]: React.CSSProperties} = {
     code: {
         color: "var(--vscode-editor-foreground)",
         fontFamily: "var(--vscode-editor-font-family)",
-        cursor: "default"
+        cursor: "auto"
     }
 };

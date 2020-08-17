@@ -13,7 +13,7 @@ const Button: React.FunctionComponent<Props> = (props) => {
     const style = merge(styles.button, {
         width: props.width || 24,
         height: props.height || props.width,
-        background: props.background
+        background: props.background || "transparent"
     });
     return (
         <button style={style} title={props.title} onClick={props.onClick}>

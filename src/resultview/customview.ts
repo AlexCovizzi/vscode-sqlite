@@ -35,7 +35,7 @@ export class CustomView extends EventEmitter implements Disposable {
                 </head>
                 <body>
                     <div id="root"></div>
-                    <script>const RECORDS_PER_PAGE=${recordsPerPage || 25}</script>
+                    <script>const RECORDS_PER_PAGE=${recordsPerPage || 20}</script>
                     <script src="${(this.panel!.webview as any).asWebviewUri(Uri.file(jsPath)).toString()}"></script>
                 </body>
             </html>

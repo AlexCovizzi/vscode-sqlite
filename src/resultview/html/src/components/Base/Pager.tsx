@@ -24,12 +24,24 @@ class Pager extends React.Component<Props, State> {
         const toRowStr = String(this.props.offset + this.props.limit < this.props.total ? this.props.offset + this.props.limit : this.props.total);
         return (
             <table style={styles.pager}>
-                <tr>
-                <td><Button background="transparent" onClick={this.handlePrevClick.bind(this)}><Icons.ArrowLeft/></Button></td>
-                <td><input style={{...styles.input, width: this.props.total.toString().length + "em"}} type="text" value={this.state.value} onChange={this.handleInputChange.bind(this)} onKeyPress={this.handleKeyPress.bind(this)} />{` - ${toRowStr} of ${this.props.total}`}</td>
-                <td><Button background="transparent" onClick={this.handleNextClick.bind(this)}><Icons.ArrowRight/></Button></td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <td><Button onClick={this.handlePrevClick.bind(this)}><Icons.ArrowLeft/></Button></td>
+                        <td style={{whiteSpace: "nowrap"}}>{this.renderRowInput()}<span>{` - ${toRowStr} of ${this.props.total}`}</span></td>
+                        <td><Button onClick={this.handleNextClick.bind(this)}><Icons.ArrowRight/></Button></td>
+                    </tr>
+                </tbody>
             </table>
+        );
+    }
+
+    private renderRowInput() {
+        return (
+            <input style={{...styles.input, width: this.props.total.toString().length + "em"}}
+                type="text" value={this.state.value}
+                onChange={this.handleInputChange.bind(this)}
+                onKeyPress={this.handleKeyPress.bind(this)}
+            />
         );
     }
 

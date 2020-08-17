@@ -8,7 +8,7 @@ interface Props {
 
 const BtnExportCsv: React.FunctionComponent<Props> = (props) => {
     return (
-        <Button background="transparent" title="Export CSV" onClick={props.onClick}>
+        <Button title="Export CSV" onClick={props.onClick}>
             <Icons.ExportCsv/>
         </Button>
     );

@@ -12,9 +12,18 @@ interface Messageable {
 class VsCodeApi {
     private static instance: VsCodeApi;
     private api: Messageable;
+    private listeners: Array<(message: Message) => void>;
 
     private constructor(api: Messageable) {
         this.api = api;
+        this.listeners = [];
+
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            console.debug("Receive:");
+            console.debug(data);
+            this.listeners.forEach(listener => listener(data as Message));
+        });
     }
 
     public static acquire(api?: Messageable) {
@@ -32,16 +41,13 @@ class VsCodeApi {
     }
 
     postMessage(message: Message) {
-        console.log("Sent: " + JSON.stringify(message));
+        console.debug("Send:");
+        console.debug(message);
         this.api.postMessage(message);
     }
 
     onMessage(listener: (message: Message) => void) {
-        window.addEventListener('message', (event) => {
-            const data = event.data;
-            console.log("Received: " + JSON.stringify(data));
-            listener(data as Message);
-        });
+        this.listeners.push(listener);
     }
 
 }

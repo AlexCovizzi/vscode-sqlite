@@ -8,7 +8,7 @@ interface Props {
 
 const BtnExportHtml: React.FunctionComponent<Props> = (props) => {
     return (
-        <Button background="transparent" title="Export HTML" onClick={props.onClick}>
+        <Button title="Export HTML" onClick={props.onClick}>
             <Icons.ExportHtml/>
         </Button>
     );
