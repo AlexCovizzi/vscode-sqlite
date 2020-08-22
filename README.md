@@ -54,7 +54,7 @@ No requirements
 
 ## Known Issues
 
-No known issues.
+* Linux: sometimes the extension is not able to execute the bundled SQLite binary, manually installing SQLite (e.g. `sudo apt-get install sqlite3` for Ubuntu) solves the problem.
 
 ## Thanks to the [Contributors](https://github.com/AlexCovizzi/vscode-sqlite/graphs/contributors)!
 * [mandel59 (Ryusei YAMAGUCHI)](https://github.com/mandel59)

@@ -1,5 +1,20 @@
 # Change Log
 
+## 0.9.0 (22 Aug 2020)
+
+Fixed
+1. Fixed bug that caused result view to not be displayed after opening it one time ([#120](https://github.com/AlexCovizzi/vscode-sqlite/issues/120), [#125](https://github.com/AlexCovizzi/vscode-sqlite/issues/125), [#127](https://github.com/AlexCovizzi/vscode-sqlite/issues/127))
+
+Changed
+1. In the result view, the sql statement is now hidden by default and can be displayed by clicking the **SQL** button
+2. In the result view, the page section has been moved from below the table to the header above the table.
+
+Other
+1. Decreased extension size, removed useless files and sources are now bundled.
+2. Changed result view frontend framework from preact to React.
+3. Removed clipboardy dependency in favour of VSCode clipboard.
+4. Increase minimum VSCode version from 1.23 to 1.30
+
 ## 0.8.2 (09 May 2020)
 
 Fixed
