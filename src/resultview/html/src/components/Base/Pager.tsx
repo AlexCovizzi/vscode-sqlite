@@ -2,80 +2,74 @@ import * as React from "react";
 import { Button, Icons } from "../Base";
 
 interface Props {
-    total: number;
-    offset: number;
-    limit: number;
+    total: number; // total number of records
+    offset: number; // current offset
+    limit: number; // limit per page
     onPage?: (offset: number, limit: number) => void;
 }
 
-interface State {
-    value: string;
-}
-
-class Pager extends React.Component<Props, State> {
+class Pager extends React.Component<Props> {
 
     constructor(props: Props) {
         super(props);
-
-        this.state = {value: String(this.props.offset + 1)};
     }
 
     render() {
-        const toRowStr = String(this.props.offset + this.props.limit < this.props.total ? this.props.offset + this.props.limit : this.props.total);
+        const currentPage = this.getCurrentPage();
+        const totalPages = this.getTotalPages();
+        
         return (
             <table style={styles.pager}>
                 <tbody>
                     <tr>
-                        <td><Button onClick={this.handlePrevClick.bind(this)}><Icons.ArrowLeft/></Button></td>
-                        <td style={{whiteSpace: "nowrap"}}>{this.renderRowInput()}<span>{` - ${toRowStr} of ${this.props.total}`}</span></td>
-                        <td><Button onClick={this.handleNextClick.bind(this)}><Icons.ArrowRight/></Button></td>
+                        <td><Button onClick={(event) => this.handlePrevClick(event, currentPage)}><Icons.ArrowLeft/></Button></td>
+                        <td style={{whiteSpace: "nowrap"}}>{this.renderPageInput(currentPage, totalPages)}<span>{` - ${totalPages}`}</span></td>
+                        <td><Button onClick={(event) => this.handleNextClick(event, currentPage)}><Icons.ArrowRight/></Button></td>
                     </tr>
                 </tbody>
             </table>
         );
     }
 
-    private renderRowInput() {
+    private renderPageInput(currentPage: number, totalPages: number) {
         return (
-            <input style={{...styles.input, width: this.props.total.toString().length + "em"}}
-                type="text" value={this.state.value}
+            <input style={{...styles.input, width: (totalPages.toString().length + 1) + "em"}}
+                type="number" min={1} max={totalPages} value={currentPage}
                 onChange={this.handleInputChange.bind(this)}
-                onKeyPress={this.handleKeyPress.bind(this)}
             />
         );
     }
 
-    private handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
-        if (event.key === "Enter" || event.keyCode === 13) {
-            if (Number(this.state.value) != NaN) {
-                this.changePage(Number(this.state.value) - 1);
-            } 
-        }
-    }
-
     private handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({value: event.target.value});
+        this.changePage(Number(event.target.value));
     }
 
-    private handlePrevClick(event: React.MouseEvent) {
+    private handlePrevClick(event: React.MouseEvent, currentPage: number) {
         event.preventDefault();
-        this.changePage(this.props.offset - this.props.limit);
+        this.changePage(currentPage - 1);
     }
 
-    private handleNextClick(event: React.MouseEvent) {
+    private handleNextClick(event: React.MouseEvent, currentPage: number) {
         event.preventDefault();
-        this.changePage(this.props.offset + this.props.limit);
+        this.changePage(currentPage + 1);
     }
 
-    private changePage(newOffset: number) {
-        let offset = newOffset < this.props.total ? newOffset : this.props.offset;
-        offset = offset > 0 ? offset : 0;
+    private changePage(newPage: number) {
+        let newOffset = (newPage - 1) * this.props.limit;
+        newOffset = Math.min(newOffset, (this.getTotalPages() - 1) * this.props.limit);
+        newOffset = Math.max(newOffset, 0);
 
         if (this.props.onPage){
-            this.props.onPage(offset, this.props.limit);
+            this.props.onPage(newOffset, this.props.limit);
         }
+    }
 
-        this.setState({value: String(offset + 1)});
+    private getCurrentPage() {
+        return Math.floor(this.props.offset / this.props.limit) + 1;
+    }
+
+    private getTotalPages() {
+        return Math.max(1, Math.ceil(this.props.total / this.props.limit));
     }
 
 }

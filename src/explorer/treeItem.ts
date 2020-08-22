@@ -33,7 +33,6 @@ export class DBItem extends SQLItem {
             light: context.asAbsolutePath(join('resources', 'light', 'database.svg')),
             dark: context.asAbsolutePath(join('resources', 'dark', 'database.svg'))
         };
-        console.log(this.iconPath);
 
         this.contextValue = 'sqlite.databaseItem';
     }

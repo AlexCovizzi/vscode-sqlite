@@ -18,8 +18,8 @@ const styles: {[prop: string]: React.CSSProperties} = {
     statement: {
         width: "100%",
         borderRadius: "2px",
-        margin: "4px",
-        padding: "4px",
+        margin: "2px",
+        padding: "2px",
         backgroundColor: "rgba(127, 127, 127, 0.25)",
         whiteSpace: "pre-line"
     },

@@ -3,8 +3,6 @@ import { Hideable, Table } from "./Base";
 import ResultSetHeader from "./ResultSetHeader";
 import { ResultSetData } from "../api";
 
-declare const RECORDS_PER_PAGE: number;
-
 interface Props  extends ResultSetData {
     onExport: (format: string) => void;
     onRows: (offset: number, limit: number) => void;
@@ -24,7 +22,7 @@ class ResultSet extends React.Component<Props, State> {
 
     render() {
         return (
-            <div>
+            <div style={styles.resultSet}>
                 <ResultSetHeader
                     statement={this.props.statement}
                     pager={{total: this.props.size, offset: this.props.rows.offset, limit: RECORDS_PER_PAGE, onPage: this.props.onRows}}
@@ -53,3 +51,9 @@ class ResultSet extends React.Component<Props, State> {
 }
 
 export default ResultSet;
+
+const styles: {[prop: string]: React.CSSProperties} = {
+    resultSet: {
+        margin: "8px 0px"
+    }
+};
