@@ -1,5 +1,6 @@
 .vscode/
 .data/
+node_modules/
 tests/
 dist/**/*.map
 src/
