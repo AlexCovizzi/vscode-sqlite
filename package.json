@@ -410,11 +410,12 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "webpack --mode production && npm run build-html",
+        "vscode:prepublish": "webpack --mode production && npm run prepublish-html",
         "compile": "webpack --mode development",
         "watch": "webpack --mode development --watch",
         "test": "jest --silent --config jest.config.js",
         "install-html": "cd ./src/resultview/html && npm install",
+        "prepublish-html": "cd ./src/resultview/html && npm run prepublish",
         "build-html": "cd ./src/resultview/html && npm run build",
         "test-html": "cd ./src/resultview/html && npm run test",
         "watch-html": "cd ./src/resultview/html && npm run watch",

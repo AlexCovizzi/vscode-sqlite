@@ -4,6 +4,7 @@
     "description": "Result view subproject of the extension vscode-sqlite",
     "main": "index.js",
     "scripts": {
+        "prepublish": "webpack --mode production",
         "build": "webpack --mode development",
         "watch": "webpack --mode development --watch",
         "test": ""
