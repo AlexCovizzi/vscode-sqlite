@@ -41,6 +41,13 @@ export const commands = {
     registerCommand: jest.fn()
 };
 
+export const env = {
+    clipboard: {
+        writeText: jest.fn().mockResolvedValue(null),
+        readText: jest.fn().mockResolvedValue(null)
+    }
+};
+
 export const ExtensionContext = jest.fn();
 
 export const Disposable = {

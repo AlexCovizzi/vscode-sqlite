@@ -1,12 +1,12 @@
-import * as clipboardy from 'clipboardy';
+import {env} from "vscode";
 
 namespace Clipboard {
     export function copy(text: string): Promise<void> {
-        return clipboardy.write(text);
+        return Promise.resolve(env.clipboard.writeText(text));
     }
 
     export function read(): Promise<string> {
-        return clipboardy.read();
+        return Promise.resolve(env.clipboard.readText());
     }
 }
 

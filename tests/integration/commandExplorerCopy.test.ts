@@ -5,12 +5,10 @@ import { Constants } from "../../src/constants/constants";
 import { join } from 'path';
 import { getMockCallWhereParamEquals } from '../helpers/mockHelper';
 import { getRegisteredCommandCallback } from '../helpers/vscodeHelper';
-import * as clipboardy from 'clipboardy';
 import { Fixture } from '../fixtures';
 import { createDatabase, removeDatabase } from '../helpers/fixtureHelper';
 
 jest.mock('vscode');
-jest.mock('clipboardy');
 
 describe(`Command: ${Commands.explorerCopyName}`, () => {
     let databaseFixture: Fixture.Database = Fixture.getDatabase(Fixture.DATABASE_MAIN);
@@ -63,7 +61,7 @@ describe(`Command: ${Commands.explorerCopyName}`, () => {
         await explorerCopyNameCallback(tableTreeChild);
 
         // make sure the name of the table is copied to the clipboard
-        expect(clipboardy.write).toBeCalledWith(tableName);
+        expect(vscode.env.clipboard.writeText).toBeCalledWith(tableName);
     });
 
     test(`command ${Commands.explorerCopyName} should copy to clipboard the name of the column selected from the explorer`, async () => {
@@ -91,7 +89,7 @@ describe(`Command: ${Commands.explorerCopyName}`, () => {
         await explorerCopyNameCallback(colTreeChild);
 
         // make sure the name of the column is copied to the clipboard
-        expect(clipboardy.write).toBeCalledWith(colName);
+        expect(vscode.env.clipboard.writeText).toBeCalledWith(colName);
     });
 
 });
@@ -143,7 +141,7 @@ describe(`Command: ${Commands.explorerCopyPath}`, () => {
         await explorerCopyPathCallback(databaseTreeChild);
 
         // make sure the path of the database is copied to the clipboard
-        expect(clipboardy.write).toBeCalledWith(dbPath);
+        expect(vscode.env.clipboard.writeText).toBeCalledWith(dbPath);
     });
 
 });
