@@ -6,7 +6,7 @@
     "scripts": {
         "build": "webpack --mode development",
         "watch": "webpack --mode development --watch",
-        "test": "jest"
+        "test": ""
     },
     "devDependencies": {
         "@types/react": "^16.9.29",
