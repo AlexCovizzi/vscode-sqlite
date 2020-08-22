@@ -1,4 +1,4 @@
-import { TreeItem, TreeItemCollapsibleState, Command } from "vscode";
+import { TreeItem, TreeItemCollapsibleState, Command, ExtensionContext } from "vscode";
 import { join, basename } from "path";
 
 export interface SQLTree {
@@ -19,7 +19,7 @@ export class SQLItem extends TreeItem {
 
 export class DBItem extends SQLItem {
     
-    constructor(public dbPath: string, command?: Command) {
+    constructor(context: ExtensionContext, public dbPath: string, command?: Command) {
         super(
             dbPath,
             basename(dbPath),
@@ -27,9 +27,11 @@ export class DBItem extends SQLItem {
             command
         );
 
+        console.log(__filename);
+
         this.iconPath = {
-            light: join(__filename, '..', '..', '..', 'resources', 'light', 'database.svg'),
-            dark: join(__filename, '..', '..', '..', 'resources', 'dark', 'database.svg')
+            light: context.asAbsolutePath(join('resources', 'light', 'database.svg')),
+            dark: context.asAbsolutePath(join('resources', 'dark', 'database.svg'))
         };
 
         this.contextValue = 'sqlite.databaseItem';
@@ -42,7 +44,7 @@ export class DBItem extends SQLItem {
 
 export class TableItem extends SQLItem {
 
-    constructor(name: string, private type: string, command?: Command) {
+    constructor(context: ExtensionContext, name: string, private type: string, command?: Command) {
         super(
             name,
             name,
@@ -56,8 +58,8 @@ export class TableItem extends SQLItem {
             icon_name = "table_view.svg";
         }
         this.iconPath = {
-            light: join(__filename, '..', '..', '..', 'resources', 'light', icon_name),
-            dark: join(__filename, '..', '..', '..', 'resources', 'dark', icon_name)
+            light: context.asAbsolutePath(join('resources', 'light', icon_name)),
+            dark: context.asAbsolutePath(join('resources', 'dark', icon_name))
         };
     }
 
@@ -70,7 +72,7 @@ export class TableItem extends SQLItem {
 
 export class ColumnItem extends SQLItem {
 
-    constructor(name:string, private type: string,
+    constructor(context: ExtensionContext, name:string, private type: string,
             private notnull: boolean, private pk: number, private defVal: string, command?: Command) {
         super(
             name,
@@ -85,8 +87,8 @@ export class ColumnItem extends SQLItem {
         iconName = pk > 0? 'col_pk.svg' : iconName;
 
         this.iconPath = {
-            light: join(__filename, '..', '..', '..', 'resources', 'light', iconName),
-            dark: join(__filename, '..', '..', '..', 'resources', 'dark', iconName)
+            light: context.asAbsolutePath(join('resources', 'light', iconName)),
+            dark: context.asAbsolutePath(join('resources', 'dark', iconName))
         };
     }
 

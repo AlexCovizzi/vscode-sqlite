@@ -1,78 +1,62 @@
 import { Disposable, workspace, window, ViewColumn, commands } from "vscode";
 import { CustomView, Message } from "./customview";
-import { queryObject, sanitizeStringForHtml } from "../utils/utils";
+import { sanitizeStringForHtml } from "../utils/utils";
 import * as csvStringify from 'csv-stringify/lib/sync';
-import { join } from "path";
 import { EOL } from "os";
 import { ResultSet } from "../common";
 
 export default class ResultView extends CustomView implements Disposable {
 
     private resultSet?: ResultSet;
-    private recordsPerPage: number;
     private msgQueue: Message[];
 
     constructor(private extensionPath: string) {
         super('resultview', 'SQLite');
 
         this.msgQueue = [];
-        this.recordsPerPage = 50;
     }
 
-    display(resultSet: ResultSet | Promise<ResultSet | undefined>, recordsPerPage: number) {
-        this.show(join(this.extensionPath, 'out', 'resultview', 'htmlcontent', 'index.html'));
+    display(resultSet: Promise<ResultSet|undefined>, recordsPerPage: number) {
+        this.show(this.extensionPath, recordsPerPage);
         
-        this.recordsPerPage = recordsPerPage;
-        this.resultSet = undefined;
         this.msgQueue = [];
         
-        if (Array.isArray(resultSet)) {
-            this.resultSet = resultSet;
-        } else {
-            resultSet.then(rs => {
-                this.resultSet = rs? rs : [];
-                
-                //if (this.resultSet) {
-                    if (this.msgQueue) this.msgQueue.forEach(this.handleMessage.bind(this));
-                //} else {
-                    //this.dispose();
-                //}
-            });
-        }
+        resultSet.then(rs => {
+            this.resultSet = rs? rs : [];
+            const results = this.resultSet? this.resultSet : [];
+            this.send({type: "FETCH_RESULTS", payload: results.map((result, idx) => (
+                {statement: result.stmt, columns: result.header, size: result.rows.length, rows: {rows: result.rows.slice(0, recordsPerPage), offset: 0, limit: recordsPerPage, result: idx}}
+            ))});
+            if (this.msgQueue) this.msgQueue.forEach(this.handleMessage.bind(this));
+        });
     }
 
     handleMessage(message: Message) {
-        let cmdType = message.command.split(':')[0];
-        let cmdRest = message.command.split(':')[1];
-        if (this.resultSet) {
-            let obj: Object | undefined;
-            switch(cmdType) {
-                case 'fetch':
-                    obj = this.fetch(cmdRest);
-                    if (obj != null) this.send({command: message.command, data: obj, id: message.id} as Message);
-                    break;
-                case 'csv':
-                    obj = this.fetch(cmdRest);
-                    if (obj != null) this.exportCsv(obj as any);
-                    break;
-                case 'json':
-                    obj = this.fetch(cmdRest);
-                    if (obj != null) this.exportJson(obj as any);
-                    break;
-                case 'html':
-                    obj = this.fetch(cmdRest);
-                    if (obj != null) this.exportHtml(obj as any);
-                    break;
-                default:
-                    break;
-            }
-        } else {
+        if (!this.resultSet) {
             this.msgQueue.push(message);
+            return;
         }
-    }
-
-    private fetch(resource: string) {
-        return queryObject({resultSet: this.resultSet, pageRows: this.recordsPerPage}, resource);
+        switch(message.type) {
+            case "FETCH_RESULTS": {
+                const results = this.resultSet? this.resultSet : [];
+                this.send({type: "FETCH_RESULTS", payload: results.map(result => (
+                    {statement: result.stmt, columns: result.header, size: result.rows.length}
+                ))});
+            }
+            case "FETCH_ROWS": {
+                const result = this.resultSet? this.resultSet[message.payload.result] : null;
+                const fromRow = message.payload.offset;
+                const toRow = fromRow + message.payload.limit;
+                this.send({type: "FETCH_ROWS", payload: {result: message.payload.result, rows: result!.rows.slice(fromRow, toRow), offset: fromRow, limit: message.payload.limit}});
+            }
+            case "EXPORT_RESULTS": {
+                const obj = message.payload.result ? this.resultSet![message.payload.result] : this.resultSet;
+                const format = message.payload.format;
+                if (format === "csv") this.exportCsv(obj);
+                if (format === "html") this.exportHtml(obj);
+                if (format === "json") this.exportJson(obj);
+            }
+        }
     }
 
     private exportJson(obj: Object) {

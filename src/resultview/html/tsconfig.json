@@ -5,21 +5,20 @@
         "outDir": "dist",
         "rootDir": "src",
         "lib": [
-            "es6"
+            "dom", "es6"
         ],
         "sourceMap": true,
         "strict": true,
         /* Additional Checks */
         "noUnusedLocals": true,
         "noImplicitAny": true,
+        "jsx": "react"
     },
     "include": [
-        "src/**/*.ts"
+        "typings",
+        "src"
     ],
     "exclude": [
-        "src/resultview/html",
-        "src/resultview/htmlcontent",
-        "node_modules",
-        ".vscode-test"
+        "node_modules"
     ]
 }
