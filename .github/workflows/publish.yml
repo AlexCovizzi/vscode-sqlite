@@ -12,10 +12,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
-    - name: Set environment variables
-      env:
-        VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        OVSX_PAT: ${{ secrets.OVSX_PAT }}
     - name: Install vsce and ovsx
       run: npm install --global vsce ovsx
     - name: Install
@@ -23,6 +19,10 @@ jobs:
         npm install
         npm run install-html
     - name: Publish to Visual Studio Marketplace
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
       run: vsce publish
     - name: Publish to Eclipse Open VSX
+      env:
+        OVSX_PAT: ${{ secrets.OVSX_PAT }}
       run: ovsx publish
