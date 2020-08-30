@@ -1,0 +1,17 @@
+name: Publish
+
+on:
+  release:
+    types: [ published ]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Node.js 10.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10.x
+    - name: Print hello
+      run: |
+        echo Hello
