@@ -12,6 +12,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
-    - name: Print hello
-      run: |
-        echo Hello
+    - name: Package
+      run: npm run package
+    - name: Get version
+      run: echo ::set-env name=VERSION::$(node -p -e "require('./package.json').version")
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: vscode-sqlite-${{ env.VERSION }}
+        path: vscode-sqlite-${{ env.VERSION }}.vsix
