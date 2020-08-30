@@ -12,16 +12,13 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
+    - name: Install ovsx
+      run: npm install --global ovsx
     - name: Install
       run: |
         npm install
         npm run install-html
-    - name: Package
-      run: npm run package
-    - name: Get version
-      run: echo ::set-env name=VERSION::$(node -p -e "require('./package.json').version")
-    - name: Upload artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: vscode-sqlite-${{ env.VERSION }}
-        path: vscode-sqlite-${{ env.VERSION }}.vsix
+    - name: Publish to Visual Studio Marketplace
+      run: vsce publish -p ${{ env.VSCE_TOKEN }}
+    - name: Publish to Eclipse Open VSX
+      run: ovsx publish -p ${{ env.OVSX_TOKEN }}
