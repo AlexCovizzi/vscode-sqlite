@@ -12,8 +12,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 10.x
-    - name: Install ovsx
-      run: npm install --global ovsx
+    - name: Install vsce and ovsx
+      run: npm install --global vsce ovsx
     - name: Install
       run: |
         npm install
