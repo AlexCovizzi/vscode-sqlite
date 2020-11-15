@@ -5,5 +5,4 @@ import ExportJson from "./ExportJson";
 import ExportHtml from "./ExportHtml";
 import Eye from "./Eye";
 
-
-export {ArrowLeft, ArrowRight, ExportCsv, ExportHtml, ExportJson, Eye};
+export { ArrowLeft, ArrowRight, ExportCsv, ExportHtml, ExportJson, Eye };

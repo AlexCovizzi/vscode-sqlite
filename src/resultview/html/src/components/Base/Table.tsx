@@ -52,22 +52,5 @@ const styles: {[prop: string]: React.CSSProperties} = {
         border: "1px solid var(--vscode-foreground)",
         padding: "6px",
         whiteSpace: "pre"
-    },
-    headNum: {
-        border: "1px solid var(--vscode-foreground)",
-        background: "rgba(0, 0, 0, 0.1)",
-        textAlign: "left",
-        padding: "6px",
-        opacity: "0.75",
-        fontStyle: "italic"
-    },
-    bodyNum: {
-        border: "1px solid var(--vscode-foreground)",
-        background: "rgba(0, 0, 0, 0.1)",
-        textAlign: "left",
-        padding: "6px",
-        whiteSpace: "pre",
-        opacity: "0.75",
-        fontStyle: "italic"
     }
 };
