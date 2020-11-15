@@ -1,6 +1,7 @@
 import * as React from "react";
 
 interface Props {
+    offset: number;
     columns: string[];
     rows: (string | number)[][];
 }
@@ -10,9 +11,9 @@ const Table: React.FunctionComponent<Props> = (props) => {
         <table style={styles.table}>
             <thead>
                 <tr>
-                {props.columns.map((col, i) => (
-                    <th key={i} style={styles.headCol}>{col}</th>
-                ))}
+                    {props.columns.map((col, i) => (
+                        <th key={i} style={styles.headCol}>{col}</th>
+                    ))}
                 </tr>
             </thead>
             {
@@ -38,16 +39,35 @@ const styles: {[prop: string]: React.CSSProperties} = {
         display: "block",
         overflowY: "hidden",
         overflowX: "auto",
-        marginBottom: "4px"
+        marginBottom: "4px",
+        fontFamily: "var(--vscode-editor-font-family), monospace",
+        fontSize: "var(--vscode-editor-font-size)"
     },
     headCol: {
         border: "1px solid var(--vscode-foreground)",
-        padding: "5px",
+        padding: "6px",
         background: "rgba(0, 0, 0, 0.1)"
     },
     bodyCol: {
         border: "1px solid var(--vscode-foreground)",
-        padding: "5px",
+        padding: "6px",
         whiteSpace: "pre"
+    },
+    headNum: {
+        border: "1px solid var(--vscode-foreground)",
+        background: "rgba(0, 0, 0, 0.1)",
+        textAlign: "left",
+        padding: "6px",
+        opacity: "0.75",
+        fontStyle: "italic"
+    },
+    bodyNum: {
+        border: "1px solid var(--vscode-foreground)",
+        background: "rgba(0, 0, 0, 0.1)",
+        textAlign: "left",
+        padding: "6px",
+        whiteSpace: "pre",
+        opacity: "0.75",
+        fontStyle: "italic"
     }
 };

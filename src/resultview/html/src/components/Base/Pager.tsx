@@ -17,14 +17,18 @@ class Pager extends React.Component<Props> {
     render() {
         const currentPage = this.getCurrentPage();
         const totalPages = this.getTotalPages();
-        
+        const rowStart = this.padLeft(String(this.props.offset + 1), String(this.props.total).length);
+        const rowEndNumber = this.props.offset + this.props.limit < this.props.total ? this.props.offset + this.props.limit : this.props.total;
+        const rowEnd = this.padLeft(String(rowEndNumber), String(this.props.total).length);
+
         return (
             <table style={styles.pager}>
                 <tbody>
                     <tr>
                         <td><Button onClick={(event) => this.handlePrevClick(event, currentPage)}><Icons.ArrowLeft/></Button></td>
-                        <td style={{whiteSpace: "nowrap"}}>{this.renderPageInput(currentPage, totalPages)}<span>{` - ${totalPages}`}</span></td>
+                        <td style={{whiteSpace: "nowrap"}}>{this.renderPageInput(currentPage, totalPages)} <span>{` / ${totalPages}`}</span></td>
                         <td><Button onClick={(event) => this.handleNextClick(event, currentPage)}><Icons.ArrowRight/></Button></td>
+                        <td style={{whiteSpace: "nowrap"}}>&nbsp;{`${rowStart} - ${rowEnd} of `}<b>{this.props.total}</b></td>
                     </tr>
                 </tbody>
             </table>
@@ -72,6 +76,13 @@ class Pager extends React.Component<Props> {
         return Math.max(1, Math.ceil(this.props.total / this.props.limit));
     }
 
+    private padLeft(str: string, until: number, char: string = ' ') {
+        while(str.length < until) {
+            str = char + str;
+        }
+        return str;
+    }
+
 }
 
 export default Pager;
@@ -79,10 +90,14 @@ export default Pager;
 
 const styles: {[prop: string]: React.CSSProperties} = {
     pager: {
-        backgroundColor: "transparent"
+        backgroundColor: "transparent",
+        fontFamily: "var(--vscode-editor-font-family)",
+        fontSize: "var(--vscode-editor-font-size)"
     },
     input: {
         color: "var(--vscode-editor-foreground)",
+        fontFamily: "var(--vscode-editor-font-family)",
+        fontSize: "var(--vscode-editor-font-size)",
         textAlign: "center",
         backgroundColor: "rgba(127, 127, 127, 0.25)",
         border: "none"

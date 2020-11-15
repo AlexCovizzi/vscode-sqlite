@@ -33,6 +33,7 @@ class ResultSet extends React.Component<Props, State> {
                 />
                 <Hideable hidden={!this.state.showTable}>
                     <Table
+                        offset={this.props.rows.offset}
                         columns={this.props.columns}
                         rows={this.props.rows.rows}
                     />

@@ -36,8 +36,12 @@ class App extends React.Component<Props, State> {
     }
 
     render() {
+        // TODO: Move the style in a css file
         return (
             <div>
+                <style>
+                    {"button:focus {outline: 1px solid -webkit-focus-ring-color;}"}
+                </style>
                 <AppHeader onExport={this.handleExport.bind(this)}/>
                 <ResultSetList
                     list={this.state.results}
