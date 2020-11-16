@@ -16,7 +16,7 @@ const Button: React.FunctionComponent<Props> = (props) => {
         background: props.background || "transparent"
     });
     return (
-        <button style={style} title={props.title} onClick={props.onClick}>
+        <button type="button" style={style} title={props.title} onClick={props.onClick}>
             {props.children}
         </button>
     );
@@ -28,8 +28,8 @@ const styles: {button: React.CSSProperties} = {
     button: {
         width: 24,
         height: 24,
-        padding: "2px",
         border: "none",
+        padding: "2px",
         cursor: "pointer",
         margin: "2px 2px"
     }
