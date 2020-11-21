@@ -22,7 +22,11 @@ export function padLeft(str: string, size: number, char: string = " "): string {
     return str;
 }
 
-export function padRight(str: string, size: number, char: string = " "): string {
+export function padRight(
+    str: string,
+    size: number,
+    char: string = " "
+): string {
     while (str.length <= size) {
         str = str + char;
     }
@@ -30,7 +34,7 @@ export function padRight(str: string, size: number, char: string = " "): string 
 }
 
 export function merge(...objects: (object | undefined | null)[]) {
-    return Object.assign({}, ...objects.filter(o => o != null));
+    return Object.assign({}, ...objects.filter((o) => o != null));
 }
 
 export function isThemeLight() {

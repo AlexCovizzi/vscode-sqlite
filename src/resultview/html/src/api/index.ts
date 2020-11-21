@@ -19,19 +19,25 @@ export class Api {
     private vscodeApi: VsCodeApi;
 
     constructor(vscodeApi?: VsCodeApi) {
-        this.vscodeApi = vscodeApi? vscodeApi : VsCodeApi.acquire();
+        this.vscodeApi = vscodeApi ? vscodeApi : VsCodeApi.acquire();
     }
 
     fetchResults() {
-        this.vscodeApi.postMessage({type: "FETCH_RESULTS"});
+        this.vscodeApi.postMessage({ type: "FETCH_RESULTS" });
     }
-    
+
     fetchRows(result: number, offset: number, limit: number) {
-        this.vscodeApi.postMessage({type: "FETCH_ROWS", payload: {result, offset, limit}});
+        this.vscodeApi.postMessage({
+            type: "FETCH_ROWS",
+            payload: { result, offset, limit },
+        });
     }
 
     exportResults(format: string, result?: number) {
-        this.vscodeApi.postMessage({type: "EXPORT_RESULTS", payload: {result, format}});
+        this.vscodeApi.postMessage({
+            type: "EXPORT_RESULTS",
+            payload: { result, format },
+        });
     }
 
     onResults(callback: (results: ResultSetData[]) => void) {
