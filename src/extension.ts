@@ -14,6 +14,7 @@ import { validateSqliteCommand } from './sqlite/sqliteCommandValidation';
 import Clipboard from './utils/clipboard';
 import { Schema } from './common';
 import { extractStatements } from './sqlite/queryParser';
+import { keywords } from './languageserver/keywords';
 
 export namespace Commands {
     export const showOutputChannel = "sqlite.showOutputChannel";
@@ -281,22 +282,25 @@ function explorerRefresh(): Thenable<any> {
     );
 }
 
-export function newQuerySelect(table: Schema.Table): Thenable<any> {
-    function sqlSafeColName(name: string) {
-        return name.indexOf(" ") < 0 ? name : `\`${name}\``;
+const keywordsSet = new Set(keywords);
+
+function sqlSafeName(name: string) {
+    if (/^[A-Za-z_]\w*$/.test(name) && !keywordsSet.has(name.toUpperCase())) {
+        return name
     }
-    let contentL0 = `SELECT ${table.columns.map(c => sqlSafeColName(c.name)).join(", ")}`;
-    let contentL1 = `FROM \`${table.name}\`;`;
+    return `\`${name.replace(/`/g, '``')}\``;
+}
+
+export function newQuerySelect(table: Schema.Table): Thenable<any> {
+    let contentL0 = `SELECT ${table.columns.map(c => sqlSafeName(c.name)).join(", ")}`;
+    let contentL1 = `FROM ${sqlSafeName(table.name)};`;
     let content = contentL0 + "\n" + contentL1;
     let cursorPos = new Position(1, contentL1.length-1);
     return newQuery(table.database, content, cursorPos);
 }
 
 function newQueryInsert(table: Schema.Table): Thenable<any> {
-    function sqlSafeColName(name: string) {
-        return name.indexOf(" ") < 0 ? name : `\`${name}\``;
-    }
-    let contentL0 = `INSERT INTO \`${table.name}\` (${table.columns.map(c => sqlSafeColName(c.name)).join(", ")})`;
+    let contentL0 = `INSERT INTO ${sqlSafeName(table.name)} (${table.columns.map(c => sqlSafeName(c.name)).join(", ")})`;
     let contentL1 = `VALUES ();`;
     let content = contentL0 + "\n" + contentL1;
     // move the cursor inside the round brackets
@@ -312,7 +316,7 @@ function newQuery(dbPath?: string, content: string = "", cursorPos: Position = n
 }
 
 function runTableQuery(dbPath: string, tableName: string) {
-    let query = `SELECT * FROM \`${tableName}\`;`;
+    let query = `SELECT * FROM ${sqlSafeName(tableName)};`;
     runQuery(dbPath, query, true);
 }
 
