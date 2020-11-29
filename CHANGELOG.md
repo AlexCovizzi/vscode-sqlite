@@ -1,14 +1,24 @@
 # Change Log
 
+## 0.10.1 (29 Nov 2020)
+
+Fixed
+
+1. Fixed table and column name escaping when creating queries ([mandel59](https://github.com/mandel59) \[[PR#138](https://github.com/AlexCovizzi/vscode-sqlite/pull/138)\] )
+
 ## 0.10.0 (21 Nov 2020)
 
 Fixed
 
-1. The SQLite binaries provided with the extension are now executable.
+1. The SQLite binaries provided with the extension are now executable ([#135](https://github.com/AlexCovizzi/vscode-sqlite/issues/135))
 
 Added
 
-1. The total number of records is now displayed in the result view header.
+1. The total number of records is now displayed in the result view header. ([#131](https://github.com/AlexCovizzi/vscode-sqlite/issues/131))
+
+Changed
+
+1. Changed font style of the result view to be the same as the editor font style.
 
 ## 0.9.0 (22 Aug 2020)
 

@@ -28,7 +28,8 @@ jobs:
         npm run test-html
     - name: Package
       run: npm run package
-    - run: echo "VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
+    - name: Version
+      run: echo "VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
     - name: Upload artifact
       uses: actions/upload-artifact@v1
       with:
