@@ -57,7 +57,7 @@ export class CliDatabase implements Database {
             this._write(`.print ${RESULT_SEPARATOR}${EOL}`);
             this.busy = true;
         } catch(err) {
-            let startError = new Error(`Database failed to open: ${quotedPath}`);
+            let startError = new Error(`Database failed to open '${quotedPath}': ` + err.message);
             setTimeout(() => this.onStartError(startError), 0);
             return;
         }
