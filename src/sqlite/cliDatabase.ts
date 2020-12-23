@@ -40,13 +40,13 @@ export class CliDatabase implements Database {
         try {
             this.sqliteProcess = spawn(this.command, args, {stdio: ['pipe', "pipe", "pipe" ]});
         } catch(err) {
-            let startError = new Error("Database failed to open: SQLite process failed to start: "+err.message);
+            let startError = new Error("SQLite process failed to start: "+err.message);
             setTimeout(() => this.onStartError(startError), 0);
             return;
         }
 
         this.sqliteProcess.once('error', (err: Error) => {
-            let startError = new Error("Database failed to open: SQLite process failed to start: "+err.message);
+            let startError = new Error("SQLite process failed to start: "+err.message);
             this.onStartError(startError);
         });
 
@@ -57,8 +57,7 @@ export class CliDatabase implements Database {
             this._write(`.print ${RESULT_SEPARATOR}${EOL}`);
             this.busy = true;
         } catch(err) {
-            let startError = new Error(`Database failed to open '${quotedPath}': ` + err.message);
-            setTimeout(() => this.onStartError(startError), 0);
+            setTimeout(() => this.onStartError(err), 0);
             return;
         }
 
@@ -79,13 +78,12 @@ export class CliDatabase implements Database {
         // they will only occur when the process stops because of -bail
         this.sqliteProcess.stdin.once("error", NO_HANDLER);
         this.sqliteProcess.stdout.once("error", NO_HANDLER);
-        this.sqliteProcess.stderr.once("error", NO_HANDLER);
         this.csvParser.once("error", NO_HANDLER);
     }
 
     close(callback: (err?: Error) => void): void {
         if (this._ended) {
-            if (callback) callback(new Error("Database is closed: SQLite process already ended."));
+            if (callback) callback(new Error("SQLite process already ended."));
             return;
         }
         try {
@@ -102,7 +100,7 @@ export class CliDatabase implements Database {
     
     execute(sql: string, callback?: (rows: string[][], err?: Error) => void) {
         if (this._ended) {
-            if (callback) callback([], new Error("Database is closed: SQLite process already ended."));
+            if (callback) callback([], new Error("SQLite process already ended."));
             return;
         }
 
@@ -156,7 +154,7 @@ export class CliDatabase implements Database {
         this._ended = true;
         this.csvParser.end();
         if (!this._started) {
-            if (this.startCallback) this.startCallback(new Error(`Database failed to open: '${this.path}'`));
+            if (this.startCallback) this.startCallback(new Error(this.errStr));
             return;
         }
 
