@@ -228,7 +228,8 @@ function explorerAdd(dbPath?: string): Thenable<void> {
                 return explorer.add(schema);
             },
             err => {
-                let message = `Failed to open database: ${err.message}`;
+                let message = `Failed to open database '${dbPath}': ${err.message}`;
+                logger.error(message);
                 showErrorMessage(message, {title: "Show output", command: Commands.showOutputChannel});
             }
         );
