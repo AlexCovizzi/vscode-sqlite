@@ -144,7 +144,8 @@
                 {
                     "id": "sqlite.explorer",
                     "name": "SQLite Explorer",
-                    "when": "sqlite.explorer.show"
+                    "when": "sqlite.explorer.show",
+                    "icon": "resources/dark/database.svg"
                 }
             ]
         },
