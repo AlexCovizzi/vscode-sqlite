@@ -1,5 +1,5 @@
 import { QuickPickItem, workspace, window, CancellationTokenSource, CancellationToken } from 'vscode';
-import { basename } from 'path';
+import { basename, relative } from 'path';
 
 export namespace QuickPick {
     export class DatabaseItem implements QuickPickItem {
@@ -11,7 +11,7 @@ export namespace QuickPick {
         
         constructor(path: string, description?: string) {
             this.path = path;
-            this.label = basename(path);
+            this.label = workspace.workspaceFolders ? relative(workspace.workspaceFolders[0].uri.fsPath, path) : basename(path);
             this.description = description? description : path;
         }
     }
