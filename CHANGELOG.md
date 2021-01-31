@@ -1,10 +1,21 @@
 # Change Log
 
+## 0.11.1 (31 Jan 2021)
+
+Changed
+
+1. The icon used on the sidebar view has been changed to the database icon ([MrCodingB](https://github.com/MrCodingB) \[[PR#153](https://github.com/AlexCovizzi/vscode-sqlite/pull/153)\])
+2. The database picker now uses the relative path of the database instead of the name ([#117](https://github.com/AlexCovizzi/vscode-sqlite/issues/117))
+
+Other
+
+1. Improved error messages ([#143](https://github.com/AlexCovizzi/vscode-sqlite/issues/143))
+
 ## 0.10.1 (29 Nov 2020)
 
 Fixed
 
-1. Fixed table and column name escaping when creating queries ([mandel59](https://github.com/mandel59) \[[PR#138](https://github.com/AlexCovizzi/vscode-sqlite/pull/138)\] )
+1. Fixed table and column name escaping when creating queries ([mandel59](https://github.com/mandel59) \[[PR#138](https://github.com/AlexCovizzi/vscode-sqlite/pull/138)\])
 
 ## 0.10.0 (21 Nov 2020)
 

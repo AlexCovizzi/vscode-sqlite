@@ -53,5 +53,4 @@ No requirements
 
 
 ## Thanks to the [Contributors](https://github.com/AlexCovizzi/vscode-sqlite/graphs/contributors)!
-* [mandel59 (Ryusei YAMAGUCHI)](https://github.com/mandel59)
-* [LokiSharp (LokiSharp)](https://github.com/LokiSharp)
+[mandel59 (Ryusei YAMAGUCHI)](https://github.com/mandel59), [LokiSharp (LokiSharp)](https://github.com/LokiSharp), [MrCodingB(MrCodingB)](https://github.com/MrCodingB)
