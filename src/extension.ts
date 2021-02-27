@@ -30,6 +30,7 @@ export namespace Commands {
     export const newQuery: string = 'sqlite.newQuery';
     export const newQuerySelect: string = 'sqlite.newQuerySelect';
     export const newQueryInsert: string = 'sqlite.newQueryInsert';
+    export const newQueryCreate: string = 'sqlite.newQueryCreate';
     export const quickQuery: string = 'sqlite.quickQuery';
     export const runTableQuery: string = 'sqlite.runTableQuery';
     export const runSqliteMasterQuery: string = 'sqlite.runSqliteMasterQuery';
@@ -130,6 +131,10 @@ export function activate(context: ExtensionContext): Promise<boolean> {
     
     context.subscriptions.push(commands.registerCommand(Commands.newQueryInsert, (table: Schema.Table) => {
         return newQueryInsert(table);
+    }));
+    
+    context.subscriptions.push(commands.registerCommand(Commands.newQueryCreate, (table: Schema.Table) => {
+        return newQueryCreate(table);
     }));
     
     context.subscriptions.push(commands.registerCommand(Commands.quickQuery, () => {
@@ -306,6 +311,13 @@ function newQueryInsert(table: Schema.Table): Thenable<any> {
     let content = contentL0 + "\n" + contentL1;
     // move the cursor inside the round brackets
     let cursorPos = new Position(1, contentL1.length-2);
+    return newQuery(table.database, content, cursorPos);
+}
+
+function newQueryCreate(table: Schema.Table): Thenable<any> {
+    let contentL0 = `DROP ${table.type.toUpperCase()} IF EXISTS ${sqlSafeName(table.name)};`;
+    let content = contentL0 + "\n" + table.sql + ";";
+    let cursorPos = new Position(0, 0);
     return newQuery(table.database, content, cursorPos);
 }
 

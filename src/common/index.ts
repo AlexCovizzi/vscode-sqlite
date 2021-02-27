@@ -14,6 +14,7 @@ export namespace Schema {
         name: string;
         type: string;
         columns: Schema.Column[];
+        sql: string;
     }
 
     export interface Column {
