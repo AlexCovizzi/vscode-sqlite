@@ -98,6 +98,11 @@
                 "category": "SQLite"
             },
             {
+                "command": "sqlite.newQueryCreate",
+                "title": "New Query [Drop & Create]",
+                "category": "SQLite"
+            },
+            {
                 "command": "sqlite.quickQuery",
                 "title": "Quick Query",
                 "category": "SQLite"
@@ -224,6 +229,11 @@
                     "command": "sqlite.newQueryInsert",
                     "group": "sqlite",
                     "when": "false"
+                },
+                {
+                    "command": "sqlite.newQueryCreate",
+                    "group": "sqlite",
+                    "when": "false"
                 }
             ],
             "explorer/context": [
@@ -315,6 +325,11 @@
                 },
                 {
                     "command": "sqlite.newQueryInsert",
+                    "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
+                    "group": "2_sql@2"
+                },
+                {
+                    "command": "sqlite.newQueryCreate",
                     "when": "view == sqlite.explorer && viewItem == sqlite.tableItem",
                     "group": "2_sql@2"
                 },

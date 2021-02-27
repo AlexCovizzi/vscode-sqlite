@@ -18,6 +18,7 @@ export namespace Schema {
         name: string;
         type: string;
         columns: Schema.Column[];
+        sql: string;
     }
 
     export interface Column extends Schema.Item {
@@ -39,7 +40,7 @@ export namespace Schema {
                 tables: []
             } as Schema.Database;
 
-            const tablesQuery = `SELECT name, type FROM sqlite_master
+            const tablesQuery = `SELECT name, type, sql FROM sqlite_master
                                 WHERE (type="table" OR type="view")
                                 AND name <> 'sqlite_sequence'
                                 AND name <> 'sqlite_stat1'
@@ -54,7 +55,7 @@ export namespace Schema {
 
                 rows.shift(); // remove header from rows
                 schema.tables = rows.map(row => {
-                    return {database: dbPath, name: row[0], type: row[1], columns: [] } as Schema.Table;
+                    return {database: dbPath, name: row[0], type: row[1], columns: [], sql: row[2] } as Schema.Table;
                 });
 
                 for(let table of schema.tables) {
