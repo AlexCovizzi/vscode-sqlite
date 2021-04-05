@@ -11,8 +11,13 @@ export namespace QuickPick {
         
         constructor(path: string, description?: string) {
             this.path = path;
-            this.label = workspace.workspaceFolders ? relative(workspace.workspaceFolders[0].uri.fsPath, path) : basename(path);
+            this.label = this.toLabel(path);
             this.description = description? description : path;
+        }
+
+        private toLabel(path: string) {
+            if (path === ":memory:") return path;
+            return workspace.workspaceFolders ? relative(workspace.workspaceFolders[0].uri.fsPath, path) : basename(path);
         }
     }
     export class FileDialogItem implements QuickPickItem {

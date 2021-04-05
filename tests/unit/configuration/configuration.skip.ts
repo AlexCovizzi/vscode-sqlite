@@ -18,7 +18,7 @@ describe("configuration", () => {
                 };
             });
             
-            let configuration = getConfiguration();
+            let configuration = getConfiguration({} as any);
 
             expect(configuration.recordsPerPage).toBe(recordsPerPage);
         });
@@ -32,7 +32,7 @@ describe("configuration", () => {
                 };
             });
             
-            let configuration = getConfiguration();
+            let configuration = getConfiguration({} as any);
             let expected = require('../../../package.json').contributes.configuration.properties["sqlite.recordsPerPage"]["default"];
 
             expect(configuration.recordsPerPage).toBe(expected);
@@ -48,7 +48,7 @@ describe("configuration", () => {
                 };
             });
             
-            let configuration = getConfiguration();
+            let configuration = getConfiguration({} as any);
 
             expect(configuration.logLevel).toBe(logLevel);
         });
@@ -63,7 +63,7 @@ describe("configuration", () => {
                 };
             });
             
-            let configuration = getConfiguration();
+            let configuration = getConfiguration({} as any);
 
             expect(configuration.logLevel).toBe(expected);
         });

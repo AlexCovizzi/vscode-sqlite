@@ -31,8 +31,13 @@
     "contributes": {
         "commands": [
             {
+                "command": "sqlite.changeWorkspaceTrust",
+                "title": "Change Workspace Trust",
+                "category": "SQLite"
+            },
+            {
                 "command": "sqlite.showOutputChannel",
-                "title": "Show output",
+                "title": "Show Output",
                 "category": "SQLite"
             },
             {
@@ -123,7 +128,7 @@
             },
             {
                 "command": "sqlite.runSqliteMasterQuery",
-                "title": "Show sqlite_master",
+                "title": "Show Table 'sqlite_master'",
                 "category": "SQLite",
                 "icon": {
                     "light": "resources/light/runquery.svg",
@@ -373,7 +378,7 @@
                 "sqlite.sqlite3": {
                     "type": "string",
                     "default": "sqlite3",
-                    "description": "sqlite3 command or binaries path."
+                    "description": "SQLite3 command or executable path."
                 },
                 "sqlite.logLevel": {
                     "type": "string",

@@ -1,21 +1,21 @@
 import vscode = require('vscode');
 import * as extension from "../../src/extension";
-import { Commands } from "../../src/extension";
 import { Constants } from "../../src/constants/constants";
 import { join } from 'path';
 import { getMockCallWhereParamEquals } from '../helpers/mockHelper';
-import { getRegisteredCommandCallback } from '../helpers/vscodeHelper';
+import { getRegisteredCommandCallback, mockExtensionContext } from '../helpers/vscodeHelper';
 import { Fixture } from '../fixtures';
 import { createDatabase, removeDatabase } from '../helpers/fixtureHelper';
+import { Commands } from '../../src/commands';
 
 jest.mock('vscode');
 
 describe(`Command: ${Commands.explorerCopyName}`, () => {
-    let databaseFixture: Fixture.Database = Fixture.getDatabase(Fixture.DATABASE_MAIN);
+    let databaseFixture: Fixture.Database = Fixture.getMainDatabase();
 
     let treeDataProvider: vscode.TreeDataProvider<any>;
-    let explorerAddCallback: any;
-    let explorerCopyNameCallback: any;
+    let explorerAddCallback: Function;
+    let explorerCopyNameCallback: Function;
 
     beforeAll(async () => {
         await createDatabase(databaseFixture);
@@ -26,28 +26,26 @@ describe(`Command: ${Commands.explorerCopyName}`, () => {
     });
 
     beforeEach(async () => {
-        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", ".."), asAbsolutePath: (path) => join(__dirname, "..", "..", path) };
-        await extension.activate(context);
+        let extensionContext = mockExtensionContext();
+        await extension.activate(extensionContext);
 
-        // retrieve the tree data provider created in activate() with name Constants.sqliteExplorerViewId
-        let createTreeViewCall = getMockCallWhereParamEquals((vscode.window.createTreeView as jest.Mock).mock, 0, Constants.sqliteExplorerViewId);
-        treeDataProvider = createTreeViewCall[1].treeDataProvider;
+        // retrieve the created vscode.TreeDataProvider
+        treeDataProvider = getTreeDataProviderMock();
+
         // retrieve callback for the registered commands
         explorerAddCallback = getRegisteredCommandCallback(Commands.explorerAdd);
         explorerCopyNameCallback = getRegisteredCommandCallback(Commands.explorerCopyName);
     });
 
     afterEach(() => {
+        extension.deactivate();
         jest.clearAllMocks();
     });
 
-    test(`command ${Commands.explorerCopyName} should copy to clipboard the name of the table selected from the explorer`, async () => {
+    test(`should copy to clipboard the name of the table selected from the explorer`, async () => {
         expect.assertions(1);
-        
-        // this is the uri of the database we are opening
-        let uri = {scheme: "file", fsPath: databaseFixture.path};
 
-        await explorerAddCallback(uri);
+        await explorerAddCallback(asUri(databaseFixture.path));
 
         // we take the first table of the database added
         let tableName = databaseFixture.tables[0].name;
@@ -64,13 +62,10 @@ describe(`Command: ${Commands.explorerCopyName}`, () => {
         expect(vscode.env.clipboard.writeText).toBeCalledWith(tableName);
     });
 
-    test(`command ${Commands.explorerCopyName} should copy to clipboard the name of the column selected from the explorer`, async () => {
+    test(`should copy to clipboard the name of the column selected from the explorer`, async () => {
         expect.assertions(1);
-        
-        // this is the uri of the database we are opening
-        let uri = {scheme: "file", fsPath: databaseFixture.path};
 
-        await explorerAddCallback(uri);
+        await explorerAddCallback(asUri(databaseFixture.path));
 
         // we take the first column of the first table of the database added
         let tableName = databaseFixture.tables[0].name;
@@ -95,11 +90,11 @@ describe(`Command: ${Commands.explorerCopyName}`, () => {
 });
 
 describe(`Command: ${Commands.explorerCopyPath}`, () => {
-    let databaseFixture: Fixture.Database = Fixture.getDatabase(Fixture.DATABASE_MAIN);
+    let databaseFixture: Fixture.Database = Fixture.getMainDatabase();
 
     let treeDataProvider: vscode.TreeDataProvider<any>;
-    let explorerAddCallback: any;
-    let explorerCopyPathCallback: any;
+    let explorerAddCallback: Function;
+    let explorerCopyPathCallback: Function;
 
     beforeAll(async () => {
         await createDatabase(databaseFixture);
@@ -110,28 +105,26 @@ describe(`Command: ${Commands.explorerCopyPath}`, () => {
     });
 
     beforeEach(async () => {
-        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", "..")};
-        await extension.activate(context);
+        let extensionContext = mockExtensionContext();
+        await extension.activate(extensionContext);
 
-        // retrieve the tree data provider created in activate() with name Constants.sqliteExplorerViewId
-        let createTreeViewCall = getMockCallWhereParamEquals((vscode.window.createTreeView as jest.Mock).mock, 0, Constants.sqliteExplorerViewId);
-        treeDataProvider = createTreeViewCall[1].treeDataProvider;
+        // retrieve the created vscode.TreeDataProvider
+        treeDataProvider = getTreeDataProviderMock();
+
         // retrieve callback for the registered commands
         explorerAddCallback = getRegisteredCommandCallback(Commands.explorerAdd);
         explorerCopyPathCallback = getRegisteredCommandCallback(Commands.explorerCopyPath);
     });
 
     afterEach(() => {
+        extension.deactivate();
         jest.clearAllMocks();
     });
 
-    test(`command ${Commands.explorerCopyPath} should copy to clipboard the path of the database selected from the explorer`, async () => {
+    test(`should copy to clipboard the path of the database selected from the explorer`, async () => {
         expect.assertions(1);
 
-        // this is the uri of the database we are opening
-        let uri = {scheme: "file", fsPath: databaseFixture.path};
-
-        await explorerAddCallback(uri);
+        await explorerAddCallback(asUri(databaseFixture.path));
         
         // we take the first column of the first table of the database added
         let dbPath = databaseFixture.path;
@@ -145,3 +138,16 @@ describe(`Command: ${Commands.explorerCopyPath}`, () => {
     });
 
 });
+
+function asUri(fsPath: string) {
+    return { scheme: "file", fsPath: fsPath };
+}
+
+function getTreeDataProviderMock() {
+    let createTreeViewCall = getMockCallWhereParamEquals(
+        (vscode.window.createTreeView as jest.Mock).mock,
+        0,
+        Constants.sqliteExplorerViewId
+    );
+    return createTreeViewCall[1].treeDataProvider;
+}
