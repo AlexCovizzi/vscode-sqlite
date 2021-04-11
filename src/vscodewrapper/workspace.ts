@@ -1,7 +1,10 @@
 import { TextDocument, window, workspace, ViewColumn, Selection, Position } from "vscode";
 
 
-export function createSqlDocument(content: string, cursorPos: Position, show?: boolean): Thenable<TextDocument> {
+const POSITION_ZERO = new Position(0, 0);
+
+
+export function createSqlDocument(content: string, cursorPos: Position = POSITION_ZERO, show: boolean = true): Thenable<TextDocument> {
     let sqliteDocContent = "-- SQLite\n" + content;
     cursorPos = cursorPos.translate(1);
     return workspace.openTextDocument({language: 'sqlite', content: sqliteDocContent}).then(sqlDocument => {

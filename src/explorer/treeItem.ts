@@ -27,8 +27,6 @@ export class DBItem extends SQLItem {
             command
         );
 
-        console.log(__filename);
-
         this.iconPath = {
             light: context.asAbsolutePath(join('resources', 'light', 'database.svg')),
             dark: context.asAbsolutePath(join('resources', 'dark', 'database.svg'))

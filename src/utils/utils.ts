@@ -1,3 +1,6 @@
+import { keywords } from "../languageserver/keywords";
+
+const keywordsSet = new Set(keywords);
 
 /**
  * Sanitizes a string for html
@@ -13,6 +16,13 @@ export function sanitizeStringForHtml(str: string): string {
     };
     
     return str.replace(/[&<>\/"']/g, m => map[m]);
+}
+
+export function sqlSafeName(name: string): string {
+    if (/^[A-Za-z_]\w*$/.test(name) && !keywordsSet.has(name.toUpperCase())) {
+        return name;
+    }
+    return `\`${name.replace(/`/g, '``')}\``;
 }
 
 export function replaceEscapedOctetsWithChar(s: string) {

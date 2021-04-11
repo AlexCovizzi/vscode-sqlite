@@ -1,45 +1,42 @@
-import vscode = require('vscode');
+import vscode = require("vscode");
 import * as extension from "../../src/extension";
-import { Commands } from "../../src/extension";
-import { join } from 'path';
-import { getRegisteredCommandCallback } from '../helpers/vscodeHelper';
+import {
+    getRegisteredCommandCallback,
+    mockExtensionContext,
+} from "../helpers/vscodeHelper";
+import { Commands } from "../../src/commands";
 
-jest.mock('vscode');
+jest.mock("vscode");
 
 describe(`Command: ${Commands.newQuery}`, () => {
-    
-    let newQueryCallback: any;
-
-    beforeAll(async () => {
-        //
-    });
-
-    afterAll(async () => {
-        //
-    });
-
     beforeEach(async () => {
-        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", ".."), asAbsolutePath: (path) => join(__dirname, "..", "..", path) };
-        await extension.activate(context);
-
-        // retrieve callback for the registered commands
-        newQueryCallback = getRegisteredCommandCallback(Commands.newQuery);
+        let extensionContext = mockExtensionContext();
+        await extension.activate(extensionContext);
     });
 
     afterEach(() => {
+        extension.deactivate();
         jest.clearAllMocks();
     });
 
-    test(`command ${Commands.newQuery} without arguments should create an untitled document with languageId 'sqlite' and content '-- SQLite' and show it`, async () => {
+    test(`should create an untitled document with languageId 'sqlite' and content '-- SQLite' and show it`, async () => {
         expect.assertions(2);
 
-        const textDocument = jest.fn();
-        (vscode.workspace.openTextDocument as any) = jest.fn().mockResolvedValue(textDocument);
+        let textDocument = jest.fn();
+        vscode.workspace.openTextDocument = jest
+            .fn()
+            .mockResolvedValue(textDocument);
 
+        let newQueryCallback = getRegisteredCommandCallback(Commands.newQuery);
         await newQueryCallback();
 
-        expect(vscode.workspace.openTextDocument).toBeCalledWith({language: "sqlite", content: "-- SQLite\n"});
-        expect(vscode.window.showTextDocument).toBeCalledWith(textDocument, vscode.ViewColumn.One);
+        expect(vscode.workspace.openTextDocument).toBeCalledWith({
+            language: "sqlite",
+            content: "-- SQLite\n",
+        });
+        expect(vscode.window.showTextDocument).toBeCalledWith(
+            textDocument,
+            vscode.ViewColumn.One
+        );
     });
-
 });

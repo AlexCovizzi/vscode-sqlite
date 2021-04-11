@@ -40,8 +40,13 @@ describe("sqliteCommandValidation Tests", function () {
         }).toThrow();
     });
 
-    
-    
+    test("validateSqliteCommand should return the sqlite command passed as argument if it has an error but matches the accepted error", function() {
+        let scriptPath = createFakeSqliteCommandWithAcceptedError();
+
+        let actual = sqliteCommandValidation.isSqliteCommandValid(scriptPath);
+
+        expect(actual).toBe(true);
+    });
 });
 
 function createFakeSqliteCommand(valid: boolean): string {
@@ -50,6 +55,23 @@ function createFakeSqliteCommand(valid: boolean): string {
     if (valid) {
         text = `echo 3.26.0 2018-12-01 12:34:55`;
     }
+    if (platform() === 'win32') {
+        fileName += " space.bat";
+    }
+    fs.writeFileSync(fileName, text, 'utf8');
+
+    if (platform() !== 'win32') {
+        execSync(`chmod +x ${fileName}`);
+    }
+
+    return fileName;
+}
+
+function createFakeSqliteCommandWithAcceptedError(): string {
+    let fileName = join(__dirname, "script");
+    let text = "";
+    text = `echo : /lib64/libtinfo.so.0: no version information available (required by  1>&2\n`;
+    text = `echo 3.26.0 2018-12-01 12:34:55`;
     if (platform() === 'win32') {
         fileName += " space.bat";
     }

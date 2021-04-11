@@ -4,7 +4,7 @@ import { Schema } from '../common';
 
 export default class LanguageServer implements Disposable {
     private subscriptions: Disposable[];
-    private schemaHandler?: (doc: TextDocument) => Thenable<Schema|void>;
+    private schemaProvider?: (doc: TextDocument) => Thenable<Schema|void>;
     private completionProvider: CompletionProvider;
 
     constructor() {
@@ -12,7 +12,7 @@ export default class LanguageServer implements Disposable {
 
         this.completionProvider = new CompletionProvider({
             provideSchema: (doc) => {
-                if (this.schemaHandler) return this.schemaHandler(doc);
+                if (this.schemaProvider) return this.schemaProvider(doc);
                 else return Promise.resolve();
             }
         });
@@ -21,8 +21,8 @@ export default class LanguageServer implements Disposable {
         this.subscriptions.push(languages.registerCompletionItemProvider(documentSelector, this.completionProvider, '.'));
     }
 
-    setSchemaHandler(schemaHandler: (doc: TextDocument) => Thenable<Schema|void>) {
-        this.schemaHandler = schemaHandler;
+    setSchemaProvider(schemaProvider: (doc: TextDocument) => Thenable<Schema|void>) {
+        this.schemaProvider = schemaProvider;
     }
 
     dispose() {

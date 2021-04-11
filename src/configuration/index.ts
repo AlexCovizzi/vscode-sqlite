@@ -1,4 +1,5 @@
-import { workspace } from "vscode";
+import { commands, ExtensionContext, workspace } from "vscode";
+import { Commands } from "../commands";
 import { Level } from "../logging/logger";
 
 const properties = require('../../package.json').contributes.configuration.properties;
@@ -10,19 +11,22 @@ export interface Configuration {
     databaseExtensions: string[];
 }
 
-export function getConfiguration() {
+export function getConfiguration(extensionContext: ExtensionContext) {
     return {
-        sqlite3: _sqlite3(),
+        sqlite3: _sqlite3(extensionContext),
         logLevel: _logLevel(),
         recordsPerPage: _recordsPerPage(),
         databaseExtensions: _databaseExtensions()
     } as Configuration;
 }
 
-function _sqlite3(): string {
-    let sqlite3Conf = workspace.getConfiguration().get<string>('sqlite.sqlite3');
-    let sqlite3 = sqlite3Conf? sqlite3Conf.toString() : '';
-
+function _sqlite3(extensionContext: ExtensionContext): string {
+    if (hasWorkspaceValue('sqlite.sqlite3') && extensionContext.workspaceState.get("isTrustedWorkspace") == null) {
+        commands.executeCommand(Commands.askWorkspaceTrust);
+    }
+    const isTrustedWorkspace = extensionContext.workspaceState.get("isTrustedWorkspace", false);
+    const defaultValue = '';
+    const sqlite3 = getValue('sqlite.sqlite3', defaultValue, isTrustedWorkspace);
     return sqlite3;
 }
 
@@ -53,4 +57,20 @@ function _databaseExtensions(): Array<string> {
     let databaseExtensionsConf = workspace.getConfiguration().get<Array<string>>('sqlite.databaseExtensions', []) || [];
     let databaseExtensions = [...new Set(databaseExtensionsConf.concat(...databaseExtensionsDefault))];
     return databaseExtensions;
+}
+
+function hasWorkspaceValue(section: string): boolean {
+    const info = workspace.getConfiguration().inspect(section);
+    if (!info) return false;
+    return info.workspaceFolderValue != null || info.workspaceValue != null;
+}
+
+function getValue<T>(section: string, defaultValue: T, allowWorkspaceSettings: boolean): T {
+    const info = workspace.getConfiguration().inspect(section);
+    if (!info) return defaultValue;
+    if (allowWorkspaceSettings && info.workspaceFolderValue != null) return info.workspaceFolderValue as T;
+    if (allowWorkspaceSettings && info.workspaceValue != null) return info.workspaceValue as T;
+    if (info.globalValue != null) return info.globalValue as T;
+    if (info.defaultValue != null) return info.defaultValue as T;
+    return defaultValue;
 }

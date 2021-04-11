@@ -1,36 +1,35 @@
 import vscode = require('vscode');
 import * as extension from "../../src/extension";
 import { Constants } from "../../src/constants/constants";
-import { getRegisteredCommandCallback } from "../helpers/vscodeHelper";
-import { join } from 'path';
+import { getRegisteredCommandCallback, mockExtensionContext } from "../helpers/vscodeHelper";
+import { Commands } from '../../src/commands';
 
 jest.mock('vscode');
 
-describe(`Command: ${extension.Commands.showOutputChannel}`, () => {
+describe(`Command: ${Commands.showOutputChannel}`, () => {
 
-    beforeEach(() => {
-        let context: any = {subscriptions: [], extensionPath: join(__dirname, "..", ".."), asAbsolutePath: (path) => join(__dirname, "..", "..", path) };
-        return extension.activate(context);
+    beforeEach(async () => {
+        let extensionContext = mockExtensionContext();
+        await extension.activate(extensionContext);
     });
 
     afterEach(() => {
+        extension.deactivate();
         jest.clearAllMocks();
     });
 
-    test(`command ${extension.Commands.showOutputChannel} should show the output channel`, () => {
+    test(`should show the output channel`, () => {
         expect.assertions(2);
-        
-        // the output channel should have been created with name Constants.outputChannelName
-        expect(vscode.window.createOutputChannel).toHaveBeenCalledWith(Constants.outputChannelName);
-        // retrieve the callback registered for the showOutputChannel command
-        let showOutputChannelCallback = getRegisteredCommandCallback(extension.Commands.showOutputChannel);
 
-        // execute the command registered
+        let showOutputChannelCallback = getRegisteredCommandCallback(Commands.showOutputChannel);
         showOutputChannelCallback();
-
-        // retrieve the created output channel
-        let mockOutputChannel = (vscode.window.createOutputChannel as jest.Mock).mock.results[0].value;
-        // make sure show has been called
-        expect(mockOutputChannel.show).toHaveBeenCalledTimes(1);
+        
+        expect(vscode.window.createOutputChannel).toHaveBeenCalledWith(Constants.outputChannelName);
+        let outputChannel = getOutputChannelMock();
+        expect(outputChannel.show).toHaveBeenCalledTimes(1);
     });
+
+    function getOutputChannelMock() {
+        return (vscode.window.createOutputChannel as jest.Mock).mock.results[0].value;
+    }
 });

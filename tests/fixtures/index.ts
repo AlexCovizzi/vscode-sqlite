@@ -20,7 +20,15 @@ export namespace Fixture {
         }[];
     }
 
-    export function getDatabase(name: string): Database {
+    export function getMainDatabase(): Database {
+        return getDatabase(DATABASE_MAIN);
+    }
+
+    export function getEmptyDatabase(): Database {
+        return getDatabase(DATABASE_EMPTY);
+    }
+
+    function getDatabase(name: string): Database {
         name = name.endsWith(".json")? name : name+".json";
         let obj = require(join(__dirname, "database", name));
         let fixture = JSON.parse(JSON.stringify(obj));

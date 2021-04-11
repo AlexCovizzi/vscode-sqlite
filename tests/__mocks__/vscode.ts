@@ -3,7 +3,7 @@ export const window = {
         command: "command",
         tooltip: "tooltip",
         text: "text",
-        show: jest.fn()
+        show: jest.fn(),
     }),
     activeTextEditor: jest.fn(),
 
@@ -17,14 +17,14 @@ export const window = {
 
     createOutputChannel: jest.fn().mockReturnValue({
         show: jest.fn(),
-        appendLine: jest.fn()
+        appendLine: jest.fn(),
     }),
 
     showOpenDialog: jest.fn(),
 
     setStatusBarMessage: jest.fn(),
 
-    showTextDocument: jest.fn().mockResolvedValue(jest.fn())
+    showTextDocument: jest.fn().mockResolvedValue(jest.fn()),
 };
 
 export const workspace = {
@@ -32,26 +32,35 @@ export const workspace = {
     onDidOpenTextDocument: jest.fn(),
     onDidCloseTextDocument: jest.fn(),
     onDidChangeConfiguration: jest.fn(),
-    getConfiguration: jest.fn(() => ({get: jest.fn()})),
-    openTextDocument: jest.fn().mockResolvedValue(jest.fn())
+    getConfiguration: jest.fn(() => ({
+        get: jest.fn(),
+        inspect: jest.fn(),
+    })),
+    openTextDocument: jest.fn().mockResolvedValue(jest.fn()),
 };
 
 export const commands = {
     executeCommand: jest.fn(),
-    registerCommand: jest.fn()
+    registerCommand: jest.fn(),
 };
 
 export const env = {
     clipboard: {
         writeText: jest.fn().mockResolvedValue(null),
-        readText: jest.fn().mockResolvedValue(null)
-    }
+        readText: jest.fn().mockResolvedValue(null),
+    },
 };
 
 export const ExtensionContext = jest.fn();
 
+export const Uri = {
+    file: jest
+        .fn()
+        .mockImplementation((path) => ({ scheme: "file", fsPath: path })),
+};
+
 export const Disposable = {
-    from: jest.fn()
+    from: jest.fn(),
 };
 
 export const EventEmitter = jest.fn().mockImplementation(() => {
@@ -61,7 +70,7 @@ export const EventEmitter = jest.fn().mockImplementation(() => {
         fire: jest.fn().mockImplementation(() => {
             // Is this even correct??
             event();
-        })
+        }),
     };
 });
 
@@ -69,7 +78,7 @@ export const CancellationTokenSource = jest.fn().mockImplementation(() => {
     return {
         token: jest.fn(),
         cancel: jest.fn(),
-        dispose: jest.fn()
+        dispose: jest.fn(),
     };
 });
 
@@ -79,7 +88,7 @@ export const StatusBarAlignment = jest.fn();
 
 export const TextDocument = jest.fn().mockImplementation(() => {
     return {
-        uri: {toString: jest.fn()},
+        uri: { toString: jest.fn() },
     };
 });
 
@@ -95,7 +104,7 @@ export enum ViewColumn {
     Active = -1,
     One = 1,
     Two = 2,
-    Three = 3
+    Three = 3,
 }
 
 export const TreeItem = jest.fn();

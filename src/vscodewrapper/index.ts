@@ -1,7 +1,7 @@
 import {pickListDatabase, pickWorkspaceDatabase} from "./quickpick";
 import {showQueryInputBox} from "./inputbox";
 import {createSqlDocument, getEditorSqlDocument, getEditorSelection} from "./workspace";
-import {showErrorMessage} from "./errorMessage";
+import {showErrorMessage, showWarningMessage} from "./windowMessage";
 
 export {pickListDatabase,
         pickWorkspaceDatabase,
@@ -9,4 +9,5 @@ export {pickListDatabase,
         createSqlDocument,
         getEditorSqlDocument,
         getEditorSelection,
-        showErrorMessage};
+        showErrorMessage,
+        showWarningMessage};

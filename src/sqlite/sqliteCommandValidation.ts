@@ -8,7 +8,7 @@ import { existsSync } from 'fs';
  * Validate the sqlite3 command/path passed as argument, if not valid fallback to the binary in the bin directory.
  */
 export function validateSqliteCommand(sqliteCommand: string, extensionPath: string): string {
-    let isValid = isSqliteCommandValid(sqliteCommand);
+    let isValid = sqliteCommand && isSqliteCommandValid(sqliteCommand);
     if (isValid) {
         return sqliteCommand;
     } else {
@@ -27,7 +27,11 @@ export function validateSqliteCommand(sqliteCommand: string, extensionPath: stri
 
 // verifies that the command/path passed as argument is an sqlite command
 export function isSqliteCommandValid(sqliteCommand: string) {
-    let proc = spawnSync(`"${sqliteCommand}"`, [`-version`], {shell: true});
+    let proc = spawnSync(sqliteCommand, [`-version`]);
+    if (proc.error) {
+        logger.debug(`'${sqliteCommand}' is not a valid SQLite command: ${proc.error}`);
+        return false;
+    }
     let error = proc.stderr.toString();
     let output = proc.stdout.toString();
     
