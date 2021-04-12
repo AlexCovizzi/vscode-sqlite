@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.12.0 (12 Apr 2021)
+
+Changed
+
+1. Disable `sqlite.sqlite3` setting for untrusted workspaces.
+
+Added
+
+1. Command `SQLite: Change Workspace Trust` to change the trust of the current workspace.
+
 ## 0.11.1 (31 Jan 2021)
 
 Changed

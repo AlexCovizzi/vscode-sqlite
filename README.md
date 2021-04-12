@@ -4,22 +4,25 @@ VSCode extension to explore and query SQLite databases.
 
 ![static/sqlite_workflow_1](https://raw.githubusercontent.com/AlexCovizzi/vscode-sqlite/master/static/sqlite_workflow_1.gif "SQLite Workflow")
 
+
 ## Requirements
 No requirements
 
-**Note**: The extension includes binaries for the sqlite cli (used to execute queries), in case the included binaries do not work you need to provide your own path/command for the sqlite cli in the setting `sqlite.sqlite3`
+**Note**: The extension includes binaries for the SQLite CLI (used to execute queries), in case the included binaries do not work you need to provide your own path/command for the sqlite3 CLI in the setting `sqlite.sqlite3`
+
 
 ## Features
 
-* **Query** sqlite databases and view results in a table.
+* **Query** SQLite databases and view results in a table.
 
 * **Export** query results to ```json```, ```csv``` and ```html```.
 
 * **Sidebar explorer**: list databases, tables, views and columns.
 
-* **Autocompletion** for sqlite keywords, table and views names, column names (autocompletion is available for an sql document once its bound to a database, to bind an sql document to a database use the command ```SQLite: Use Database```)
+* **Autocompletion** for SQLite keywords, table and views names, column names (autocompletion is available for an SQL document once its bound to a database, to bind an sql document to a database use the command ```SQLite: Use Database```)
 
-* **Grammar** support for sqlite keywords. This is available for documents with language ```sqlite```. You can mark a document as an ```sqlite``` document adding ```-- sqlite``` in the first line.
+* **Grammar** support for SQLite keywords. This is available for documents with language ```sqlite```. You can mark a document as an ```sqlite``` document adding ```-- sqlite``` in the first line.
+
 
 ## Commands
 
@@ -39,11 +42,12 @@ No requirements
 
 * **SQLite: Show output** &nbsp; Show the extension's output channel.
 
+* **SQLite: Change Workspace Trust** &nbsp; Change the trust of this workspace. By default every workspace is untrusted for security reasons.
 
 
 ## Settings
 
-* `"sqlite.sqlite3": <string>` &nbsp; sqlite3 command or binaries path.
+* `"sqlite.sqlite3": <string>` &nbsp; sqlite3 command or CLI executable path (this setting is disabled for untrusted workspaces)
 
 * `"sqlite.logLevel": <string>` &nbsp; Set output channel log level (DEBUG, INFO, WARN, ERROR).
 
