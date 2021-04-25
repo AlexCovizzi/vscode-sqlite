@@ -6,7 +6,7 @@ import { QueryResult } from ".";
 import { Statement } from "./interfaces/statement";
 import { logger } from "../logging/logger";
 
-interface QueryExecutionOptions {
+export interface QueryExecutionOptions {
     sql: string[]; // sql to execute before executing the query (e.g ATTACH DATABASE <path>; PRAGMA foreign_keys = ON; ecc)
 }
 
@@ -27,7 +27,8 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
         return Promise.reject(`Unable to execute query: ${err.message}`);
     }
 
-    logger.debug(`Statements:\n${JSON.stringify(statements)}`);
+    logger.debug(`Query execution options: ${JSON.stringify(options)}`);
+    logger.debug(`Statements: ${JSON.stringify(statements)}`);
 
     let resultSet: ResultSet = [];
     let error: Error|undefined;
@@ -38,13 +39,13 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
 
         database = new CliDatabase(sqlite3, dbPath, (err) => {
             // there was an error opening the database, reject
-            reject(err);
+            error = err;
         });
 
         // execute sql before the queries, reject if there is any error
         for(let sql of options.sql) {
             database.execute(sql, (_rows, err) => {
-                if (err) reject(new Error(`Failed to execute: '${sql}': ${err.message}`));
+                if (err) error = new Error(`Failed to setup database: ${err.message}`);
             });
         }
 
@@ -61,7 +62,7 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
         }
 
         database.close(() => {
-            resolve({resultSet: resultSet, error: error});
+            resolve({resultSet, error});
         });
     });
 }

@@ -89,7 +89,8 @@ export function activate(extensionContext: ExtensionContext): Promise<boolean> {
             sqlite,
             resultView,
             configuration.recordsPerPage,
-            configuration.databaseExtensions
+            configuration.databaseExtensions,
+            configuration.setupDatabase
         ),
         new ExplorerCommandsHandler(
             explorer,

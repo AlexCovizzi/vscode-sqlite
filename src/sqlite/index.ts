@@ -1,7 +1,7 @@
 import { Schema } from "./schema";
 import { Disposable } from "vscode";
 import { ResultSet } from "../common";
-import { executeQuery } from "./queryExecutor";
+import { executeQuery, QueryExecutionOptions } from "./queryExecutor";
 import { validateSqliteCommand } from "./sqliteCommandValidation";
 import { logger } from "../logging/logger";
 import { showErrorMessage } from "../vscodewrapper";
@@ -18,10 +18,10 @@ class SQLite implements Disposable {
         this.setSqliteCommand(sqliteCommand);
     }
 
-    query(dbPath: string, query: string): Promise<QueryResult> {
+    query(dbPath: string, query: string, options?: QueryExecutionOptions): Promise<QueryResult> {
         if (!this.sqliteCommand) Promise.resolve({error: "Unable to execute query: provide a valid sqlite3 executable in the setting sqlite.sqlite3."});
 
-        return executeQuery(this.sqliteCommand, dbPath, query);
+        return executeQuery(this.sqliteCommand, dbPath, query, options);
     }
     
     schema(dbPath: string): Promise<Schema.Database> {

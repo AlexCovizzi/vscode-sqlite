@@ -1,4 +1,5 @@
-import { commands, ExtensionContext, Position, Range } from "vscode";
+import { join } from "path";
+import { commands, ExtensionContext, Position, Range, workspace } from "vscode";
 import { Activatable } from "./activatable";
 import { Commands } from "./commands";
 import { Schema } from "./common";
@@ -7,6 +8,7 @@ import { ConfigurationChangeAware } from "./configurationChangeAware";
 import { logger } from "./logging/logger";
 import ResultView from "./resultview";
 import SQLite from "./sqlite";
+import { QueryExecutionOptions } from "./sqlite/queryExecutor";
 import { extractStatements } from "./sqlite/queryParser";
 import SqlWorkspace from "./sqlworkspace";
 import { sqlSafeName } from "./utils/utils";
@@ -25,24 +27,28 @@ export class RunQueryCommandsHandler
     private resultView: ResultView;
     private recordsPerPage: number;
     private databaseExtensions: string[];
+    private setupDatabaseConfig: { [dbPath: string]: { sql: string[] } };
 
     constructor(
         sqlWorkspace: SqlWorkspace,
         sqlite: SQLite,
         resultView: ResultView,
         recordsPerPage: number,
-        databaseExtensions: string[]
+        databaseExtensions: string[],
+        setupDatabaseConfig: { [dbPath: string]: { sql: string[] } }
     ) {
         this.sqlWorkspace = sqlWorkspace;
         this.sqlite = sqlite;
         this.resultView = resultView;
         this.recordsPerPage = recordsPerPage;
         this.databaseExtensions = databaseExtensions;
+        this.setupDatabaseConfig = setupDatabaseConfig;
     }
 
     onConfigurationChange(configuration: Configuration): void {
         this.recordsPerPage = configuration.recordsPerPage;
-        this.databaseExtensions = this.databaseExtensions;
+        this.databaseExtensions = configuration.databaseExtensions;
+        this.setupDatabaseConfig = configuration.setupDatabase;
     }
 
     activate(extensionContext: ExtensionContext): void {
@@ -167,7 +173,7 @@ export class RunQueryCommandsHandler
 
     private runQuery(dbPath: string, query: string) {
         let resultSet = this.sqlite
-            .query(dbPath, query)
+            .query(dbPath, query, this.buildQueryExecutionOptions(dbPath))
             .then(({ resultSet, error }) => {
                 // log and show if there is any error
                 if (error) {
@@ -181,5 +187,18 @@ export class RunQueryCommandsHandler
                 return resultSet;
             });
         this.resultView.display(resultSet, this.recordsPerPage);
+    }
+
+    private buildQueryExecutionOptions(dbPath: string): QueryExecutionOptions {
+        if (!workspace.workspaceFolders) {
+            return { sql: [] };
+        }
+        for (let configDbPath in this.setupDatabaseConfig) {
+            if (join(workspace.workspaceFolders[0].uri.fsPath, configDbPath) === dbPath) {
+                let sql = this.setupDatabaseConfig[configDbPath].sql;
+                return { sql };
+            }
+        }
+        return { sql: [] };
     }
 }

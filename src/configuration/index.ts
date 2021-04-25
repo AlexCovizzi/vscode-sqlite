@@ -9,6 +9,9 @@ export interface Configuration {
     logLevel: string;
     recordsPerPage: number;
     databaseExtensions: string[];
+    setupDatabase: {
+        [dbPath: string]: { sql: string[]; }
+    };
 }
 
 export function getConfiguration(extensionContext: ExtensionContext) {
@@ -16,7 +19,8 @@ export function getConfiguration(extensionContext: ExtensionContext) {
         sqlite3: _sqlite3(extensionContext),
         logLevel: _logLevel(),
         recordsPerPage: _recordsPerPage(),
-        databaseExtensions: _databaseExtensions()
+        databaseExtensions: _databaseExtensions(),
+        setupDatabase: _setupDatabase()
     } as Configuration;
 }
 
@@ -57,6 +61,11 @@ function _databaseExtensions(): Array<string> {
     let databaseExtensionsConf = workspace.getConfiguration().get<Array<string>>('sqlite.databaseExtensions', []) || [];
     let databaseExtensions = [...new Set(databaseExtensionsConf.concat(...databaseExtensionsDefault))];
     return databaseExtensions;
+}
+
+function _setupDatabase(): {[dbPath: string]: { sql: string[]; }} {
+    let setupDatabaseConfig = workspace.getConfiguration().get('sqlite.setupDatabase', {});
+    return setupDatabaseConfig;
 }
 
 function hasWorkspaceValue(section: string): boolean {
