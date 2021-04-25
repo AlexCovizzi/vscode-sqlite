@@ -92,5 +92,23 @@ describe("QueryParser Tests", function () {
         expect(actual.map(s => s.sql)).toEqual(expected);
     });
 
+    test("should parse query with semicolon inside line comment (issue #167)", function() {
+        let query = `SELECT * FROM table\nWHERE val < 3 -- comment ; with semicolon\nand var = 'a';`;
+
+        let actual = queryParser.extractStatements(query);
+        let expected = [query];
+
+        expect(actual.map(s => s.sql)).toEqual(expected);
+    });
+
+    test("should parse query with semicolon inside multiline comment (issue #167)", function() {
+        let query = `SELECT * FROM table\nWHERE val < 3\n/* comment ; with\nsemicolon */\nand var = 'a';`;
+
+        let actual = queryParser.extractStatements(query);
+        let expected = [query];
+
+        expect(actual.map(s => s.sql)).toEqual(expected);
+    });
+
 
 });
