@@ -5,7 +5,7 @@ import { Configuration } from "./configuration";
 import { ConfigurationChangeAware } from "./configurationChangeAware";
 import Explorer from "./explorer";
 import { logger } from "./logging/logger";
-import SQLite from "./sqlite";
+import SQLite, { buildQueryExecutionOptions } from "./sqlite";
 import { Schema } from "./sqlite/schema";
 import {
     pickListDatabase,
@@ -18,16 +18,20 @@ export class ExplorerCommandsHandler
     private sqlite: SQLite;
     private explorer: Explorer;
     private databaseExtensions: string[];
+    private setupDatabaseConfig: { [dbPath: string]: { sql: string[] } };
 
     constructor(
         explorer: Explorer,
         sqlite: SQLite,
-        databaseExtensions: string[]
+        databaseExtensions: string[],
+        setupDatabaseConfig: { [dbPath: string]: { sql: string[] } }
     ) {
         this.sqlite = sqlite;
         this.explorer = explorer;
         this.databaseExtensions = databaseExtensions;
+        this.setupDatabaseConfig = setupDatabaseConfig;
     }
+
     activate(extensionContext: ExtensionContext): void {
         extensionContext.subscriptions.push(
             commands.registerCommand(
@@ -54,12 +58,13 @@ export class ExplorerCommandsHandler
 
     onConfigurationChange(configuration: Configuration) {
         this.databaseExtensions = configuration.databaseExtensions;
+        this.setupDatabaseConfig = configuration.setupDatabase;
     }
 
     private onExplorerAdd(uri?: Uri): any {
         let dbPath = uri ? uri.fsPath : undefined;
         if (dbPath) {
-            return this.sqlite.schema(dbPath).then(
+            return this.sqlite.schema(dbPath, buildQueryExecutionOptions(this.setupDatabaseConfig, dbPath)).then(
                 (schema) => {
                     return this.explorer.add(schema);
                 },
@@ -109,7 +114,7 @@ export class ExplorerCommandsHandler
         return Promise.all(
             dbList.map((db) => {
                 let dbPath = db.path;
-                return this.sqlite.schema(dbPath).then(
+                return this.sqlite.schema(dbPath, buildQueryExecutionOptions(this.setupDatabaseConfig, dbPath)).then(
                     (schema) => {
                         return this.explorer.add(schema);
                     },

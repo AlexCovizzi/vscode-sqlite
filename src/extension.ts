@@ -5,7 +5,7 @@ import { logger } from "./logging/logger";
 import { getConfiguration, Configuration } from "./configuration";
 import { Constants } from "./constants/constants";
 import SqlWorkspace from "./sqlworkspace";
-import SQLite from "./sqlite";
+import SQLite, { buildQueryExecutionOptions } from "./sqlite";
 import ResultView from "./resultview";
 import LanguageServer from "./languageserver";
 import Explorer from "./explorer";
@@ -64,7 +64,7 @@ export function activate(extensionContext: ExtensionContext): Promise<boolean> {
 
     languageserver.setSchemaProvider((doc) => {
         let dbPath = sqlWorkspace.getDocumentDatabase(doc);
-        if (dbPath) return sqlite.schema(dbPath);
+        if (dbPath) return sqlite.schema(dbPath, buildQueryExecutionOptions(configuration.setupDatabase, dbPath));
         else return Promise.resolve();
     });
 
@@ -95,7 +95,8 @@ export function activate(extensionContext: ExtensionContext): Promise<boolean> {
         new ExplorerCommandsHandler(
             explorer,
             sqlite,
-            configuration.databaseExtensions
+            configuration.databaseExtensions,
+            configuration.setupDatabase
         )
     );
 

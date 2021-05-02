@@ -1,5 +1,4 @@
-import { join } from "path";
-import { commands, ExtensionContext, Position, Range, workspace } from "vscode";
+import { commands, ExtensionContext, Position, Range } from "vscode";
 import { Activatable } from "./activatable";
 import { Commands } from "./commands";
 import { Schema } from "./common";
@@ -7,8 +6,7 @@ import { Configuration } from "./configuration";
 import { ConfigurationChangeAware } from "./configurationChangeAware";
 import { logger } from "./logging/logger";
 import ResultView from "./resultview";
-import SQLite from "./sqlite";
-import { QueryExecutionOptions } from "./sqlite/queryExecutor";
+import SQLite, { buildQueryExecutionOptions } from "./sqlite";
 import { extractStatements } from "./sqlite/queryParser";
 import SqlWorkspace from "./sqlworkspace";
 import { sqlSafeName } from "./utils/utils";
@@ -173,7 +171,11 @@ export class RunQueryCommandsHandler
 
     private runQuery(dbPath: string, query: string) {
         let resultSet = this.sqlite
-            .query(dbPath, query, this.buildQueryExecutionOptions(dbPath))
+            .query(
+                dbPath,
+                query,
+                buildQueryExecutionOptions(this.setupDatabaseConfig, dbPath)
+            )
             .then(({ resultSet, error }) => {
                 // log and show if there is any error
                 if (error) {
@@ -187,18 +189,5 @@ export class RunQueryCommandsHandler
                 return resultSet;
             });
         this.resultView.display(resultSet, this.recordsPerPage);
-    }
-
-    private buildQueryExecutionOptions(dbPath: string): QueryExecutionOptions {
-        if (!workspace.workspaceFolders) {
-            return { sql: [] };
-        }
-        for (let configDbPath in this.setupDatabaseConfig) {
-            if (join(workspace.workspaceFolders[0].uri.fsPath, configDbPath) === dbPath) {
-                let sql = this.setupDatabaseConfig[configDbPath].sql;
-                return { sql };
-            }
-        }
-        return { sql: [] };
     }
 }
