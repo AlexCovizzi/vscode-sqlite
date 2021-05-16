@@ -22,7 +22,13 @@ export function extractStatements(query: string): Statement[] {
             if (isStmt) {
                 if (statement) statement.sql += char;
 
-                if (!isString && char === ';') {
+                if (!isString && char === '-' && nextChar === '-') {
+                    isComment = true;
+                    commentChar = '-';
+                } else if (!isString && char === '/' && nextChar === '*') {
+                    isComment = true;
+                    commentChar = '/';
+                } else if (!isString && !isComment && char === ';') {
                     isStmt = false;
                     if (statement) {
                         statement.position.end = [lineIndex, charIndex];
@@ -75,7 +81,7 @@ export function extractStatements(query: string): Statement[] {
                 statement = undefined;
             }
         }
-        if (isComment && commentChar === '-') {
+        if (!isString && isComment && commentChar === '-') {
             isComment = false;
             commentChar = '';
         }
@@ -88,7 +94,10 @@ export function extractStatements(query: string): Statement[] {
     // we trim() and add ';' at the end
     // Note: this behaviour is mainly for the extension command sqlite.quickQuery
     if (statement && statements.length === 0) {
-        statement.sql = statement.sql.trim() + ';';
+        statement.sql = statement.sql.trim();
+        if (!statement.sql.endsWith(';')) {
+            statement.sql += ';';
+        }
         statements.push(statement);
     }
 

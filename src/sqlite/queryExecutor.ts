@@ -32,7 +32,6 @@ export function executeQuery(sqlite3: string, dbPath: string, query: string, opt
     let resultSet: ResultSet = [];
     let error: Error|undefined;
 
-
     return new Promise((resolve, reject) => {
         let database: Database;
 
