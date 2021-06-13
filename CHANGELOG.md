@@ -1,5 +1,17 @@
 # Change Log
 
+## 0.13.0 (13 Jun 2021)
+
+Added
+
+1. New setting `"sqlite.databaseExtensions"`, that allows running custom queries whenever a database is opened.
+
+2. Added support for dot commands (like `.tables`, `.schema` ecc).
+
+Fixed
+
+1. Fix bug when running a query with a comment inside ([#167](https://github.com/AlexCovizzi/vscode-sqlite/issues/167))
+
 ## 0.12.0 (12 Apr 2021)
 
 Changed
