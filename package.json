@@ -411,6 +411,24 @@
                         "sqlite3"
                     ],
                     "description": "The file extensions recognized as SQLite database."
+                },
+                "sqlite.setupDatabase": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": {
+                            "type": "object",
+                            "properties": {
+                                "sql": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {},
+                    "description": "SQL query to execute every time a database is opened."
                 }
             }
         }

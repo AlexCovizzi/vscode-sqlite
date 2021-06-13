@@ -30,7 +30,7 @@ export namespace Schema {
         defVal: string;
     }
 
-    export function build(dbPath: string, sqlite3: string): Promise<Schema.Database> {
+    export function build(dbPath: string, sqlite3: string, options: { sql: string[] } = { sql: [] }): Promise<Schema.Database> {
         return new Promise((resolve, reject) => {
             if (!isFileSync(dbPath)) return reject(new Error(`Failed to retrieve database schema: '${dbPath}' is not a file`));
 
@@ -48,6 +48,14 @@ export namespace Schema {
             let database = new CliDatabase(sqlite3, dbPath, (err) => {
                 reject(err);
             });
+
+            
+            // execute sql before the queries, reject if there is any error
+            for(let sql of options.sql) {
+                database.execute(sql, (_rows, err) => {
+                    if (err) reject(new Error(`Failed to setup database: ${err.message}`));
+                });
+            }
 
             database.execute(tablesQuery, (rows, err) => {
                 if (err) return reject(err);

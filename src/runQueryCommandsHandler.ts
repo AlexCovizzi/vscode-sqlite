@@ -6,7 +6,7 @@ import { Configuration } from "./configuration";
 import { ConfigurationChangeAware } from "./configurationChangeAware";
 import { logger } from "./logging/logger";
 import ResultView from "./resultview";
-import SQLite from "./sqlite";
+import SQLite, { buildQueryExecutionOptions } from "./sqlite";
 import { extractStatements } from "./sqlite/queryParser";
 import SqlWorkspace from "./sqlworkspace";
 import { sqlSafeName } from "./utils/utils";
@@ -25,24 +25,28 @@ export class RunQueryCommandsHandler
     private resultView: ResultView;
     private recordsPerPage: number;
     private databaseExtensions: string[];
+    private setupDatabaseConfig: { [dbPath: string]: { sql: string[] } };
 
     constructor(
         sqlWorkspace: SqlWorkspace,
         sqlite: SQLite,
         resultView: ResultView,
         recordsPerPage: number,
-        databaseExtensions: string[]
+        databaseExtensions: string[],
+        setupDatabaseConfig: { [dbPath: string]: { sql: string[] } }
     ) {
         this.sqlWorkspace = sqlWorkspace;
         this.sqlite = sqlite;
         this.resultView = resultView;
         this.recordsPerPage = recordsPerPage;
         this.databaseExtensions = databaseExtensions;
+        this.setupDatabaseConfig = setupDatabaseConfig;
     }
 
     onConfigurationChange(configuration: Configuration): void {
         this.recordsPerPage = configuration.recordsPerPage;
-        this.databaseExtensions = this.databaseExtensions;
+        this.databaseExtensions = configuration.databaseExtensions;
+        this.setupDatabaseConfig = configuration.setupDatabase;
     }
 
     activate(extensionContext: ExtensionContext): void {
@@ -167,7 +171,11 @@ export class RunQueryCommandsHandler
 
     private runQuery(dbPath: string, query: string) {
         let resultSet = this.sqlite
-            .query(dbPath, query)
+            .query(
+                dbPath,
+                query,
+                buildQueryExecutionOptions(this.setupDatabaseConfig, dbPath)
+            )
             .then(({ resultSet, error }) => {
                 // log and show if there is any error
                 if (error) {
