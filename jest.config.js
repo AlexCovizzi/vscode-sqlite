@@ -17,7 +17,7 @@ const config = {
     globals: {
         'ts-jest': {
             diagnostics: false,
-            tsConfig: "<rootDir>/tests/tsconfig.json"
+            tsconfig: "<rootDir>/tests/tsconfig.json"
         }
     }
 }
