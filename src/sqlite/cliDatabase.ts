@@ -22,6 +22,7 @@ export class CliDatabase implements Database {
     private errStr: string;
     private rows: string[][];
     private busy: boolean;
+    private sql: string;
 
     constructor(private command: string, private path: string, callback: (err: Error) => void) {
         let args = ["-csv", "-header", "-bail", "-nullvalue", "NULL"];
@@ -32,6 +33,7 @@ export class CliDatabase implements Database {
         this.rows = [];
         this.execQueue = [];
         this.busy = false;
+        this.sql = "";
         
         this.startCallback = callback;
 
@@ -53,7 +55,7 @@ export class CliDatabase implements Database {
         const quotedPath = `"${this.path.replace(/\\/g, "/")}"`;
         try {
             this._write(`.open ${quotedPath}${EOL}`);
-            this._write(`select 1 from sqlite_master;${EOL}`);
+            this._write(`select 1 from sqlite_master limit 1;${EOL}`);
             this._write(`.print ${RESULT_SEPARATOR}${EOL}`);
             this.busy = true;
         } catch(err) {
@@ -107,10 +109,6 @@ export class CliDatabase implements Database {
         // trim the sql
         sql= sql.trim();
 
-        // ignore if it's a dot command
-        if (sql.startsWith(".")) {
-            return;
-        }
         // add a space after EXPLAIN so that the result is a table (see: https://www.sqlite.org/eqp.html)
         if (sql.toLowerCase().startsWith("explain")) {
             let pos = "explain".length;
@@ -179,12 +177,17 @@ export class CliDatabase implements Database {
             if (!this._started) {
                 this._started = true;
             }
-
-            if (this.writeCallback) this.writeCallback(this.rows);
+            
+            let result = this.rows;
+            if (this.sql.startsWith('.')) {
+                result = [[result.map(row => row.join(' ')).join('\n')]];
+            }
+            if (this.writeCallback) {
+                this.writeCallback(result);
+            }
             this.next();
             return;
         }
-        
         this.rows.push(row);
     }
 
@@ -211,11 +214,13 @@ export class CliDatabase implements Database {
 
     private next() {
         this.rows = [];
+        this.sql = "";
         let execObj = this.execQueue.shift();
         if (execObj) {
             this._write(execObj.sql);
             this._write(`.print ${RESULT_SEPARATOR}${EOL}`);
             this.busy = true;
+            this.sql = execObj.sql;
             this.writeCallback = execObj.callback;
         } else {
             this.busy = false;
