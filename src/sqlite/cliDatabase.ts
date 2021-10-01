@@ -125,6 +125,15 @@ export class CliDatabase implements Database {
         }
     }
 
+    executePromise(sql: string): Promise<string[][]> {
+        return new Promise((resolve, reject) => {
+            this.execute(sql, (rows, err) => {
+                if (err) reject(err);
+                else resolve(rows);
+            })
+        })
+    }
+
     private _write(text: string) {
         if (!this.sqliteProcess) return;
         

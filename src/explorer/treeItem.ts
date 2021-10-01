@@ -1,5 +1,6 @@
 import { TreeItem, TreeItemCollapsibleState, Command, ExtensionContext } from "vscode";
 import { join, basename } from "path";
+import { Schema } from "../sqlite/schema";
 
 export interface SQLTree {
     [dbPath: string]: DBItem;
@@ -18,14 +19,15 @@ export class SQLItem extends TreeItem {
 }
 
 export class DBItem extends SQLItem {
-    
-    constructor(context: ExtensionContext, public dbPath: string, command?: Command) {
+    private db: Schema.Database;
+    constructor(context: ExtensionContext, db: Schema.Database, command?: Command) {
         super(
-            dbPath,
-            basename(dbPath),
+            db.path,
+            basename(db.path),
             TreeItemCollapsibleState.Collapsed,
             command
         );
+        this.db = db;
 
         this.iconPath = {
             light: context.asAbsolutePath(join('resources', 'light', 'database.svg')),
@@ -35,24 +37,26 @@ export class DBItem extends SQLItem {
         this.contextValue = 'sqlite.databaseItem';
     }
 
+    // @ts-ignore
     get tooltip(): string {
-        return `${this.dbPath}`;
+        return `${this.db.path}`;
     }
 }
 
 export class TableItem extends SQLItem {
-
-    constructor(context: ExtensionContext, name: string, private type: string, command?: Command) {
+    private table: Schema.Table;
+    constructor(context: ExtensionContext, table: Schema.Table, command?: Command) {
         super(
-            name,
-            name,
+            table.name,
+            table.name,
             TreeItemCollapsibleState.Collapsed,
             command
         );
+        this.table = table;
         this.contextValue = 'sqlite.tableItem';
         
         let icon_name = "table.svg";
-        if (this.type === "view") {
+        if (table.type === "view") {
             icon_name = "table_view.svg";
         }
         this.iconPath = {
@@ -61,23 +65,28 @@ export class TableItem extends SQLItem {
         };
     }
 
+    // @ts-ignore
     get tooltip(): string {
         //var dbName = basename(dirname(this.id));
         //var dbNameNoExtension = dbName.substr(0, dbName.lastIndexOf('.')) || dbName;
-        return `${this.name}\n${this.type === "view"? "VIEW" : "TABLE"}`;
+        return `${this.name}\n${this.table.type === "view" ? "VIEW" : "TABLE"}`;
     }
 }
 
 export class ColumnItem extends SQLItem {
-
-    constructor(context: ExtensionContext, name:string, private type: string,
-            private notnull: boolean, private pk: number, private defVal: string, command?: Command) {
+    private column: Schema.Column
+    constructor(context: ExtensionContext, column: Schema.Column, command?: Command) {
+        const name = column.name;
+        const type = column.type;
+        const notnull = column.notnull;
+        const pk = column.pk;
         super(
             name,
             name+` : ${type.toLowerCase()}`,
             TreeItemCollapsibleState.None,
             command
         );
+        this.column = column;
         
         this.contextValue = 'sqlite.columnItem';
 
@@ -90,11 +99,18 @@ export class ColumnItem extends SQLItem {
         };
     }
 
+    // @ts-ignore
     get tooltip(): string {
-        let pkTooltip = this.pk? '\nPRIMARY KEY' : '';
-        let notnullTooltip = this.notnull? '\nNOT NULL' : '';
-        let defvalTooltip = this.defVal !== 'NULL'? `\nDEFAULT: ${this.defVal}` : '';
-        return `${this.name}\n${this.type}${pkTooltip}${notnullTooltip}${defvalTooltip}`;
+        const lines = [];
+        lines.push(this.name);
+        lines.push(this.column.type);
+        if (this.column.pk) lines.push('PRIMARY KEY');
+        if (this.column.notnull) lines.push('NOT NULL');
+        if (this.column.defVal !== 'NULL') lines.push(`DEFAULT: ${this.column.defVal}`);
+        if (this.column.generatedAlways) lines.push('GENERATED ALWAYS')
+        if (this.column.virtual) lines.push('VIRTUAL');
+        if (this.column.stored) lines.push('STORED');
+        return lines.join('\n');
     }
 
 }

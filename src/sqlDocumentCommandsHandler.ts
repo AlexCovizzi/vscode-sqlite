@@ -88,9 +88,10 @@ export class SqlDocumentCommandsHandler
     }
 
     private async onNewQueryInsert(table: Schema.Table): Promise<Uri> {
+        const columnsNotGenerated = table.columns.filter((c) => !c.generatedAlways);
         let contentL0 = `INSERT INTO ${sqlSafeName(
             table.name
-        )} (${table.columns.map((c) => sqlSafeName(c.name)).join(", ")})`;
+        )} (${columnsNotGenerated.map((c) => sqlSafeName(c.name)).join(", ")})`;
         let contentL1 = `VALUES ();`;
         let content = contentL0 + "\n" + contentL1;
         // move the cursor inside the round brackets
