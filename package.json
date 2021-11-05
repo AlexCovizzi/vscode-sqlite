@@ -449,7 +449,7 @@
         "@types/jest": "^26.0.0",
         "@types/node": "^7.10.14",
         "@types/sqlite3": "^3.1.7",
-        "@types/vscode": "1.30.0",
+        "@types/vscode": "^1.61.0",
         "jest": "^26.0.0",
         "sqlite3": "^4.2.0",
         "ts-jest": "^26.0.0",
