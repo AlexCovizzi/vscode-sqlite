@@ -1,26 +1,27 @@
 import { CliDatabase } from "./cliDatabase";
 import { isFileSync } from "../utils/files";
 import { logger } from "../logging/logger";
+import { sqlSafeName } from "../utils/utils";
 
 export type Schema = Schema.Database;
 
 export namespace Schema {
 
-    export interface Item { }
+    export type Item = Database | Table | Column;
 
-    export interface Database extends Schema.Item {
+    export interface Database {
         path: string;
         tables: Schema.Table[];
     }
 
-    export interface Table extends Schema.Item {
+    export interface Table {
         database: string;
         name: string;
         type: string;
         columns: Schema.Column[];
     }
 
-    export interface Column extends Schema.Item {
+    export interface Column {
         database: string;
         table: string;
         name: string;
@@ -28,6 +29,9 @@ export namespace Schema {
         notnull: boolean;
         pk: number;
         defVal: string;
+        generatedAlways: boolean;
+        virtual: boolean;
+        stored: boolean;
     }
 
     export function build(dbPath: string, sqlite3: string, options: { sql: string[] } = { sql: [] }): Promise<Schema.Database> {
@@ -65,36 +69,62 @@ export namespace Schema {
                     return {database: dbPath, name: row[0], type: row[1], columns: [] } as Schema.Table;
                 });
 
-                for(let table of schema.tables) {
-                    let columnQuery = `PRAGMA table_info('${table.name}');`;
-                    database.execute(columnQuery, (rows, err) => {
-                        if (err) {
-                            const msg = `Error retrieving '${table.name}' schema: ${err}`;
-                            logger.warn(msg);
+                async function tryTableInfoPragma(tableInfoPragma: string) {
+                    let ok = false;
+                    const promises = schema.tables.map(async (table) => {
+                        const columnQuery = `PRAGMA ${tableInfoPragma}(${sqlSafeName(table.name)});`;
+                        const rows = await database.executePromise(columnQuery);
+                        if (rows.length < 2) {
                             return;
                         }
-
-                        if (rows.length < 2) return;
-
+                        ok = true;
                         //let tableName = result.stmt.replace(/.+\(\'?(\w+)\'?\).+/, '$1');
                         let header: string[] = rows.shift() || [];
-                        table.columns = rows.map(row => {
-                            return {
-                                database: dbPath,
-                                table: table.name,
-                                name: row[header.indexOf('name')],
-                                type: row[header.indexOf('type')].toUpperCase(),
-                                notnull: row[header.indexOf('notnull')] === '1' ? true : false,
-                                pk: Number(row[header.indexOf('pk')]) || 0,
-                                defVal: row[header.indexOf('dflt_value')]
-                            } as Schema.Column;
-                        });
+                        table.columns = rows
+                            .filter(row => {
+                                return row[header.indexOf('hidden')] !== '1';
+                            })
+                            .map(row => {
+                                const type = row[header.indexOf('type')]
+                                    .toUpperCase()
+                                    .replace(/ ?GENERATED ALWAYS$/, '');
+                                const virtual = row[header.indexOf('hidden')] === '2';
+                                const stored = row[header.indexOf('hidden')] === '3'
+                                const generatedAlways
+                                    = virtual
+                                    || stored
+                                    || / ?GENERATED ALWAYS$/.test(row[header.indexOf('type')].toUpperCase());
+                                return {
+                                    database: dbPath,
+                                    table: table.name,
+                                    name: row[header.indexOf('name')],
+                                    type,
+                                    notnull: row[header.indexOf('notnull')] === '1' ? true : false,
+                                    pk: Number(row[header.indexOf('pk')]) || 0,
+                                    defVal: row[header.indexOf('dflt_value')],
+                                    generatedAlways,
+                                    virtual,
+                                    stored,
+                                } as Schema.Column;
+                            });
                     });
+                    await Promise.all(promises);
+                    return ok;
                 }
-
-                database.close(() => {
-                    resolve(schema);
-                });
+                // The table_xinfo pragma first appeared in SQLite 3.26.0.
+                // Use table_info as fallback.
+                tryTableInfoPragma('table_xinfo')
+                    .then((ok) => {
+                        if (!ok) return tryTableInfoPragma('table_info');
+                    })
+                    .catch((err) => {
+                        logger.warn(err ? err.message || err : 'unknown error');
+                    })
+                    .then(() => {
+                        database.close(() => {
+                            resolve(schema);
+                        });
+                    })
             });
         });
     }

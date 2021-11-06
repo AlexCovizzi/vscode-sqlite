@@ -44,13 +44,13 @@ export class ExplorerTreeProvider implements TreeDataProvider<Schema.Item> {
     getTreeItem(item: Schema.Item): TreeItem {
         if ('tables' in item) {
             // Database
-            return new DBItem(this.context, item.path);
+            return new DBItem(this.context, item);
         } else if ('columns' in item) {
             // Table
-            return new TableItem(this.context, item.name, item.type);
+            return new TableItem(this.context, item);
         } else {
             // Column
-            return new ColumnItem(this.context, item.name, item.type, item.notnull, item.pk, item.defVal);
+            return new ColumnItem(this.context, item);
         }
     }
 
