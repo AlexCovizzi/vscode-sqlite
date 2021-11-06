@@ -1,5 +1,21 @@
 # Change Log
 
+## 0.14.0 (06 Nov 2021)
+
+Added
+
+1. Added support for the new `PRAGMA` command `table_xinfo` ([mandel59](https://github.com/mandel59) \[[PR#193](https://github.com/AlexCovizzi/vscode-sqlite/pull/193)\])
+
+2. Added new keywords to support newer SQLite versions ([mandel59](https://github.com/mandel59) \[[PR#191](https://github.com/AlexCovizzi/vscode-sqlite/pull/191)\])
+
+Fixed
+
+1. Fix bug that caused the table view to not be shown on the new VSCode version (1.61) ([mandel59](https://github.com/mandel59) \[[PR#197](https://github.com/AlexCovizzi/vscode-sqlite/pull/197)\])
+
+Changed
+
+1. Increased minimum supported VSCode version to 1.61.0 ([mandel59](https://github.com/mandel59) \[[PR#197](https://github.com/AlexCovizzi/vscode-sqlite/pull/197)\])
+
 ## 0.13.0 (13 Jun 2021)
 
 Added
