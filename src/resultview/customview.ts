@@ -8,8 +8,6 @@ export interface Message {
 }
 
 export class CustomView extends EventEmitter implements Disposable {
-    private resourceScheme = 'vscode-resource';
-
     private disposable?: Disposable;
 
     private resourcesPath: string;
@@ -36,7 +34,7 @@ export class CustomView extends EventEmitter implements Disposable {
                 <body>
                     <div id="root"></div>
                     <script>const RECORDS_PER_PAGE=${recordsPerPage || 20}</script>
-                    <script src="${(this.panel!.webview as any).asWebviewUri(Uri.file(jsPath)).toString()}"></script>
+                    <script src="${this.panel!.webview.asWebviewUri(Uri.file(jsPath)).toString()}"></script>
                 </body>
             </html>
         `;
@@ -63,7 +61,7 @@ export class CustomView extends EventEmitter implements Disposable {
         let options = {
             enableScripts: true,
             retainContextWhenHidden: true,
-            localResourceRoots: [Uri.file(this.resourcesPath).with({scheme: this.resourceScheme})]
+            localResourceRoots: [Uri.file(this.resourcesPath)]
         };
 
         this.panel = window.createWebviewPanel(this.type, this.title, ViewColumn.Two,

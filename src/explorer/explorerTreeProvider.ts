@@ -17,7 +17,7 @@ export class ExplorerTreeProvider implements TreeDataProvider<Schema.Item> {
     }
     
     refresh(): void {
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     addToTree(database: Schema.Database) {
