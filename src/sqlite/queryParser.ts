@@ -5,6 +5,7 @@ export function extractStatements(query: string): Statement[] {
 
     let statement: Statement|undefined;
     let isStmt = false;
+    let isInternalBlock = false;
     let isString = false;
     let isComment = false;
     let isCommand = false;
@@ -18,6 +19,7 @@ export function extractStatements(query: string): Statement[] {
             let char = line[charIndex];
             let prevChar = charIndex>0? line[charIndex-1] : undefined;
             let nextChar = charIndex<line.length-1? line[charIndex+1] : undefined;
+            let lastWord = (n: number) => line.substring(charIndex-n+1, charIndex+1)
 
             if (isStmt) {
                 if (statement) statement.sql += char;
@@ -28,7 +30,13 @@ export function extractStatements(query: string): Statement[] {
                 } else if (!isString && char === '/' && nextChar === '*') {
                     isComment = true;
                     commentChar = '/';
-                } else if (!isString && !isComment && char === ';') {
+                } else if (!isString && !isComment && lastWord(5).toLowerCase() === "begin") {
+                    isInternalBlock = true;
+                } else if (!isString && !isComment && lastWord(3).toLowerCase() === "end") {
+                    isInternalBlock = false;
+                } else if (!isString && !isComment && isInternalBlock && lastWord(11).toLowerCase() === "transaction") {
+                    isInternalBlock = false;
+                } else if (!isString && !isComment && !isInternalBlock && char === ';') {
                     isStmt = false;
                     if (statement) {
                         statement.position.end = [lineIndex, charIndex];
