@@ -44,7 +44,7 @@ export namespace Schema {
             } as Schema.Database;
 
             const tablesQuery = `SELECT name, type FROM sqlite_master
-                                WHERE (type="table" OR type="view")
+                                WHERE (type='table' OR type='view')
                                 AND name <> 'sqlite_sequence'
                                 AND name <> 'sqlite_stat1'
                                 ORDER BY type ASC, name ASC;`;
