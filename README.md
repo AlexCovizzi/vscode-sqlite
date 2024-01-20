@@ -1,4 +1,6 @@
-# vscode-sqlite
+# vscode-sqlite (unmaintained)
+
+**Note: The project has been unmaintained since mid 2022 and it will not receive any new updates. The extension should still work in most cases, however the embedded SQLite is out of date and it may not have some of the newer features, in that case you can provide your own SQLite (see `sqlite.sqlite3` setting).**
 
 VSCode extension to explore and query SQLite databases.
 
