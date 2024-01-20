@@ -110,5 +110,33 @@ describe("QueryParser Tests", function () {
         expect(actual.map(s => s.sql)).toEqual(expected);
     });
 
+    test("should parse query with TRIGGER and SELECT (issue #210)", function() {
+        let query = `CREATE TRIGGER newWidgetSale BEFORE UPDATE ON widgetSale
+        BEGIN
+            SELECT RAISE(ROLLBACK, 'cannot update table "widget sale"') FROM widgetSale WHERE id = NEW.id and reconciled = 1;
+        END
+        ;`
+
+        let actual = queryParser.extractStatements(query);
+        let expected = [query];
+
+        expect(actual.map(s => s.sql)).toEqual(expected);
+    });
+
+    test("should parse query with transaction", function() {
+        let query = `BEGIN TRANSACTION; -- start
+        SELECT RAISE(ROLLBACK, 'cannot update table "widget sale"') FROM widgetSale WHERE id = NEW.id and reconciled = 1;
+        END TRANSACTION;`
+
+        let actual = queryParser.extractStatements(query);
+        let expected = [
+            "BEGIN TRANSACTION;",
+            "SELECT RAISE(ROLLBACK, 'cannot update table \"widget sale\"') FROM widgetSale WHERE id = NEW.id and reconciled = 1;",
+            "END TRANSACTION;"
+        ];
+
+        expect(actual.map(s => s.sql)).toEqual(expected);
+    });
+
 
 });

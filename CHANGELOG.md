@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.14.1 (04 Jun 2022)
+
+Fixed
+
+1. Fixed bug in the SQL parser that caused queries with `CREATE TRIGGER` to be parsed incorrectely ([#210](https://github.com/AlexCovizzi/vscode-sqlite/issues/210))
+
 ## 0.14.0 (06 Nov 2021)
 
 Added
